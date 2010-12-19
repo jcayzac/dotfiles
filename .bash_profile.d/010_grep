@@ -1,0 +1,5 @@
+#!/bin/bash
+
+export GREP_COLOR="01" # match gets bold
+alias grep='grep --color'
+
