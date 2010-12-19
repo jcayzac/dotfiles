@@ -25,7 +25,7 @@ z "37;41" "su"
 z "30;43" "sg"
 z "30;41" "ca"
 z "30;42" "tw"
-z 3"4;42" "ow"
+z "34;42" "ow"
 z "37;44" "st"
 z "01;32" "ex"
 # archive types
@@ -36,7 +36,10 @@ z "01;31" '*.iso' '*.dmg' '*.img' '*.toast' '*.sparseimage' '*.sparsebundle'
 z "01;35" '*.jpg' '*.png' '*.svg' '*.svgz' '*.mov' '*.qt'  '*.mpg' '*.mpeg' '*.m2v' '*.vob' '*.m4v' '*.m4a' \
           '*.mp3' '*.mp4' '*.mkv' '*.ogm'  '*.ogg' '*.wmv' '*.asf' '*.avi'  '*.aac' '*.wav' '*.pvr'
 export LS_COLORS="$(for x in "${!colors[@]}"; do echo -n "$x=${colors[$x]}:"; done)"
-alias ls="gls --color=auto --show-control-chars"
 
+if which gls >/dev/null 2>&1
+then
+	alias ls="gls --color=auto --show-control-chars"
+fi
 unset colors z
 
