@@ -1,0 +1,14 @@
+[push]
+	default = current
+[color]
+	status = auto
+	diff = auto
+[gc]
+	auto = 1
+[format]
+	pretty = fuller
+[alias]
+	browser = instaweb -d webrick
+	backlog = log --graph --pretty=format:'%Cred%h%Creset %s %Cgreen(%cr)%Creset%C(yellow)%d%Creset' --abbrev-commit
+	undo    = !git reset --hard && git ls-files -d -z | xargs -0 git rm --ignore-unmatch && git clean -fq
+
