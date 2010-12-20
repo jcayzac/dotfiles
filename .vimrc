@@ -10,4 +10,6 @@ set list
 
 "set lcs=tab:__,trail:░,extends:>,precedes:<,nbsp:&
 set lcs=tab:\ \ ,trail:░
+set t_Co=256
+set background=dark
 :colorscheme ir_black
