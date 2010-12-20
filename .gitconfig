@@ -1,8 +1,7 @@
 [push]
 	default = current
 [color]
-	status = auto
-	diff = auto
+	ui = auto
 [merge]
 	tool = vimdiff
 [gc]
@@ -12,4 +11,4 @@
 [alias]
 	browser = instaweb -d webrick
 	backlog = log --graph --pretty=format:'%C(white red bold) %h %Creset %C(cyan)%cn%Creset %s %Cgreen(%cr)%Creset%C(yellow)%d%Creset' --abbrev-commit
-
+	shortlog = !git backlog -n10
