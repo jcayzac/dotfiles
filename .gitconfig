@@ -3,6 +3,8 @@
 [color]
 	status = auto
 	diff = auto
+[merge]
+	tool = vimdiff
 [gc]
 	auto = 1
 [format]
