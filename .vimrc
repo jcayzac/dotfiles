@@ -4,10 +4,8 @@ set paste
 set number
 set ruler
 set hlsearch
-" Grrr... autovisual mode messes with macos copy
-" set mouse=a
-" ...and disabling it disables selection in the terminal either!
-" set mouse=nicr
+" If you want to select text, in iTerm2, press Alt (or fn+option) before selecting it
+set mouse=nicr
 :map Q <Nop>
 syntax enable
 set tabstop=4 softtabstop=4 shiftwidth=4 noexpandtab
