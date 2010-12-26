@@ -10,3 +10,6 @@ bind '"\e[6~": history-search-forward'
 # disable logging for argument-less ls and cd, pwd, exit, fg, bg…
 export HISTIGNORE="&:ls:cd:pwd:[bf]g:exit"
 
+# erase duplicates of the last line
+export HISTCONTROL="erasedups"
+
