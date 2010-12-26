@@ -1,5 +1,9 @@
 #!/usr/bin/env bash
 
+# save multiline commands in history
+shopt -s cmdhist
+
+# bind PgUp/PgDn
 bind '"\e[5~": history-search-backward'
 bind '"\e[6~": history-search-forward'
 
