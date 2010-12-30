@@ -2,8 +2,12 @@
 	default = current
 [color]
 	ui = auto
+[mergetool "diffmerge"]
+	cmd = diffmerge --merge --result=$MERGED $LOCAL $BASE $REMOTE
+	trustExitCode = false
 [merge]
-	tool = vimdiff
+	#tool = vimdiff
+	tool = diffmerge
 [gc]
 	auto = 1
 [format]
