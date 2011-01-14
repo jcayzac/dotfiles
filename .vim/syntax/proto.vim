@@ -72,6 +72,7 @@ syn match   pbFloat   /\<-\?\d*\(\.\d*\)\?/
 " TODO: .proto also supports C-style block comments;
 " see /usr/share/vim/vim70/syntax/c.vim for how it's done.
 syn region  pbComment start="//" skip="\\$" end="$" keepend contains=@pbCommentGrp
+syn region	pbComment2 start="/\*" end="\*/" contains=@pbCommentGrp
 syn region  pbString  start=/"/ skip=/\\"/ end=/"/
 syn region  pbString  start=/'/ skip=/\\'/ end=/'/
 
@@ -98,6 +99,7 @@ if version >= 508 || !exists("did_proto_syn_inits")
   HiLink pbInt          Number
   HiLink pbFloat        Float
   HiLink pbComment      Comment
+  HiLink pbComment2		Comment
   HiLink pbString       String
 
   delcommand HiLink
