@@ -17,4 +17,4 @@ config.log
 *.bak
 *.o
 *~
-
+.netrwhist
