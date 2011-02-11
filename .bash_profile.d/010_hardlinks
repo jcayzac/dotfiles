@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+
+function hardlinks() {
+	# Usage: hardlinks <file> [dir] [extra find arguments]
+	local FN="$1" DIR="$2"
+	shift
+	if [ -d "$DIR" ]
+	then
+		shift
+	else
+		DIR='.'
+	fi
+	local $(stat -s "$FN")
+	find "$DIR" -inum $st_ino $@
+}
+
