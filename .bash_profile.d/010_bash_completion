@@ -2,6 +2,13 @@
 
 if [ -r /opt/local/etc/bash_completion ]
 then
+	if [ ! -r /opt/local/etc/bash_completion.d/android ]
+	then
+		echo "Installing android module for bash-completion"
+		sudo curl 'https://github.com/mbrubeck/android-completion/raw/master/android' \
+		--output /opt/local/etc/bash_completion.d/android
+	fi
+
 	. /opt/local/etc/bash_completion
 
 	# protect bash completion functions from being overwritten
