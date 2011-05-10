@@ -28,6 +28,12 @@ syntax enable
 " fuck spaces, we want tabs!
 set tabstop=4 softtabstop=4 shiftwidth=4 noexpandtab
 
+" persistent undo
+set undodir=~/.vim/undodir
+set undofile
+set undolevels=1000 "maximum number of changes that can be undone
+set undoreload=10000 "maximum number lines to save for undo on a buffer reload
+
 " display control characters
 set list
 set lcs=tab:\ \ ,trail:\ 
@@ -40,4 +46,3 @@ set lcs=tab:\ \ ,trail:\
 :match ExtraWhitespace /\s\+\%#\@<!$/
 
 autocmd BufWinLeave * call clearmatches()
-
