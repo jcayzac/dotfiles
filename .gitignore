@@ -18,3 +18,8 @@ config.log
 *.o
 *~
 .netrwhist
+*.xcuserdatad/*
+
+/.vim/undodir
+/.android
+
