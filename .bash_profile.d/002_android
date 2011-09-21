@@ -1,5 +1,5 @@
 #!/bin/bash
 export ANDROID_HOME="/Applications/Android/SDK/android-sdk-mac_x86"
-export ANDROID_NDK="/Applications/Android/NDK/android-ndk-r5b"
+export ANDROID_NDK="/Applications/Android/NDK/android-ndk-r6b"
 export PATH="${ANDROID_HOME}/tools:${ANDROID_HOME}/platform-tools:${ANDROID_NDK}:${PATH}"
 
