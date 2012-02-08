@@ -3,3 +3,5 @@ export LANG="en_US.UTF-8"
 export PS1='\[\033[01;32m\]\u\[\033[01;34m\] \w \[\033[0m'
 ulimit -S -n 10240
 
+#export CC="/opt/local/bin/gcc"
+

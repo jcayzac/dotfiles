@@ -26,3 +26,6 @@
 	pull-modules-recursive = "!git submodule foreach \"git pull origin master; git submodule foreach 'git pull-modules-recursive'\""
 	tarball = !git archive HEAD --format=tar | bzip2 > "$(git rev-parse --git-dir)/../snapshot-$(git last).tar.bz2"
 
+[user]
+	name = Julien Cayzac
+	email = julien.cayzac@gmail.com
