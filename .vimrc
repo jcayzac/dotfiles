@@ -7,6 +7,10 @@ set backspace=indent,eol,start
 " fuck insert, I want to paste!
 set paste
 
+" defaults to UTF-8
+set fileencoding=utf-8
+set encoding=utf-8
+
 " visual hints: line numbers, ruler and highlighted search results
 set number
 set ruler
