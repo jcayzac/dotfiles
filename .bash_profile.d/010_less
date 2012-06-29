@@ -31,25 +31,25 @@ function check_install_source_highlight_lesspipe_style() {
 		function white b;
 		cbracket red;
 		variable darkgreen;
-		
+
 		// line numbers
 		linenum yellow;
-		
+
 		// other elements for ChangeLog and Log files
 		date blue;
 		time darkblue;
 		ip darkgreen;
 		file darkblue;
 		name darkgreen;
-		
+
 		// Internet related
 		url blue u;
-		
+
 		// for diffs
 		oldfile orange;
 		newfile darkgreen;
 		difflines blue;
-		
+
 		// for css
 		selector purple;
 		property blue;
@@ -91,7 +91,7 @@ function check_install_source_highlight_lesspipe_sh() {
 # add some colors to man pages
 export LESS_TERMCAP_us=$'\E[01;32m' LESS_TERMCAP_ue=$'\e[0m'
 export LESS_TERMCAP_md=$'\e[01m'    LESS_TERMCAP_me=$'\e[0m'
-export LESS='-FXNS'
+export LESS='-FXNSR'
 
 # …and then add some to other files as well
 if check_install_source_highlight

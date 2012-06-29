@@ -1,7 +1,7 @@
 [push]
 	default = current
 [color]
-	ui = auto
+	ui = true
 [mergetool "diffmerge"]
 	cmd = diffmerge --merge --result=$MERGED $LOCAL $BASE $REMOTE
 	trustExitCode = false

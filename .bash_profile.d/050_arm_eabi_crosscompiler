@@ -1,9 +1,0 @@
-#!/usr/bin/env bash
-
-# See https://github.com/jsnyder/arm-eabi-toolchain
-export ARM_EABI_PATH="$HOME/arm-cs-tools/bin"
-if [ -d "$ARM_EABI_PATH" ]
-then
-	export PATH="$ARM_EABI_PATH:$PATH"
-fi
-
