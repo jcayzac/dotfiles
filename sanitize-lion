@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+
+# Disable Resume in Preview and QuickTime Player
+defaults write com.apple.Preview NSQuitAlwaysKeepsWindows -bool false
+defaults write com.apple.QuickTimePlayerX NSQuitAlwaysKeepsWindows -bool false
+
+# Disable rubber-band scrolling
+defaults write -g NSScrollViewRubberbanding -bool false
+
