@@ -29,3 +29,5 @@
 [user]
 	name = Julien Cayzac
 	email = julien.cayzac@gmail.com
+[core]
+	filemode = true
