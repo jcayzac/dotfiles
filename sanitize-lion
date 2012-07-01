@@ -1,0 +1,37 @@
+#!/usr/bin/env bash
+
+# Give me Library back!
+chflags nohidden ~/Library
+
+# Disable Resume
+defaults write -g NSQuitAlwaysKeepsWindows -bool false
+
+# Disable rubber-band scrolling
+defaults write -g NSScrollViewRubberbanding -bool false
+
+# Disable automatic termination of inactive apps
+defaults write -g NSDisableAutomaticTermination -bool true
+
+# Trackpad: enable tap to click for this user and for the login screen
+defaults write com.apple.driver.AppleBluetoothMultitouch.trackpad Clicking -bool true
+defaults -currentHost write -g com.apple.mouse.tapBehavior -int 1
+defaults              write -g com.apple.mouse.tapBehavior -int 1
+
+# Enable subpixel font rendering on non-Apple LCDs
+defaults write -g AppleFontSmoothing -int 2
+
+# Deactivate dashboard
+defaults write com.apple.dashboard mcx-disabled -bool true
+
+# Add recent apps to the doc
+if ! defaults read com.apple.dock persistent-others | grep '"recents-tile"' >/dev/null 2>&1
+then
+	defaults write com.apple.dock persistent-others -array-add '{ "tile-data" = { "list-type" = 1; }; "tile-type" = "recents-tile"; }'
+fi
+
+# Expose hidden tools
+[ -d /Applications/Utilities/Wi-Fi\ Diagnostics.app ] || (
+	cd /Applications/Utilities
+	sudo ln -s /System/Library/CoreServices/Wi-Fi\ Diagnostics.app
+)
+
