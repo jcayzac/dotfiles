@@ -49,4 +49,7 @@ set lcs=tab:\ \ ,trail:\
 :hi ExtraWhitespace ctermbg=237 guibg=#3a3a3a
 :match ExtraWhitespace /\s\+\%#\@<!$/
 
+" prevent objc blocks' curly brackets to show up as errors
+let c_no_curly_error = 1
+
 autocmd BufWinLeave * call clearmatches()

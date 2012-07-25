@@ -19,7 +19,7 @@
 	browser = open
 [alias]
 	browser = instaweb
-	backlog = log --graph --pretty=format:'%C(white red bold) %h %Creset %C(cyan)%cn%Creset %s %Cgreen(%cr)%Creset%C(yellow)%d%Creset' --abbrev-commit
+	backlog = log --graph --pretty=format:'%C(white red bold) %h %Creset %C(cyan)%cn%Creset %s %Cgreen(%cr)%Creset%C(yellow)%d%Creset' --abbrev-commit --no-merges
 	shortlog = !git backlog -n10
 	last = rev-list --max-count=1 HEAD
 	init-modules-recursive = "!git submodule init; git submodule update; git submodule foreach 'git init-modules-recursive'"

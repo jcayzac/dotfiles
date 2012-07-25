@@ -15,6 +15,7 @@ config.log
 *.ipa
 *.swp
 *.bak
+*.local
 *.o
 *~
 .netrwhist
