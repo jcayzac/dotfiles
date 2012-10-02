@@ -2,18 +2,35 @@
 
 if which git >/dev/null 2>&1
 then
-	if type __git_ps1 >/dev/null 2>&1
+	if ! type __git_complete >/dev/null 2>&1
 	then
-		export PS1=${PS1}'\[\033[01;33m\]$(__git_ps1 "[%s] ")\[\033[00m\]'
-		export GIT_PS1_SHOWDIRTYSTATE=1 GIT_PS1_SHOWSTASHSTATE=1 GIT_PS1_SHOWUNTRACKEDFILES=1 GIT_PS1_SHOWUPSTREAM="auto"
-	else
-		echo -e "\033[01;33mWARNING:\033[0m git hasn't been installed with bash-completion support. To reinstall it,"
-		if ! which port >/dev/null 2>&1
+		if [ -f /opt/local/share/bash-completion/completions/git ]
 		then
-			echo "first install macports, then:"
+			. /opt/local/share/bash-completion/completions/git
+		else
+			echo -e "\033[01;33mWARNING:\033[0m git hasn't been installed with bash-completion support. To reinstall it,"
+			if ! which port >/dev/null 2>&1
+			then
+				echo "first install macports, then:"
+			fi
+			echo "    sudo port install git-core +bash_completion"
+			echo
+			return
 		fi
-		echo "    sudo port install git-core +bash_completion"
-		echo
 	fi
-fi
 
+	if ! type __git_ps1 >/dev/null 2>&1
+	then
+		if [ -f /opt/local/share/git-core/git-prompt.sh ]
+		then
+			. /opt/local/share/git-core/git-prompt.sh
+		else
+			echo -e "\033[01;33mWARNING:\033[0m Can't find /opt/local/share/git-core/git-prompt.sh"
+			echo
+			return
+		fi
+	fi
+
+	export PS1=${PS1}'\[\033[01;33m\]$(__git_ps1 "[%s] ")\[\033[00m\]'
+	export GIT_PS1_SHOWDIRTYSTATE=1 GIT_PS1_SHOWSTASHSTATE=1 GIT_PS1_SHOWUNTRACKEDFILES=1 GIT_PS1_SHOWUPSTREAM="auto"
+fi
