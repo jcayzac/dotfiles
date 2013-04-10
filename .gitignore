@@ -1,26 +1,54 @@
 .svn
-.DS_Store
 .deps
 .libs
 autom4te.cache
 config.cache
 config.status
 config.log
-*.pbxuser
-*.mode1v3
-*.mode2v3
-*.pbxuser
-*.perspective
-*.perspectivev3
-*.ipa
 *.swp
 *.bak
 *.local
-*.o
 *~
 .netrwhist
-*.xcuserdatad/*
-
+.DS_Store
 /.vim/undodir
-/.android
+
+# Xcode
+*.ipa
+build
+*.pbxuser
+!default.pbxuser
+*.mode1v3
+!default.mode1v3
+*.mode2v3
+!default.mode2v3
+*.perspectivev3
+!default.perspectivev3
+xcuserdata
+profile
+*.moved-aside
+DerivedData
+.idea/
+*.hmap
+
+# Node
+npm-debug.log
+node_modules
+
+# Compiled Object files
+*.slo
+*.lo
+*.o
+
+# Compiled Dynamic libraries
+*.dll
+*.so
+*.so.*
+*.dylib
+
+# Compiled Static libraries
+*.lib
+*.lai
+*.la
+*.a
 
