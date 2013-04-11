@@ -17,13 +17,14 @@
 	httpd = webrick
 	port = 54321
 	browser = open
+[log]
+	date = iso
 [alias]
 	browser = instaweb
-	backlog = log --graph --pretty=format:'%C(white red bold) %h %Creset %C(cyan)%cn%Creset %s %Cgreen(%cr)%Creset%C(yellow)%d%Creset' --abbrev-commit --no-merges
-	shortlog = !git backlog -n10
+	backlog = log --graph --pretty=format:'%C(white red bold) %h %Creset %C(cyan)%an%Creset %s %Cgreen(%cd)%Creset%C(yellow)%d%Creset' --abbrev-commit --no-merges
+	tinylog = !git backlog -n10
 	last = rev-list --max-count=1 HEAD
-	init-modules-recursive = "!git submodule init; git submodule update; git submodule foreach 'git init-modules-recursive'"
-	pull-modules-recursive = "!git submodule foreach \"git pull origin master; git submodule foreach 'git pull-modules-recursive'\""
+	remodule = submodule update --init --recursive --force
 	tarball = !git archive HEAD --format=tar | bzip2 > "$(git rev-parse --git-dir)/../snapshot-$(git last).tar.bz2"
 
 [user]
@@ -31,3 +32,4 @@
 	email = julien.cayzac@gmail.com
 [core]
 	filemode = true
+	pager = less -FXnSR

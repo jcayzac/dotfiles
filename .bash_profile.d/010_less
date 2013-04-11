@@ -89,17 +89,24 @@ function check_install_source_highlight_lesspipe_sh() {
 }
 
 # add some colors to man pages
-export LESS_TERMCAP_us=$'\E[01;32m' LESS_TERMCAP_ue=$'\e[0m'
-export LESS_TERMCAP_md=$'\e[01m'    LESS_TERMCAP_me=$'\e[0m'
-export LESS='-FXNSR'
+export \
+	LESS_TERMCAP_us=$'\E[01;32m' \
+	LESS_TERMCAP_ue=$'\e[0m' \
+	LESS_TERMCAP_md=$'\e[01m' \
+	LESS_TERMCAP_me=$'\e[0m' \
+	LESS='-FXRSN~g'
 
 # …and then add some to other files as well
 if check_install_source_highlight
 then
 	check_install_source_highlight_lesspipe_style && \
 	check_install_source_highlight_lesspipe_sh && \
-	export LESSOPEN="| '${HOME}/.source-highlight/lesspipe.sh' %s" LESS=${LESS}' -R' || \
+	export LESSOPEN="| '${HOME}/.source-highlight/lesspipe.sh' %s" || \
 	echo -e "\033[01;33mWARNING:\033[0m Couldn't install source-highlight script for less in ~/.source-highlight"
 fi
 
-unset check_install_source_highlight check_install_source_highlight_lesspipe_style check_install_source_highlight_lesspipe_sh
+unset \
+	check_install_source_highlight \
+	check_install_source_highlight_lesspipe_style \
+	check_install_source_highlight_lesspipe_sh
+

@@ -28,6 +28,7 @@ z "30;42" "tw"
 z "34;42" "ow"
 z "37;44" "st"
 z "01;32" "ex"
+z "01;36" "mh"
 # archive types
 z "01;31" '*.tar' '*.tgz' '*.zip' '*.gz' '*.bz2' '*.tbz' '*.tbz2' '*.7z' '*.rar' '*.rpm' '*.pkg' '*.jar'
 # disk images
