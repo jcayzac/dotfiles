@@ -1,0 +1,15 @@
+{
+	"auto_upgrade_last_run": null,
+	"installed_packages":
+	[
+		"LESS",
+		"MarkdownEditing",
+		"Package Control",
+		"sublime-github"
+	],
+	"repositories":
+	[
+		"https://github.com/revolunet/sublimetext-markdown-preview",
+		"https://github.com/ttscoff/MarkdownEditing"
+	]
+}

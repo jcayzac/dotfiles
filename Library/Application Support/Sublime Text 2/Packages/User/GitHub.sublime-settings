@@ -1,0 +1,16 @@
+{
+	"accounts":
+	{
+		"GREE":
+		{
+			"base_uri": "https://git.gree-dev.net/api/v3",
+			"github_token": "4a252e30668088f5e7cf8d9021c79cbeca87deed"
+		},
+		"GitHub":
+		{
+			"base_uri": "https://api.github.com",
+			"github_token": ""
+		}
+	},
+	"active_account": "GREE"
+}

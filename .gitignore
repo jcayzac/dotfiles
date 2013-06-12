@@ -39,6 +39,7 @@ node_modules
 *.slo
 *.lo
 *.o
+*.pyc
 
 # Compiled Dynamic libraries
 *.dll
