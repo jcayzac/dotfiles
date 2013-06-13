@@ -1,6 +1,6 @@
 {
 	"auto_complete_selector": "source - comment, meta.tag - punctuation.definition.tag.begin",
-	"color_scheme": "Packages/Color Scheme - Default/Railscasts.tmTheme",
+	"color_scheme": "Packages/RailsCasts Colour Scheme/RailsCastsColorScheme.tmTheme",
 	"font_face": "Menlo",
 	"font_size": 17.0,
 	"ignored_packages":
