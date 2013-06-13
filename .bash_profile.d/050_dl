@@ -1,0 +1,5 @@
+
+dl() {
+	aria2c -x5 --http-accept-gzip=true --use-head=true ${1+"$@"}
+}
+
