@@ -43,7 +43,11 @@ set list
 set lcs=tab:\ \ ,trail:\ 
 
 " enable nice color scheme
+set background=dark
 :colorscheme ir_black
+"colorscheme molokai
+highlight ColorColumn ctermbg=7
+highlight ColorColumn guibg=Gray
 
 " display trailing spaces in dark grey
 :hi ExtraWhitespace ctermbg=237 guibg=#3a3a3a
