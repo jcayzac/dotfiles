@@ -1,3 +1,5 @@
+execute pathogen#infect()
+
 " vi sucks
 set nocompatible
 
@@ -28,6 +30,7 @@ set mouse=nicr
 
 " syntax highlighting
 syntax enable
+filetype plugin indent on
 
 " fuck spaces, we want tabs!
 set tabstop=4 softtabstop=4 shiftwidth=4 noexpandtab
