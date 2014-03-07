@@ -1,0 +1,4 @@
+#!/usr/bin/env lldb
+
+command script import "${HOME}/.lldb/plugins/chisel"
+

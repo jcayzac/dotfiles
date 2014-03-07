@@ -4,3 +4,6 @@
 [submodule ".vim/bundle/vim-flavored-markdown"]
 	path = .vim/bundle/vim-flavored-markdown
 	url = https://github.com/jtratner/vim-flavored-markdown.git
+[submodule ".lldb/plugins/chisel"]
+	path = .lldb/plugins/chisel
+	url = https://github.com/facebook/chisel.git
