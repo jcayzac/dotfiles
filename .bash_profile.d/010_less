@@ -1,17 +1,17 @@
 #!/bin/bash
 
 function check_install_source_highlight() {
-	if ! which source-highlight >/dev/null 2>&1
-	then
-		echo -e "\033[01;33mWARNING:\033[0m source-highlight was not found. To install it,"
-		if ! which port >/dev/null 2>&1
+	for N in pandoc source-highlight
+	do
+		if ! which $N >/dev/null 2>&1
 		then
-			echo "first install macports, then:"
+			echo -e "\033[01;33mWARNING:\033[0m $N was not found. To install it,"
+			which port >/dev/null 2>&1 || echo "first install macports, then:"
+			echo "    sudo port install $N"
+			echo
+			return 1
 		fi
-		echo "    sudo port install source-highlight"
-		echo
-		return 1
-	fi
+	done
 }
 
 function check_install_source_highlight_lesspipe_style() {
@@ -67,10 +67,14 @@ function check_install_source_highlight_lesspipe_sh() {
 	then
 		mkdir -p "${HOME}/.source-highlight" && \
 		cat >"${HOME}/.source-highlight/lesspipe.sh" <<-EOT
-		#! /bin/sh
+		#!/usr/bin/env bash
+		set -e -u -o pipefail
 		for x
 		do
 			case "\$x" in
+				*.[mM]arkdown|*.md)
+					pandoc -s -f markdown -t man README.md | groff -T utf8 -man -
+					exit 0;;
 				*ChangeLog|*changelog)
 					o='--lang-def=changelog.lang';;
 				*Makefile|*makefile)
