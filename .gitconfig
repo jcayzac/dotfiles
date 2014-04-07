@@ -32,9 +32,6 @@
 	reinit = !git clean -fdx && git submodule foreach --recursive git clean -fdx && git reset --hard && git submodule foreach --recursive git reset --hard && git remodule
 	tarball = !git archive HEAD --format=tar | bzip2 > "$(git rev-parse --git-dir)/../snapshot-$(git last).tar.bz2"
 	snapshot = !git stash save --include-untracked "snapshot: $(date -u +'%Y-%m-%d %H:%M:%S')" && git stash apply "stash@{0}"
-[user]
-	name = Julien Cayzac
-	email = julien.cayzac@gmail.com
 [core]
 	filemode = true
 	pager = less -FXnSR
