@@ -1,3 +1,7 @@
+# dotfiles repo specific
+.irssi/deepmind.pem
+
+# Shit
 .svn
 .deps
 .libs
@@ -15,7 +19,7 @@ config.log
 
 # Xcode
 *.ipa
-build
+build/**
 *.pbxuser
 !default.pbxuser
 *.mode1v3
