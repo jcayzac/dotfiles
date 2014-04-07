@@ -1,5 +1,6 @@
-#!/bin/bash
-export ANDROID_HOME="/Applications/Android/SDK/android-sdk-mac_x86"
-export ANDROID_NDK="/Applications/Android/NDK/android-ndk-r6b"
-export PATH="${ANDROID_HOME}/tools:${ANDROID_HOME}/platform-tools:${ANDROID_NDK}:${PATH}"
+#!/usr/bin/env bash
+export ANDROID_HOME="/Applications/Android Studio.app/sdk" \
+       ANDROID_NDK_HOME="${HOME}/.prefix/opt/android-ndk" \
+       PATH="$PATH:${ANDROID_HOME}/platform-tools:${ANDROID_HOME}/tools:${ANDROID_NDK_HOME}"
+
 
