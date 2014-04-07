@@ -1,4 +1,4 @@
 #!/usr/bin/env lldb
 
-command script import "${HOME}/.lldb/plugins/chisel"
+command script import "~/.lldb/plugins/chisel/fblldb.py"
 
