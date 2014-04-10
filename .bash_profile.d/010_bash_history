@@ -1,5 +1,3 @@
-#!/usr/bin/env bash
-
 # save multiline commands in history
 shopt -s cmdhist
 
@@ -13,3 +11,4 @@ export HISTIGNORE="&:ls:cd:pwd:[bf]g:exit"
 # erase duplicates of the last line
 export HISTCONTROL="erasedups"
 
+# ex: noet ci pi sts=0 sw=4 ts=4 filetype=sh

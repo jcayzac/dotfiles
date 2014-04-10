@@ -1,5 +1,3 @@
-#!/bin/bash
-
 declare -A colors
 function z() {
 	local col="$1"
@@ -44,3 +42,4 @@ then
 fi
 unset colors z
 
+# ex: noet ci pi sts=0 sw=4 ts=4 filetype=sh

@@ -1,3 +1,4 @@
 export GEM_HOME="${HOME}/.gems"
 export PATH="${GEM_HOME}/bin:${PATH}"
 
+# ex: noet ci pi sts=0 sw=4 ts=4 filetype=sh

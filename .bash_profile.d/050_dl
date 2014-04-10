@@ -1,5 +1,5 @@
-
 dl() {
 	aria2c -x5 --http-accept-gzip=true --use-head=true ${1+"$@"}
 }
 
+# ex: noet ci pi sts=0 sw=4 ts=4 filetype=sh

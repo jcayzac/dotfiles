@@ -1,4 +1,0 @@
-#!/usr/bin/env bash
-
-export SBT_OPTS=" -XX:+CMSPermGenSweepingEnabled -XX:+CMSClassUnloadingEnabled -Xmx4G -Xms2G -Xss1M -XX:MaxPermSize=3G -XX:ReservedCodeCacheSize=192m -Duser.timezone=JST"
-

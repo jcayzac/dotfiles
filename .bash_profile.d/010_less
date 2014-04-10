@@ -1,14 +1,12 @@
-#!/bin/bash
-
 function check_install_source_highlight() {
 	for N in pandoc source-highlight
 	do
 		if ! which $N >/dev/null 2>&1
 		then
-			echo -e "\033[01;33mWARNING:\033[0m $N was not found. To install it,"
+			echo -e "\n\033[01;33mWARNING:\033[0m $N was not found. To install it,"
 			which port >/dev/null 2>&1 || echo "first install macports, then:"
 			echo "    sudo port install $N"
-			echo
+			echo -e "\033[01;34m"
 			return 1
 		fi
 	done
@@ -106,7 +104,7 @@ then
 	check_install_source_highlight_lesspipe_style && \
 	check_install_source_highlight_lesspipe_sh && \
 	export LESSOPEN="| '${HOME}/.source-highlight/lesspipe.sh' %s" || \
-	echo -e "\033[01;33mWARNING:\033[0m Couldn't install source-highlight script for less in ~/.source-highlight"
+	echo -e "\n\033[01;33mWARNING:\033[0m Couldn't install source-highlight script for less in ~/.source-highlight\033[01;34m"
 fi
 
 unset \
@@ -114,3 +112,4 @@ unset \
 	check_install_source_highlight_lesspipe_style \
 	check_install_source_highlight_lesspipe_sh
 
+# ex: noet ci pi sts=0 sw=4 ts=4 filetype=sh

@@ -1,0 +1,3 @@
+/usr/bin/find "$HOME/Library" -flags hidden -maxdepth 0 -exec /usr/bin/chflags nohidden "{}" +
+
+# ex: noet ci pi sts=0 sw=4 ts=4 filetype=sh

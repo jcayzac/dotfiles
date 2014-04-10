@@ -1,5 +1,3 @@
-#!/usr/bin/env bash
-
 _prefix="${HOME}/.prefix/bin"
 _newPath="${PATH//$_prefix/}"
 _newPath="${_newPath//::/:}"
@@ -7,3 +5,4 @@ export PATH="$_prefix:$_newPath"
 
 unset _prefix _newPath
 
+# ex: noet ci pi sts=0 sw=4 ts=4 filetype=sh
