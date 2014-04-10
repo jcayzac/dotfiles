@@ -1,8 +1,7 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
-# we use the 4.3 fix for now
-#if [ -r /opt/local/etc/bash_completion ]
-#then
-#	. /opt/local/etc/bash_completion
-#fi
+if [ -r /opt/local/etc/profile.d/bash_completion.sh ]
+then
+	. /opt/local/etc/profile.d/bash_completion.sh
+fi
 
