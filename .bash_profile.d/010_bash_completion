@@ -1,7 +1,8 @@
 #!/bin/bash
 
-if [ -r /opt/local/etc/bash_completion ]
-then
-	. /opt/local/etc/bash_completion
-fi
+# we use the 4.3 fix for now
+#if [ -r /opt/local/etc/bash_completion ]
+#then
+#	. /opt/local/etc/bash_completion
+#fi
 
