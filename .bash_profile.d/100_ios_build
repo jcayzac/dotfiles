@@ -1,0 +1,54 @@
+export IOS_BUILD_JOBS=16
+export IOS_BUILD_SIMULATOR_NAME='iPhone Retina (3.5-inch)'
+export IOS_BUILD_SIMULATOR_OS='7.1'
+
+ios-build() {
+	declare scheme="$1"
+	rm -rf ~/Library/Developer/Xcode/DerivedData/*
+	(
+		set -e -o pipefail
+
+		xcodebuild \
+			-IDEBuildOperationMaxNumberOfConcurrentCompileTasks=$IOS_BUILD_JOBS \
+			-scheme "$scheme" \
+			-sdk iphonesimulator \
+			-destination "platform=iOS Simulator,name=${IOS_BUILD_SIMULATOR_NAME},OS=${IOS_BUILD_SIMULATOR_OS}" \
+			clean build
+
+		xcodebuild \
+			-IDEBuildOperationMaxNumberOfConcurrentCompileTasks=$IOS_BUILD_JOBS \
+			-scheme "$scheme" \
+			-sdk iphoneos \
+			clean build
+	)
+}
+
+ios-test() {
+	declare scheme="$1"
+	rm -rf ~/Library/Developer/Xcode/DerivedData/*
+	(
+		set -e -o pipefail
+
+		xcodebuild \
+			-IDEBuildOperationMaxNumberOfConcurrentCompileTasks=$IOS_BUILD_JOBS \
+			-scheme "$scheme" \
+			-sdk iphonesimulator \
+			-destination "platform=iOS Simulator,name=${IOS_BUILD_SIMULATOR_NAME},OS=${IOS_BUILD_SIMULATOR_OS}" \
+			clean build test
+	)
+}
+
+_iosbuildcompletion() {
+	local cur="$1" index=0
+	COMPREPLY=()
+
+	while read line
+	do
+		COMPREPLY[$((index++))]="${line/ /\\ }"
+	done < <(xcodebuild -list | sed -n '/^    Schemes:/,/^$/p' | grep -v '^    Schemes:' | cut -c9- | grep "^$cur")
+}
+
+complete -o default -F _iosbuildcompletion -o nospace ios-build
+complete -o default -F _iosbuildcompletion -o nospace ios-test
+
+# ex: noet ci pi sts=0 sw=4 ts=4 filetype=sh
