@@ -1,5 +1,5 @@
 function check_install_source_highlight() {
-	for N in pandoc source-highlight
+	for N in source-highlight
 	do
 		if ! which $N >/dev/null 2>&1
 		then
@@ -70,9 +70,9 @@ function check_install_source_highlight_lesspipe_sh() {
 		for x
 		do
 			case "\$x" in
-				*.[mM]arkdown|*.md)
-					pandoc -s -f markdown -t man README.md | groff -T utf8 -man -
-					exit 0;;
+				#*.[mM]arkdown|*.md)
+				#	pandoc -s -f markdown -t man README.md | groff -T utf8 -man -
+				#	exit 0;;
 				*ChangeLog|*changelog)
 					o='--lang-def=changelog.lang';;
 				*Makefile|*makefile)
