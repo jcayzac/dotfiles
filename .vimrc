@@ -16,11 +16,11 @@ set encoding=utf-8
 
 " visual hints: line numbers, ruler and highlighted search results
 set number
-set ruler
-set rulerformat=%30(%=%y%m%r%w\ %l,%c%V\ %P%)
+"set ruler
 set hlsearch
 set laststatus=2
 set statusline=%<%f\ %w%h%m%r%{fugitive\#statusline()}\ [%{&ff}/%Y]%=%-18.(%l/%L,%c%V%)\ %p%%
+
 " reload modified files
 set autoread
 

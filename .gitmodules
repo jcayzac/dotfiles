@@ -13,3 +13,6 @@
 [submodule ".vim/bundle/vim-css-color.git"]
 	path = .vim/bundle/vim-css-color.git
 	url = https://github.com/ap/vim-css-color.git
+[submodule ".vim/bundle/vim-airline"]
+	path = .vim/bundle/vim-airline
+	url = https://github.com/bling/vim-airline
