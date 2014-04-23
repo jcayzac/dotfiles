@@ -8,15 +8,15 @@ profile() {
 		if [ -d ~/.bash_profile.d ] && [ -x ~/.bash_profile.d ]
 		then
 			# source all scripts, in lexical order
-			declare space=''
-			echo -en "\033[01;34mLoading ["
+			declare space='' x
+			printf "\x1b[01;34mLoading ["
 			for x in ~/.bash_profile.d/*
 			do
-				echo -n "${space}${x##*/????}"
+				printf '%s%s' "${space}" "${x##*/????}"
 				space=' '
 				. "$x"
 			done
-			echo -e "]\033[0m"
+			printf "]\x1b[0m\n"
 		fi
 
 		# Show a palette: fixed colors 1-15, then 24-bit gray ramp
