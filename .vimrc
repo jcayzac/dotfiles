@@ -2,7 +2,7 @@ execute pathogen#infect()
 
 " vi sucks
 set nocompatible
-set ttyfast
+"set ttyfast " causes weird background bugs
 
 " makes the backspace key work as expected
 set backspace=indent,eol,start
