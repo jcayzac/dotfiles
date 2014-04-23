@@ -19,7 +19,8 @@ profile() {
 			echo -e "]\033[0m"
 		fi
 
-		# Show a palette
+		# Show a palette: fixed colors 1-15, then 24-bit gray ramp
+		# Shows immediately if 24-bit mode is supported.
 		declare COL COLS L
 		read -r COLS < <(tput cols)
 		for COL in {1..15}
