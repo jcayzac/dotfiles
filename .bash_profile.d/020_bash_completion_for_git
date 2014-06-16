@@ -11,7 +11,7 @@ then
 			then
 				echo "first install macports, then:"
 			fi
-			echo "    sudo port install git-core +bash_completion"
+			echo "    sudo port install git +bash_completion"
 			echo -e "\033[01;34m"
 			return
 		fi
@@ -19,11 +19,11 @@ then
 
 	if ! type __git_ps1 >/dev/null 2>&1
 	then
-		if [ -f /opt/local/share/git-core/git-prompt.sh ]
+		if [ -f /opt/local/share/git/git-prompt.sh ]
 		then
-			. /opt/local/share/git-core/git-prompt.sh
+			. /opt/local/share/git/git-prompt.sh
 		else
-			echo -e "\n\033[01;33mWARNING:\033[0m Can't find /opt/local/share/git-core/git-prompt.sh"
+			echo -e "\n\033[01;33mWARNING:\033[0m Can't find /opt/local/share/git/git-prompt.sh"
 			echo -e "\033[01;34m"
 			return
 		fi
