@@ -74,5 +74,5 @@ highlight ColorColumn guibg=Gray
 let c_no_curly_error = 1
 
 au BufWinLeave * call clearmatches()
-au BufNewFile,BufRead *.md setlocal filetype=markdown spell
+au BufNewFile,BufRead *.md setlocal filetype=markdown nospell
 
