@@ -1,6 +1,6 @@
-((DARWIN)) || return
+[ "$(uname -s)" == "Darwin" ] || return
 
-export PATH="/opt/local/bin:/opt/local/sbin:${PATH}"
+append-path '/opt/local/bin' '/opt/local/sbin'
 export MANPATH="/opt/local/share/man:${MANPATH}"
 alias port='sudo port'
 
