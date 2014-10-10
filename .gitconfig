@@ -9,7 +9,6 @@
 	cmd = diffmerge --merge --result=$MERGED $LOCAL $BASE $REMOTE
 	trustExitCode = false
 [merge]
-	#tool = vimdiff
 	tool = diffmerge
 [gc]
 	auto = 1
@@ -23,8 +22,10 @@
 [log]
 	date = iso
 [alias]
-	browser = instaweb
-	push-for-review = push gerrit HEAD:refs/for/develop
+	dif = diff --minimal --histogram --word-diff=color -M50% -D -w
+	comit = commit -S
+	delete-tag = "!f() { git tag -d \"${2:-$1}\" && if [ -n \"$2\" ]; then git push \"$1\" \":$2\"; fi; }; f"
+	push-for-review = !git push gerrit HEAD:refs/for/${1:-develop}
 	backlog = log --graph --pretty=format:'%C(white red bold) %h %Creset %C(cyan)%an%Creset %s %Cgreen(%cd)%Creset%C(yellow)%d%Creset' --abbrev-commit --no-merges
 	tinylog = !git backlog -n10
 	last = rev-list --max-count=1 HEAD
@@ -35,7 +36,7 @@
 [core]
 	filemode = true
 	pager = less -FXnSR
-#[http]
-#	sslVerify = false
 [credential]
 	helper = osxkeychain
+[url "git@github.com:"]
+	insteadOf = git://github.com/
