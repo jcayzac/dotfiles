@@ -23,7 +23,7 @@ delete-path() {
 
         if [ "$PATH" != "$DIR" ]
         then
-            PATH="${PATH//:${DIR}:/}"
+            PATH="${PATH//:${DIR}:/:}"
             PATH="${PATH/%:${DIR}/}"
             PATH="${PATH/#${DIR}:/}"
         else
@@ -39,10 +39,9 @@ prepend-path() {
     do
     	[ -n "$DIR" ] || continue
 
-        #DIR="$(builtin cd "$DIR" 2>/dev/null && builtin pwd -P || builtin echo -n "$DIR")"
         if [ "$PATH" != "$DIR" ]
         then
-            PATH="${PATH//:${DIR}:/}"
+            PATH="${PATH//:${DIR}:/:}"
             PATH="${PATH/%:${DIR}/}"
             PATH="${PATH/#${DIR}:/}"
         fi
@@ -55,11 +54,9 @@ append-path() {
     for DIR
     do
     	[ -n "$DIR" ] || continue
-
-        #DIR="$(builtin cd "$DIR" 2>/dev/null && builtin pwd -P || builtin echo -n "$DIR")"
         if [ "$PATH" != "$DIR" ]
         then
-            PATH="${PATH//:${DIR}:/}"
+            PATH="${PATH//:${DIR}:/:}"
             PATH="${PATH/%:${DIR}/}"
             PATH="${PATH/#${DIR}:/}"
         fi
