@@ -26,7 +26,7 @@
 	comit = commit -S
 	delete-tag = "!f() { git tag -d \"${2:-$1}\" && if [ -n \"$2\" ]; then git push \"$1\" \":$2\"; fi; }; f"
 	push-for-review = !git push gerrit HEAD:refs/for/${1:-develop}
-	backlog = log --graph --pretty=format:'%C(white red bold) %h %Creset %C(cyan)%an%Creset %s %Cgreen(%cd)%Creset%C(yellow)%d%Creset' --abbrev-commit --no-merges
+	backlog = log --graph --pretty=tformat:'%C(white red bold) %h %Creset %C(cyan)%an%Creset %s %Cgreen(%cd)%Creset%C(yellow)%d%Creset' --abbrev-commit --no-merges
 	tinylog = !git backlog -n10
 	last = rev-list --max-count=1 HEAD
 	remodule = submodule update --init --recursive --force
