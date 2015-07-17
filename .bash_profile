@@ -1,5 +1,4 @@
 
-
 # Wrap everything into a function so that all declared variables are local
 profile() {
 	if (( ${BASH_VERSINFO:0} >= 4 ))

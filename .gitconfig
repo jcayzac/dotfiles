@@ -22,10 +22,12 @@
 [log]
 	date = iso
 [alias]
-	dif = diff --minimal --histogram --word-diff=color -M50% -D -w
+	dif  = diff --minimal --patience --word-diff=color -M50% -D -w
+	difflines = diff --minimal --patience -M50% -D -w
 	comit = commit -S
 	delete-tag = "!f() { git tag -d \"${2:-$1}\" && if [ -n \"$2\" ]; then git push \"$1\" \":$2\"; fi; }; f"
 	push-for-review = !git push gerrit HEAD:refs/for/${1:-develop}
+	pass  = !ssh gerrit gerrit review $(git rev-parse HEAD) --verified 1 --code-review 2 -s
 	backlog = log --graph --pretty=tformat:'%C(white red bold) %h %Creset %C(cyan)%an%Creset %s %Cgreen(%cd)%Creset%C(yellow)%d%Creset' --abbrev-commit --no-merges
 	tinylog = !git backlog -n10
 	last = rev-list --max-count=1 HEAD
@@ -33,10 +35,19 @@
 	reinit = !git clean -fdx && git submodule foreach --recursive git clean -fdx && git reset --hard && git submodule foreach --recursive git reset --hard && git remodule
 	tarball = !git archive HEAD --format=tar | bzip2 > "$(git rev-parse --git-dir)/../snapshot-$(git last).tar.bz2"
 	snapshot = !git stash save --include-untracked "snapshot: $(date -u +'%Y-%m-%d %H:%M:%S')" && git stash apply "stash@{0}"
+	filediff = diff --minimal --histogram --word-diff=color -M50% -D -w --no-index
+	list-not-merged = "!f() { git rev-list --cherry --pretty=tformat:\"%C(white red bold) %h %Creset %C(cyan)%cn%Creset %s %Cgreen(%cr)%Creset%C(yellow)%d%Creset\" \"${1}...${2}\" | /usr/bin/sed -n \"g;n;p\"; }; f"
 [core]
 	filemode = true
 	pager = less -FXnSR
+	editor = vim
 [credential]
-	helper = osxkeychain
+	helper = store #osxkeychain
 [url "git@github.com:"]
 	insteadOf = git://github.com/
+[url "ssh://git@git.rakuten-it.com:7999/"]
+	insteadOf = https://git.rakuten-it.com/scm/
+[http]
+	sslVerify
+[http "https://gerrit.dev.rakuten-it.com"]
+	sslVerify = false
