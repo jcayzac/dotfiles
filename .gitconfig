@@ -41,6 +41,7 @@
 	filemode = true
 	pager = less -FXnSR
 	editor = vim
+	autocrlf = input
 [credential]
 	helper = store #osxkeychain
 [url "git@github.com:"]
