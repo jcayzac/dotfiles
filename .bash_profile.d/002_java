@@ -1,6 +1,0 @@
-[ "$(uname -s)" == "Darwin" ] || return
-
-export JAVA_HOME="$(/usr/libexec/java_home -v 1.8 2>/dev/null)"
-append-path "${JAVA_HOME}/bin"
-
-# ex: noet ci pi sts=0 sw=4 ts=4 filetype=sh

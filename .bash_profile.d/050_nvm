@@ -1,7 +1,0 @@
-if [[ -s "$HOME/.nvm/nvm.sh" ]]
-then
-	. "$HOME/.nvm/nvm.sh"
-	nvm use stable >/dev/null
-fi
-
-# ex: noet ci pi sts=0 sw=4 ts=4 filetype=sh

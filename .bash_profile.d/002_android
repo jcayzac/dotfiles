@@ -1,6 +1,0 @@
-[ "$(uname -s)" == "Darwin" ] || return
-
-export ANDROID_HOME="$HOME/Library/Android/sdk" #ANDROID_NDK_HOME="${HOME}/.prefix/opt/android-ndk"
-append-path "${ANDROID_HOME}/platform-tools" "${ANDROID_HOME}/tools" # "${ANDROID_NDK_HOME}"
-
-# ex: noet ci pi sts=0 sw=4 ts=4 filetype=sh

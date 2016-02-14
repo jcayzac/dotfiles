@@ -1,4 +1,0 @@
-export GEM_HOME="${HOME}/.gems"
-prepend-path "${GEM_HOME}/bin"
-
-# ex: noet ci pi sts=0 sw=4 ts=4 filetype=sh
