@@ -6,6 +6,7 @@ DEFAULT_JAVA="1.8"
 # bash
 # bash-completion
 # bash-git-prompt
+# colordiff
 # coreutils
 # findutils
 # git --with-brewed-curl --with-brewed-openssl --with-pcre --with-persistent-https --with-blk-sha1
@@ -39,7 +40,6 @@ export \
 	PS1='\[\033[01;32m\]\u\[\033[01;34m\] \w \[\033[0m' \
 	USERNAME="${USERNAME#*: }"
 
-
 umask 022			# default mode = 755
 ulimit -S -n 10240	# raise number of open file handles
 shopt -s cmdhist	# save multiline commands in history
@@ -57,6 +57,11 @@ function_exists() {
 }
 
 # Dependencies
+[ -f ~/.HOMEBREW_GITHUB_API_TOKEN ] && {
+	read -d '' -r HOMEBREW_GITHUB_API_TOKEN <~/.HOMEBREW_GITHUB_API_TOKEN
+	export HOMEBREW_GITHUB_API_TOKEN
+}
+
 /usr/bin/which brew >/dev/null 2>&1     || {
 	/usr/bin/ruby -e "$(/usr/bin/curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
 }
