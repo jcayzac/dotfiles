@@ -10753,7 +10753,7 @@
 		</dict>
 	</dict>
 	<key>PrefsCustomFolder</key>
-	<string>~/code-repositories/dotfiles/.iTerm2/Preferences</string>
+	<string>~/.iTerm2/Preferences</string>
 	<key>PromptOnClose</key>
 	<true/>
 	<key>PromptOnQuit</key>
