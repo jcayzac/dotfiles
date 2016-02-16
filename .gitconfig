@@ -48,6 +48,8 @@
 	insteadOf = git://github.com/
 [url "ssh://git@git.rakuten-it.com:7999/"]
 	insteadOf = https://git.rakuten-it.com/scm/
+[url "ssh://git@gitpub.rakuten-it.com:7999/"]
+	insteadOf = https://gitpub.rakuten-it.com/scm/
 [http]
 	sslVerify
 [http "https://gerrit.dev.rakuten-it.com"]

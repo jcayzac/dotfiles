@@ -27,6 +27,7 @@ export \
 	HISTCONTROL="erasedups" \
 	HISTFILESIZE=10000 \
 	HISTIGNORE="&:ls:cd:pwd:[bf]g:exit" \
+	HOMEBREW_VERBOSE=1 \
 	JAVA_HOME="$(/usr/libexec/java_home -v $DEFAULT_JAVA 2>/dev/null)" \
 	LANG="en_US.UTF-8" \
 	LESS_TERMCAP_us=$'\E[01;32m' \
@@ -43,17 +44,28 @@ export \
 umask 022			# default mode = 755
 ulimit -S -n 10240	# raise number of open file handles
 shopt -s cmdhist	# save multiline commands in history
-
-[ -t 1 ] && {
-	bind '"\e[5~": history-search-backward'	# bind PgUp
-	bind '"\e[6~": history-search-forward'	# bind PgDn
-}
-
-tabs -4	# use 4sp-wide tabs
+tabs -4				# use 4sp-wide tabs
 
 function_exists() {
 	declare -f -F $1 >/dev/null
 	return $?
+}
+
+__show_palette() {
+	# Show a palette: fixed colors 1-15, then 24-bit gray ramp
+	# Shows immediately if 24-bit mode is supported.
+	declare COL COLS
+	read -r COLS < <(tput cols)
+	for ((COL=COLS; COL>15; --COL)); do printf "\x1b[48;2;$COL;$((COL/2));$((COL/3))m "; done
+	for COL in {1..15}; do printf "\x1b[48;5;%sm " "$COL"; done
+
+	printf "\x1b[0m\n"
+}
+
+[ -t 1 ] && {
+	bind '"\e[5~": history-search-backward' # bind PgUp
+	bind '"\e[6~": history-search-forward'  # bind PgDn
+	__show_palette
 }
 
 # Dependencies

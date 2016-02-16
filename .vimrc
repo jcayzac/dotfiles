@@ -73,6 +73,10 @@ highlight ColorColumn guibg=Gray
 " prevent obj-c blocks' curly brackets to show up as errors
 let c_no_curly_error = 1
 
+" vim-airline
+let g:airline_powerline_fonts = 1
+let g:airline_theme='dark'
+
 au BufWinLeave * call clearmatches()
 au BufNewFile,BufRead *.md setlocal filetype=markdown nospell
 
