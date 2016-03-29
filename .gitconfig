@@ -22,7 +22,7 @@
 [log]
 	date = iso
 [alias]
-	dif  = diff --minimal --patience --word-diff=color -M50% -D -w
+	dif  = diff --minimal --patience -M50% -D -w #--color-words
 	difflines = diff --minimal --patience -M50% -D -w
 	comit = commit -S
 	delete-tag = "!f() { git tag -d \"${2:-$1}\" && if [ -n \"$2\" ]; then git push \"$1\" \":$2\"; fi; }; f"
@@ -39,7 +39,8 @@
 	list-not-merged = "!f() { git rev-list --cherry --pretty=tformat:\"%C(white red bold) %h %Creset %C(cyan)%cn%Creset %s %Cgreen(%cr)%Creset%C(yellow)%d%Creset\" \"${1}...${2}\" | /usr/bin/sed -n \"g;n;p\"; }; f"
 [core]
 	filemode = true
-	pager = less -FXnSR
+	#pager = less -FXnSR
+	pager = /usr/local/opt/git/share/git-core/contrib/diff-highlight/diff-highlight | less -FXnSR
 	editor = vim
 	autocrlf = input
 [credential]
