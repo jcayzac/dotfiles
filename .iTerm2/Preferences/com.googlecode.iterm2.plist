@@ -9728,6 +9728,8 @@
 	<string>0</string>
 	<key>NSColorPickerSlidersDefaults</key>
 	<string>0</string>
+	<key>NSFontPanelAttributes</key>
+	<string>1, 4</string>
 	<key>NSNavLastRootDirectory</key>
 	<string>~/Documents</string>
 	<key>NSQuotedKeystrokeBinding</key>
@@ -9852,7 +9854,7 @@
 	<key>NSWindow Frame NSColorPanel</key>
 	<string>272 387 201 309 0 0 1680 1028 </string>
 	<key>NSWindow Frame NSFontPanel</key>
-	<string>821 77 459 270 0 0 1280 800 </string>
+	<string>879 1153 459 136 -127 900 1680 1027 </string>
 	<key>NSWindow Frame Preferences</key>
 	<string>207 411 606 456 0 0 1440 877 </string>
 	<key>NSWindow Frame SUStatusFrame</key>
@@ -9864,7 +9866,7 @@
 	<key>NSWindow Frame UKCrashReporter</key>
 	<string>462 167 592 584 0 0 1280 778 </string>
 	<key>NSWindow Frame iTerm Window 0</key>
-	<string>205 1157 1130 727 -127 900 1680 1027 </string>
+	<string>187 136 1228 720 0 0 1440 877 </string>
 	<key>New Bookmarks</key>
 	<array>
 		<dict>
@@ -10467,7 +10469,7 @@
 			<key>Name</key>
 			<string>Default</string>
 			<key>Non Ascii Font</key>
-			<string>Menlo-Regular 24</string>
+			<string>InconsolataForPowerline 24</string>
 			<key>Non-ASCII Anti Aliased</key>
 			<true/>
 			<key>Normal Font</key>
@@ -10639,6 +10641,8 @@
 			<array/>
 			<key>Terminal Type</key>
 			<string>xterm-256color</string>
+			<key>Thin Strokes</key>
+			<integer>1</integer>
 			<key>Transparency</key>
 			<real>0.0</real>
 			<key>Triggers</key>
@@ -10775,7 +10779,7 @@
 	<key>SUHasLaunchedBefore</key>
 	<true/>
 	<key>SULastCheckTime</key>
-	<date>2016-02-14T03:09:55Z</date>
+	<date>2016-02-16T10:23:16Z</date>
 	<key>SavePasteHistory</key>
 	<false/>
 	<key>ShowBookmarkName</key>
