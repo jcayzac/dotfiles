@@ -55,3 +55,7 @@
 	sslVerify
 [http "https://gerrit.dev.rakuten-it.com"]
 	sslVerify = false
+[user]
+	signingkey = 90F3E056
+[commit]
+	gpgsign
