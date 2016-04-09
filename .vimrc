@@ -44,6 +44,7 @@ set tabstop=4 softtabstop=4 shiftwidth=4 noexpandtab
 set autoindent
 set smartindent
 set smarttab
+set copyindent
 
 " folding
 set foldmethod=indent   "fold based on indent
