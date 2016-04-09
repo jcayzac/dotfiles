@@ -88,7 +88,7 @@ function_exists __git_ps1 && export PS1=${PS1}'\[\033[01;33m\]$(__git_ps1 "[%s] 
 [ -t 1 ] && [ -f ~/.iterm2_shell_integration.bash ] && . ~/.iterm2_shell_integration.bash
 # changing PS1 is impossible after iTerm2 shell integration is enabled
 
-[ -f ~/.nvm/nvm.sh ]                    && { . ~/.nvm/nvm.sh; nvm use stable >/dev/null; }
+[ -f ~/.nvm/nvm.sh ]                    && { . ~/.nvm/nvm.sh; nvm use unstable >/dev/null; }
 [ -f ~/.rvm/scripts/rvm ]               && . ~/.rvm/scripts/rvm
 
 if /usr/bin/which rbenv >/dev/null 2>&1
