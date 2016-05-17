@@ -113,6 +113,8 @@ fi
 alias grep='grep --color'
 which gls    >/dev/null 2>&1 && alias ls="gls --color=auto --show-control-chars"
 which gnutar >/dev/null 2>&1 && alias tar='gnutar'
+[ ! -x "$HOME/.iTerm2/imgcat" ] || alias imgcat="$HOME/.iTerm2/imgcat"
+[ ! -x "$HOME/.iTerm2/it2dl" ]  || alias it2dl="$HOME/.iTerm2/it2dl"
 
 dl() {
 	aria2c -x5 --http-accept-gzip=true --use-head=true ${1+"$@"}
@@ -138,5 +140,39 @@ hardlinks() {
 
 { defaults read  com.apple.dock persistent-others | grep '"recents-tile"' >/dev/null 2>&1; } || \
   defaults write com.apple.dock persistent-others -array-add '{ "tile-data" = { "list-type" = 1; }; "tile-type" = "recents-tile"; }'
+
+# work-related stuff
+
+# Multi-repo/branch git log for weekly reports. Depends on GNU date.
+#
+# @param $1  Title for the project
+# @param ... List of git working copies to include for that project
+#
+# Example:
+#
+#     report() {
+#         cd "$HOME/work"
+#         gitlog "SDK"                    sdk-core sdk-extra sdk-ui
+#         gitlog "Continuous Integration" chef-cookbooks jenkins-plugins
+#     }
+gitlog() {
+	local full=""
+	local title="$1"
+	local sub=""
+	shift
+	for repo in $@
+	do
+		(( ${#@} == 1 )) || sub="%C(white blue bold)[$repo]%Creset "
+		local oldlen=${#full}
+		full="$(printf '%s\n%s' "$full" "$(git -C "$repo" log --no-merges --date=format:"%b/%d" --pretty=tformat:"  %C(white green bold) %cd %Creset ${sub:-}%s %C(yellow)%D%Creset" --abbrev-commit --all --after="$(gdate  --date="last Friday" +%Y-%m-%d)" --author="$USER" | grep -v 'Merge pull request' | cat)")"
+		sub=""
+
+		(( ${#full} == $oldlen )) || full="$(printf '%s\n' "$full")"
+	done
+
+	[ -z "$full" ] || printf '\n\e[1;43m[  %-20s  ]\e[0m\n%s\n' "$title" "$full"
+}
+
+
 
 # ex: noet ci pi sts=0 sw=4 ts=4 filetype=sh
