@@ -134,6 +134,21 @@ hardlinks() {
 	find "$DIR" -inum $st_ino $@
 }
 
+update_env() {
+	if which brew >/dev/null 2>&1
+	then
+		brew update
+		brew upgrade
+	fi
+
+	if which gem >/dev/null 2>&1
+	then
+		gem update -N
+		gem clean
+	fi
+}
+
+
 # extra setup
 
 /usr/bin/find ~/Library -flags hidden -maxdepth 0 -exec /usr/bin/chflags nohidden "{}" +
