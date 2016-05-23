@@ -188,6 +188,5 @@ gitlog() {
 	[ -z "$full" ] || printf '\n\e[1;43m[  %-20s  ]\e[0m\n%s\n' "$title" "$full"
 }
 
-
-
+[ ! -x "$HOME/.bash_profile.local" ] || source "$HOME/.bash_profile.local"
 # ex: noet ci pi sts=0 sw=4 ts=4 filetype=sh
