@@ -8,10 +8,29 @@ DEFAULT_JAVA="1.8"
 # bash-git-prompt
 # colordiff
 # coreutils
+# debianutils
+# dex2jar
+# dos2unix
+# doxygen
+# ffmpeg
 # findutils
+# flow
 # git --with-brewed-curl --with-brewed-openssl --with-pcre --with-persistent-https --with-blk-sha1
 # gnu-sed
+# gnupg
+# go
 # htop --with-ncurses
+# ncftp
+# osxutils
+# plotutils
+# rbenv
+# source-highlight
+# sqlite
+# thefuck
+# vim
+# watchman
+# wget
+# xz
 
 # Environment
 set +e +u +o pipefail
@@ -26,7 +45,7 @@ export \
 	GREP_COLOR="01" \
 	HISTCONTROL="erasedups" \
 	HISTFILESIZE=10000 \
-	HISTIGNORE="&:ls:cd:pwd:[bf]g:exit" \
+	HISTIGNORE="&:ls:cd:pwd:[bf]g:exit:fuck" \
 	HOMEBREW_VERBOSE=1 \
 	JAVA_HOME="$(/usr/libexec/java_home -v $DEFAULT_JAVA 2>/dev/null)" \
 	LANG="en_US.UTF-8" \
@@ -91,10 +110,8 @@ function_exists __git_ps1 && export PS1=${PS1}'\[\033[01;33m\]$(__git_ps1 "[%s] 
 [ -f ~/.nvm/nvm.sh ]                    && { . ~/.nvm/nvm.sh; nvm use unstable >/dev/null; }
 [ -f ~/.rvm/scripts/rvm ]               && . ~/.rvm/scripts/rvm
 
-if /usr/bin/which rbenv >/dev/null 2>&1
-then
-	eval "$(rbenv init -)"
-fi
+which rbenv   >/dev/null 2>&1 && eval "$(rbenv init -)"
+which thefuck >/dev/null 2>&1 && eval "$(thefuck --alias)"
 
 [ -f ~/.gitauthor ] && {
 	while true
