@@ -28,7 +28,7 @@
 	delete-tag = "!f() { git tag -d \"${2:-$1}\" && if [ -n \"$2\" ]; then git push \"$1\" \":$2\"; fi; }; f"
 	push-for-review = !git push gerrit HEAD:refs/for/${1:-develop}
 	pass  = !ssh gerrit gerrit review $(git rev-parse HEAD) --verified 1 --code-review 2 -s
-	backlog = log --graph --pretty=tformat:'%C(white red bold) %h %Creset %C(cyan)%an%Creset %s %Cgreen(%cd)%Creset%C(yellow)%d%Creset' --abbrev-commit --no-merges
+	backlog = log --graph --pretty=tformat:'%C(white red bold) %h %Creset %C(cyan)%an%Creset %s %Cgreen(%cd)%Creset%C(yellow)%d%Creset' --abbrev-commit #--no-merges
 	tinylog = !git backlog -n10
 	last = rev-list --max-count=1 HEAD
 	remodule = submodule update --init --recursive --force
@@ -55,5 +55,3 @@
 	sslVerify
 [http "https://gerrit.dev.rakuten-it.com"]
 	sslVerify = false
-[commit]
-	gpgsign
