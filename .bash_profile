@@ -21,6 +21,7 @@ DEFAULT_JAVA="1.8"
 # gnupg
 # go
 # htop --with-ncurses
+# hugo
 # ncftp
 # osxutils
 # plotutils
@@ -32,6 +33,7 @@ DEFAULT_JAVA="1.8"
 # watchman
 # wget
 # xz
+# Caskroom/cask/atom
 # Caskroom/cask/java
 # Caskroom/cask/xquartz
 # homebrew/python/numpy
@@ -79,25 +81,31 @@ __show_palette() {
 	# Shows immediately if 24-bit mode is supported.
 	declare COL COLS
 	read -r COLS < <(tput cols)
-	for ((COL=COLS; COL>15; --COL)); do printf "\x1b[48;2;$COL;$((COL/2));$((COL/3))m "; done
-	for COL in {1..15}; do printf "\x1b[48;5;%sm " "$COL"; done
+	for ((COL=COLS; COL>15; --COL))
+	do
+		printf "\x1b[48;2;$COL;$((COL/2));$((COL/3))m "
+	done
+	for COL in {1..15}
+	do
+		printf "\x1b[48;5;%sm " "$COL"
+	done
 
 	printf "\x1b[0m\n"
 }
 
-[ -t 1 ] && {
+[ ! -t 1 ] || {
 	bind '"\e[5~": history-search-backward' # bind PgUp
 	bind '"\e[6~": history-search-forward'  # bind PgDn
 	__show_palette
 }
 
 # Dependencies
-[ -f ~/.HOMEBREW_GITHUB_API_TOKEN ] && {
+[ ! -f ~/.HOMEBREW_GITHUB_API_TOKEN ] || {
 	read -d '' -r HOMEBREW_GITHUB_API_TOKEN <~/.HOMEBREW_GITHUB_API_TOKEN
 	export HOMEBREW_GITHUB_API_TOKEN
 }
 
-/usr/bin/which brew >/dev/null 2>&1     || {
+/usr/bin/which brew >/dev/null 2>&1 || {
 	/usr/bin/ruby -e "$(/usr/bin/curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
 }
 
@@ -105,14 +113,14 @@ __show_palette() {
 	/usr/bin/curl -fsSL -o ~/.iterm2_shell_integration.bash https://iterm2.com/misc/bash_startup.in
 }
 
-[ -f /usr/local/etc/bash_completion ]   && . /usr/local/etc/bash_completion
+[ ! -f /usr/local/etc/bash_completion ] || . /usr/local/etc/bash_completion
 function_exists __git_ps1 && export PS1=${PS1}'\[\033[01;33m\]$(__git_ps1 "[%s] ")\[\033[00m\]'
 
-[ -t 1 ] && [ -f ~/.iterm2_shell_integration.bash ] && . ~/.iterm2_shell_integration.bash
+[ ! -t 1 ] || [ ! -f ~/.iterm2_shell_integration.bash ] || . ~/.iterm2_shell_integration.bash
 # changing PS1 is impossible after iTerm2 shell integration is enabled
 
-[ -f ~/.nvm/nvm.sh ]                    && { . ~/.nvm/nvm.sh; nvm use unstable >/dev/null; }
-[ -f ~/.rvm/scripts/rvm ]               && . ~/.rvm/scripts/rvm
+[ ! -f ~/.nvm/nvm.sh ]      || { . ~/.nvm/nvm.sh; nvm use unstable >/dev/null; }
+[ ! -f ~/.rvm/scripts/rvm ] || . ~/.rvm/scripts/rvm
 
 which rbenv   >/dev/null 2>&1 && eval "$(rbenv init -)"
 which thefuck >/dev/null 2>&1 && eval "$(thefuck --alias)"
@@ -160,12 +168,18 @@ update_env() {
 	then
 		brew update
 		brew upgrade
+		brew cleanup -s
 	fi
 
 	if which gem >/dev/null 2>&1
 	then
-		gem update -N
-		gem clean
+		gem update -q -N
+		gem clean -q >/dev/null 2>&1
+	fi
+
+	if which apm >/dev/null 2>&1
+	then
+		apm upgrade --no-confirm
 	fi
 }
 
@@ -177,37 +191,7 @@ update_env() {
 { defaults read  com.apple.dock persistent-others | grep '"recents-tile"' >/dev/null 2>&1; } || \
   defaults write com.apple.dock persistent-others -array-add '{ "tile-data" = { "list-type" = 1; }; "tile-type" = "recents-tile"; }'
 
-# work-related stuff
+# Site-specific
+[ ! -f "$HOME/.bash_profile.local" ] || . "$HOME/.bash_profile.local"
 
-# Multi-repo/branch git log for weekly reports. Depends on GNU date.
-#
-# @param $1  Title for the project
-# @param ... List of git working copies to include for that project
-#
-# Example:
-#
-#     report() {
-#         cd "$HOME/work"
-#         gitlog "SDK"                    sdk-core sdk-extra sdk-ui
-#         gitlog "Continuous Integration" chef-cookbooks jenkins-plugins
-#     }
-gitlog() {
-	local full=""
-	local title="$1"
-	local sub=""
-	shift
-	for repo in $@
-	do
-		(( ${#@} == 1 )) || sub="%C(white blue bold)[$repo]%Creset "
-		local oldlen=${#full}
-		full="$(printf '%s\n%s' "$full" "$(git -C "$repo" log --no-merges --date=format:"%b/%d" --pretty=tformat:"  %C(white green bold) %cd %Creset ${sub:-}%s %C(yellow)%D%Creset" --abbrev-commit --all --after="$(gdate  --date="last Friday" +%Y-%m-%d)" --author="$USER" | grep -v 'Merge pull request' | cat)")"
-		sub=""
-
-		(( ${#full} == $oldlen )) || full="$(printf '%s\n' "$full")"
-	done
-
-	[ -z "$full" ] || printf '\n\e[1;43m[  %-20s  ]\e[0m\n%s\n' "$title" "$full"
-}
-
-[ ! -f "$HOME/.bash_profile.local" ] || source "$HOME/.bash_profile.local"
 # ex: noet ci pi sts=0 sw=4 ts=4 filetype=sh
