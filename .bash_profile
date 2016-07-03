@@ -164,21 +164,32 @@ hardlinks() {
 }
 
 update_env() {
+	__msg() { printf "\n\x1b[48;5;8m\x1b[K\n 🔘  %s \x1b[K\n\x1b[K\x1b[0m\n\n" "$1"; }
+
 	if which brew >/dev/null 2>&1
 	then
+		__msg "Updating Homebrew…"
+		brew analytics off
 		brew update
-		brew upgrade
+		brew upgrade --cleanup
 		brew cleanup -s
 	fi
 
 	if which gem >/dev/null 2>&1
 	then
+		__msg "Updating Ruby gems"
 		gem update -q -N
 		gem clean -q >/dev/null 2>&1
 	fi
 
+	[ ! -x "${NVM_BIN:-/nowhere}/npm" ] || {
+		__msg "Updating Node packages"
+		"$NVM_BIN/npm" -g update -q
+	}
+
 	if which apm >/dev/null 2>&1
 	then
+		__msg "Updating Atom packages"
 		apm upgrade --no-confirm
 	fi
 }
