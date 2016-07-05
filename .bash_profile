@@ -164,7 +164,7 @@ hardlinks() {
 }
 
 update_env() {
-	__msg() { printf "\n\x1b[48;5;8m\x1b[K\n 🔘  %s \x1b[K\n\x1b[K\x1b[0m\n\n" "$1"; }
+	__msg() { printf "\n\x1b[40;34;1m\x1b[K\n  🤖  %s \x1b[K\n\x1b[K\x1b[0m\n\n" "$1"; }
 
 	if which brew >/dev/null 2>&1
 	then
@@ -177,21 +177,29 @@ update_env() {
 
 	if which gem >/dev/null 2>&1
 	then
-		__msg "Updating Ruby gems"
+		__msg "Updating Ruby gems…"
 		gem update -q -N
 		gem clean -q >/dev/null 2>&1
 	fi
 
 	[ ! -x "${NVM_BIN:-/nowhere}/npm" ] || {
-		__msg "Updating Node packages"
+		__msg "Updating Node packages…"
 		"$NVM_BIN/npm" -g update -q
 	}
 
 	if which apm >/dev/null 2>&1
 	then
-		__msg "Updating Atom packages"
+		__msg "Updating Atom packages…"
 		apm upgrade --no-confirm
 	fi
+
+	if which pod >/dev/null 2>&1
+	then
+		__msg "Updating Cocoapods specs…"
+		pod repo update --silent
+	fi
+
+	printf "\n\x1b[40;32;1m\x1b[K\n  🚀  %s \x1b[K\n\x1b[K\x1b[0m\n\n" "Ready to take off!"
 }
 
 
@@ -201,6 +209,9 @@ update_env() {
 
 { defaults read  com.apple.dock persistent-others | grep '"recents-tile"' >/dev/null 2>&1; } || \
   defaults write com.apple.dock persistent-others -array-add '{ "tile-data" = { "list-type" = 1; }; "tile-type" = "recents-tile"; }'
+
+# Enable subpixel font rendering on non-Apple LCDs
+defaults write -g AppleFontSmoothing -int 2
 
 # Site-specific
 [ ! -f "$HOME/.bash_profile.local" ] || . "$HOME/.bash_profile.local"
