@@ -173,6 +173,7 @@ update_env() {
 		brew update
 		brew upgrade --cleanup
 		brew cleanup -s
+		brew cask cleanup
 	fi
 
 	if which gem >/dev/null 2>&1
