@@ -1,43 +1,6 @@
 # Configuration
 DEFAULT_JAVA="1.8"
 
-# Brew formulaes:
-#
-# bash
-# bash-completion
-# bash-git-prompt
-# bazel
-# colordiff
-# coreutils
-# debianutils
-# dex2jar
-# dos2unix
-# doxygen
-# ffmpeg
-# findutils
-# flow
-# git --with-brewed-curl --with-brewed-openssl --with-pcre --with-persistent-https --with-blk-sha1
-# gnu-sed
-# gnupg
-# go
-# htop --with-ncurses
-# hugo
-# ncftp
-# osxutils
-# plotutils
-# rbenv
-# source-highlight
-# sqlite
-# thefuck
-# vim
-# watchman
-# wget
-# xz
-# Caskroom/cask/atom
-# Caskroom/cask/java
-# Caskroom/cask/xquartz
-# homebrew/python/numpy
-
 # Environment
 set +e +u +o pipefail
 read -d '' -r USERNAME < <(/usr/bin/dscl -q . -read "$HOME" RealName)
@@ -107,6 +70,7 @@ __show_palette() {
 
 /usr/bin/which brew >/dev/null 2>&1 || {
 	/usr/bin/ruby -e "$(/usr/bin/curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
+	brew tap Homebrew/bundle
 }
 
 [ -f ~/.iterm2_shell_integration.bash ] || {
