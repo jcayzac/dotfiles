@@ -1,5 +1,6 @@
 # Configuration
-DEFAULT_JAVA="1.8"
+DEFAULT_JAVA='1.8'
+DEFAULT_LOCALE='en_US.UTF-8'
 
 # Environment
 set +e +u +o pipefail
@@ -7,7 +8,6 @@ export \
 	ANDROID_HOME='/usr/local/opt/android-sdk' \
 	ANDROID_NDK_HOME='/usr/local/opt/android-ndk' \
 	ANT_HOME='/usr/local/opt/ant' \
-	GEM_HOME="$HOME/.gems" \
 	GIT_PS1_SHOWDIRTYSTATE=1 \
 	GIT_PS1_SHOWSTASHSTATE=1 \
 	GIT_PS1_SHOWUNTRACKEDFILES=1 \
@@ -21,7 +21,14 @@ export \
 	HOMEBREW_NO_ANALYTICS=1 \
 	HOMEBREW_VERBOSE=1 \
 	JAVA_HOME="$('/usr/libexec/java_home' -v "$DEFAULT_JAVA" 2>/dev/null)" \
-	LANG='en_US.UTF-8' \
+	LANG="$DEFAULT_LOCALE" \
+	LC_COLLATE="$DEFAULT_LOCALE" \
+	LC_CTYPE="$DEFAULT_LOCALE" \
+	LC_MESSAGES="$DEFAULT_LOCALE" \
+	LC_MONETARY="$DEFAULT_LOCALE" \
+	LC_NUMERIC="$DEFAULT_LOCALE" \
+	LC_TIME="$DEFAULT_LOCALE" \
+	LC_ALL= \
 	LESS_TERMCAP_us=$'\E[01;32m' \
 	LESS_TERMCAP_ue=$'\e[0m' \
 	LESS_TERMCAP_md=$'\e[01m' \
@@ -53,24 +60,37 @@ join_strings() {
 	printf '%s' "${@/#/$d}"
 }
 
+#GEM_HOME="$HOME/.gems"
+
 PATHS=(
+	# User
 	"$HOME/.prefix/bin"
-	"$HOME/.gems/bin"
-	"/usr/local/bin"
-	"/usr/local/sbin"
-	"/usr/bin"
-	"/bin"
-	"/usr/sbin"
-	"/sbin"
-	"/usr/local/opt/go/libexec/bin"
+
+	# Ruby
+	# "$HOME/.gems/bin"
+
+	# Go
 	"$HOME/.go/bin"
-	"$ANT_HOME/bin"
-	"$MAVEN_HOME/bin"
+	"/usr/local/opt/go/libexec/bin"
+
+	# Android
 	"$GRADLE_HOME/bin"
 	"$ANDROID_HOME/bin"
 	"$ANDROID_HOME/tools"
 	"$ANDROID_HOME/platform-tools"
 	"$ANDROID_HOME/build-tools/$ANDROID_LATEST_BUILD_TOOLS"
+	"$MAVEN_HOME/bin"
+	"$ANT_HOME/bin"
+
+	# Local
+	"/usr/local/bin"
+	"/usr/local/sbin"
+
+	# System
+	"/usr/bin"
+	"/usr/sbin"
+	"/bin"
+	"/sbin"
 )
 
 export PATH="$(join_strings : ${PATHS[*]})"

@@ -16,6 +16,7 @@ config.log
 .DS_Store
 /.vim/undodir
 *.sublime_session
+Gemfile.lock
 
 # Xcode
 *.ipa
