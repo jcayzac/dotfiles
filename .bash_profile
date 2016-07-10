@@ -19,7 +19,6 @@ export \
 	HISTFILESIZE=10000 \
 	HISTIGNORE='&:ls:cd:pwd:[bf]g:exit:fuck' \
 	HOMEBREW_NO_ANALYTICS=1 \
-	HOMEBREW_VERBOSE=1 \
 	JAVA_HOME="$('/usr/libexec/java_home' -v "$DEFAULT_JAVA" 2>/dev/null)" \
 	LANG="$DEFAULT_LOCALE" \
 	LC_COLLATE="$DEFAULT_LOCALE" \
@@ -181,12 +180,14 @@ hardlinks() {
 }
 
 update_env() {
-	__msg() { printf "\n\x1b[40;34;1m\x1b[K\n  🤖  %s \x1b[K\n\x1b[K\x1b[0m\n\n" "$1"; }
+	[ ! -t 1 ] || printf "\x1b[2J\x1b[H"
+	__msg() {
+		printf "\n\x1b[40;34;1m\x1b[K\n  🤖  %s \x1b[K\n\x1b[K\x1b[0m\n\n" "$1"
+	}
 
 	if which brew >/dev/null 2>&1
 	then
 		__msg "Updating Homebrew…"
-		brew analytics off
 		brew update
 		brew upgrade --cleanup
 		brew cleanup -s
@@ -211,11 +212,19 @@ update_env() {
 		apm upgrade --no-confirm
 	fi
 
-	if which android >/dev/null 2>&1
-	then
-		__msg "Updating the Android SDK…"
-		android update sdk --no-ui
-	fi
+	# Skipping, as filters don't work the way they should
+	#if which android >/dev/null 2>&1
+	#then
+	#	__msg "Updating the Android tools…"
+	#	expect -c '
+	#	set timeout -1;
+	#	spawn android update sdk --no-ui --filter 1,2
+	#	expect {
+	#		"Do you accept the license" { exp_send "y\r" ; exp_continue }
+	#		eof
+	#	}
+	#	'
+	#fi
 
 	if which pod >/dev/null 2>&1
 	then
