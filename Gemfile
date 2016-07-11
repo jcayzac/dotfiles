@@ -4,5 +4,5 @@ gem "cocoapods"
 gem "cocoapods-keys"
 gem "fastlane"
 gem "rake"
-gen "sass"
+gem "sass"
 
