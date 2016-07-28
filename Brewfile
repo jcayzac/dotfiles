@@ -74,7 +74,7 @@ cask 'calibre'
 mas  'iMovie', id: 408981434
 
 # Programming
-mas  'Xcode', id: 497799835
+#mas  'Xcode', id: 497799835
 brew 'make'
 brew 'cmake'
 brew 'opencv'
