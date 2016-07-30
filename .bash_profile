@@ -178,7 +178,9 @@ hardlinks() {
 }
 
 brokenlinks() {
-	gfind -O3 "$1" -xtype l -print0
+	local dir="$1"
+	shift
+	NSUnbufferedIO=YES gfind -O3 "$dir" -xtype l -print0 | xargs -0 ${1+"$@"}
 }
 
 update_env() {
