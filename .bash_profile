@@ -34,7 +34,7 @@ export \
 	LESS_TERMCAP_me=$'\e[0m' \
 	LESS='-FXRSN~g' \
 	LS_COLORS='do=01;35:*.dmg=01;31:*.aac=01;35:*.img=01;31:*.tar=01;31:di=01;34:rs=0:*.qt=01;35:ex=01;32:ow=34;42:*.mov=01;35:*.jar=01;31:or=40;31;01:*.pvr=01;35:*.ogm=01;35:*.svgz=01;35:*.toast=01;31:*.asf=01;35:*.bz2=01;31:*.rar=01;31:*.sparsebundle=01;31:*.ogg=01;35:*.m2v=01;35:*.svg=01;35:*.sparseimage=01;31:*.7z=01;31:*.mp4=01;35:*.tbz2=01;31:bd=40;33;01:*.vob=01;35:*.zip=01;31:*.avi=01;35:*.mp3=01;35:so=01;35:*.m4a=01;35:ln=01;36:*.tgz=01;31:tw=30;42:*.png=01;35:*.wmv=01;35:sg=30;43:*.rpm=01;31:*.gz=01;31:*.tbz=01;31:*.mkv=01;35:*.mpg=01;35:*.pkg=01;31:*.mpeg=01;35:*.iso=01;31:ca=30;41:pi=41;33:*.wav=01;35:su=37;41:*.jpg=01;35:st=37;44:cd=40;33;01:*.m4v=01;35:mh=01;36:' \
-	MANPATH="$HOME/.prefix/share/man:/usr/share/man:/usr/local/share/man" \
+	MANPATH="$HOME/.prefix/share/man:/usr/local/share/man:/usr/share/man" \
 	MAVEN_HOME='/usr/local/opt/maven' \
 	PS1='\[\033[01;32m\]\u\[\033[01;34m\] \w \[\033[0m'
 
@@ -120,28 +120,26 @@ export PATH="$(join_strings : ${PATHS[*]})"
 	export HOMEBREW_GITHUB_API_TOKEN
 }
 
-/usr/bin/which brew >/dev/null 2>&1 || {
+which brew >/dev/null 2>&1 || {
 	/usr/bin/ruby -e "$(/usr/bin/curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
 	brew tap Homebrew/bundle
 }
 
-[ -f ~/.iterm2_shell_integration.bash ] || {
-	/usr/bin/curl -fsSL -o ~/.iterm2_shell_integration.bash https://iterm2.com/misc/bash_startup.in
-}
+[ -f ~/.iterm2_shell_integration.bash ] || /usr/bin/curl -fsSL -o ~/.iterm2_shell_integration.bash https://iterm2.com/misc/bash_startup.in
 
 [ ! -f /usr/local/etc/bash_completion ] || . /usr/local/etc/bash_completion
-function_exists __git_ps1 && export PS1=${PS1}'\[\033[01;33m\]$(__git_ps1 "[%s] ")\[\033[00m\]'
 
-[ ! -t 1 ] || [ ! -f ~/.iterm2_shell_integration.bash ] || . ~/.iterm2_shell_integration.bash
 # changing PS1 is impossible after iTerm2 shell integration is enabled
+function_exists __git_ps1 && export PS1=${PS1}'\[\033[01;33m\]$(__git_ps1 "[%s] ")\[\033[00m\]'
+[ ! -t 1 ] || [ ! -f ~/.iterm2_shell_integration.bash ] || . ~/.iterm2_shell_integration.bash
 
 [ ! -f ~/.nvm/nvm.sh ]      || { . ~/.nvm/nvm.sh; nvm use unstable >/dev/null; }
 [ ! -f ~/.rvm/scripts/rvm ] || . ~/.rvm/scripts/rvm
 
-which rbenv   >/dev/null 2>&1 && eval "$(rbenv init -)"
-which thefuck >/dev/null 2>&1 && eval "$(thefuck --alias)"
+if which rbenv   >/dev/null 2>&1; then eval "$(rbenv init -)"; fi
+if which thefuck >/dev/null 2>&1; then eval "$(thefuck --alias)"; fi
 
-[ -f ~/.gitauthor ] && {
+[ ! -f ~/.gitauthor ] || {
 	while true
 	do
 		read GIT_AUTHOR_NAME
@@ -149,15 +147,15 @@ which thefuck >/dev/null 2>&1 && eval "$(thefuck --alias)"
 		break
 	done < "${HOME}/.gitauthor"
 
-	[ -n "$GIT_AUTHOR_NAME"  ] && export GIT_AUTHOR_NAME  GIT_COMMITTER_NAME="$GIT_AUTHOR_NAME"
-	[ -n "$GIT_AUTHOR_EMAIL" ] && export GIT_AUTHOR_EMAIL GIT_COMMITTER_EMAIL="$GIT_AUTHOR_EMAIL"
+	[ -z "$GIT_AUTHOR_NAME"  ] || export GIT_AUTHOR_NAME  GIT_COMMITTER_NAME="$GIT_AUTHOR_NAME"
+	[ -z "$GIT_AUTHOR_EMAIL" ] || export GIT_AUTHOR_EMAIL GIT_COMMITTER_EMAIL="$GIT_AUTHOR_EMAIL"
 }
 
 # aliases and custom commands
 
 alias grep='grep --color'
-which gls    >/dev/null 2>&1 && alias ls="gls --color=auto --show-control-chars"
-which gnutar >/dev/null 2>&1 && alias tar='gnutar'
+if which gls    >/dev/null 2>&1; then alias ls="gls --color=auto --show-control-chars"; fi
+if which gnutar >/dev/null 2>&1; then alias tar='gnutar'; fi
 [ ! -x "$HOME/.iTerm2/imgcat" ] || alias imgcat="$HOME/.iTerm2/imgcat"
 [ ! -x "$HOME/.iTerm2/it2dl" ]  || alias it2dl="$HOME/.iTerm2/it2dl"
 
@@ -177,6 +175,10 @@ hardlinks() {
 	fi
 	local $(stat -s "$FN")
 	find "$DIR" -inum $st_ino $@
+}
+
+brokenlinks() {
+	gfind -O3 "$1" -xtype l -print0
 }
 
 update_env() {
@@ -237,14 +239,13 @@ update_env() {
 
 
 # extra setup
-
-/usr/bin/find ~/Library -flags hidden -maxdepth 0 -exec /usr/bin/chflags nohidden "{}" +
-
-{ defaults read  com.apple.dock persistent-others | grep '"recents-tile"' >/dev/null 2>&1; } || \
-  defaults write com.apple.dock persistent-others -array-add '{ "tile-data" = { "list-type" = 1; }; "tile-type" = "recents-tile"; }'
-
+#/usr/bin/find ~/Library -flags hidden -maxdepth 0 -exec /usr/bin/chflags nohidden "{}" +
+#
+#{ defaults read  com.apple.dock persistent-others | grep '"recents-tile"' >/dev/null 2>&1; } || \
+#  defaults write com.apple.dock persistent-others -array-add '{ "tile-data" = { "list-type" = 1; }; "tile-type" = "recents-tile"; }'
+#
 # Enable subpixel font rendering on non-Apple LCDs
-defaults write -g AppleFontSmoothing -int 2
+#defaults write -g AppleFontSmoothing -int 2
 
 # Site-specific
 [ ! -f "$HOME/.bash_profile.local" ] || . "$HOME/.bash_profile.local"
