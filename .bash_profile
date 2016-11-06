@@ -163,6 +163,10 @@ dl() {
 	aria2c -x5 --http-accept-gzip=true --use-head=true ${1+"$@"}
 }
 
+magnetize() {
+	open 'magnet:?xt=urn:btih:'"$1"
+}
+
 hardlinks() {
 	# Usage: hardlinks <file> [dir] [extra find arguments]
 	local FN="$1" DIR="$2"
