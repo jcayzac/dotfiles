@@ -205,7 +205,8 @@ update_env() {
 	if which gem >/dev/null 2>&1
 	then
 		__msg "Updating Ruby gems…"
-		gem update -q -N
+		gem sources -q -u
+		gem update -q -N --no-update-sources
 		gem clean -q >/dev/null 2>&1
 	fi
 
