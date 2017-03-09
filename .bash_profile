@@ -14,11 +14,13 @@ export \
 	GIT_PS1_SHOWUPSTREAM='verbose name' \
 	GOPATH="$HOME/.go" \
 	GRADLE_HOME='/usr/local/opt/gradle' \
+	GROOVY_HOME='/usr/local/opt/groovy/libexec' \
 	GREP_COLOR='01' \
 	HISTCONTROL='erasedups' \
 	HISTFILESIZE=10000 \
 	HISTIGNORE='&:ls:cd:pwd:[bf]g:exit:fuck' \
 	HOMEBREW_NO_ANALYTICS=1 \
+	HOMEBREW_INSTALL_BADGE='🥃' \
 	JAVA_HOME="$('/usr/libexec/java_home' -v "$DEFAULT_JAVA" 2>/dev/null)" \
 	LANG="$DEFAULT_LOCALE" \
 	LC_COLLATE="$DEFAULT_LOCALE" \
