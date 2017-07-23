@@ -40,9 +40,6 @@ export \
 	MAVEN_HOME='/usr/local/opt/maven' \
 	PS1='\[\033[01;32m\]\u\[\033[01;34m\] \w \[\033[0m'
 
-# TODO: actually compare versions
-ANDROID_LATEST_BUILD_TOOLS="$(ls $ANDROID_HOME/build-tools | sort | tail -1)"
-
 umask 022			# default mode = 755
 ulimit -S -n 10240	# raise number of open file handles
 shopt -s cmdhist	# save multiline commands in history
@@ -79,7 +76,6 @@ PATHS=(
 	"$ANDROID_HOME/bin"
 	"$ANDROID_HOME/tools"
 	"$ANDROID_HOME/platform-tools"
-	"$ANDROID_HOME/build-tools/$ANDROID_LATEST_BUILD_TOOLS"
 	"$MAVEN_HOME/bin"
 	"$ANT_HOME/bin"
 
@@ -163,6 +159,16 @@ if which gnutar >/dev/null 2>&1; then alias tar='gnutar'; fi
 
 dl() {
 	aria2c -x5 --http-accept-gzip=true --use-head=true ${1+"$@"}
+}
+
+copy() {
+	# Fucked up over SMB/CIFS :-(
+	# rsync -c --no-xattrs --no-whole-file --inplace --progress ${1+"$@"}
+	ditto --norsrc --noextattr --noqtn --noacl ${1+"$@"}
+}
+
+copy-movie() {
+	ncftpput -z -f "$HOME/.ncftp/hosts/mediaplayer" T_Drive/Films ${1+"$@"}
 }
 
 magnetize() {
