@@ -152,6 +152,7 @@ if which thefuck >/dev/null 2>&1; then eval "$(thefuck --alias)"; fi
 # aliases and custom commands
 
 alias grep='grep --color'
+alias grepjava='grep --include \*.java'
 if which gls    >/dev/null 2>&1; then alias ls="gls --color=auto --show-control-chars"; fi
 if which gnutar >/dev/null 2>&1; then alias tar='gnutar'; fi
 [ ! -x "$HOME/.iTerm2/imgcat" ] || alias imgcat="$HOME/.iTerm2/imgcat"
