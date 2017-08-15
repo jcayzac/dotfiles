@@ -31,6 +31,7 @@
 	commitbreaking      = !git o-o 🔥 # Backward compatibility-breaking changes
 	commitbug           = !git o-o 🐛 # Bug fixes
 	commitcosmetics     = !git o-o 💄 # Cosmetic changes
+	commitcrash         = !git o-o 💣 # Fix a crash in production
 	commitcritical      = !git o-o 🚑 # Critical fixes/updates
 	commitdca           = !git o-o 🙈 # Fixing/removing horrible things from people who "Didn't Care Anything"
 	commitdependencies  = !git o-o 💎 # Changes to dependencies
