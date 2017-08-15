@@ -26,27 +26,35 @@
 [alias]
 	# Emoji prefix support, inspired from https://gitmoji.carloscuesta.me/
 	o-o = "!f() { local p=\"$1\" m=\"$2\"; shift 2; git commit -m \"$p $m\" ${1+\"$@\"}; }; f"
-	commitbug = !git o-o 🐛
-	commitcritical = !git o-o 🚑
-	commitdoc = !git o-o 📚
-	commitrelease = !git o-o 🚀
-	commitfeature = !git o-o ✨
-	commitui = !git o-o 💄
-	commitmeta = !git o-o 📇
-	commitrefactor = !git o-o ♻️
-	commitlocalization = !git o-o 🌐
-	commitoptimization = !git o-o ⚡️
-	commitcosmetics = !git o-o 🎨
-	commitdeprecation = !git o-o 💩
-	commitremoval = !git o-o 🗑️
-	commitlint = !git o-o 🚨
-	commitwip = !git o-o 🚧
-	committools = !git o-o 🔧
-	commitrename = !git o-o 🚚
-	commitbreaking = !git o-o 💥
-	commitaccessibility = !git o-o ♿️
-	commitstrings = !git o-o 💬
-	commitdca = !git o-o 🙈
+	commitaccessibility = !git o-o ♿️ # Accessibility-related changes
+	commitautomation    = !git o-o 🤖 # Automation-related changes
+	commitbreaking      = !git o-o 🔥 # Backward compatibility-breaking changes
+	commitbug           = !git o-o 🐛 # Bug fixes
+	commitcosmetics     = !git o-o 💄 # Cosmetic changes
+	commitcritical      = !git o-o 🚑 # Critical fixes/updates
+	commitdca           = !git o-o 🙈 # Fixing/removing horrible things from people who "Didn't Care Anything"
+	commitdependencies  = !git o-o 💎 # Changes to dependencies
+	commitdeprecation   = !git o-o 💩 # Backward-compatible deprecation
+	commitdoc           = !git o-o 📚 # Changes to documentation and comments
+	commitexample       = !git o-o 🍭 # Changes to example code
+	commitfeature       = !git o-o ⭐️ # New features and improvements
+	commitinitial       = !git o-o 🐣 # Initial commit
+	commitlicense       = !git o-o ©️  # Changes to licensing terms and other legal junk
+	commitlint          = !git o-o 🚨 # Fixes for lint warnings
+	commitlocalization  = !git o-o 🌐 # l10n/i17n related changes
+	commitmeta          = !git o-o 📇 # Changes in metadata
+	commitoptimization  = !git o-o ⚡️ # Changes that make things faster or more efficient
+	commitrefactor      = !git o-o ♻️  # Refactoring
+	commitrelease       = !git o-o 🚀 # Deploying stuff to prod
+	commitremoval       = !git o-o 🗑️ # Removing garbage
+	commitrename        = !git o-o 🚚 # Moving stuff around
+	commitrevert        = !git o-o 🔙 # Reverting changes
+	commitsecurity      = !git o-o 🔒 # Security-related changes
+	commitstrings       = !git o-o 💬 # Changing strings. See also `commitlocalization`
+	committools         = !git o-o 🔧 # Changes to the tooling
+	commitui            = !git o-o 🎨 # UI changes
+	commitwip           = !git o-o 🚧 # Work in progress stuff (do not merge those)
+
 	dif  = diff --minimal --patience -M50% -D -w #--color-words
 	difflines = diff --minimal --patience -M50% -D -w
 	delete-tag = "!f() { git tag -d \"${2:-$1}\" && if [ -n \"$2\" ]; then git push \"$1\" \":$2\"; fi; }; f"
