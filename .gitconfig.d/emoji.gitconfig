@@ -15,12 +15,12 @@
 	commitexample       = !git o-o 🍭 # Changes to example code
 	commitfeature       = !git o-o ⭐️ # New features and improvements
 	commitinitial       = !git o-o 🐣 # Initial commit
-	commitlicense       = !git o-o ©️  # Changes to licensing terms and other legal junk
+	commitlicense       = !git o-o ©️ # Changes to licensing terms and other legal junk
 	commitlint          = !git o-o 🚨 # Fixes for lint warnings
 	commitlocalization  = !git o-o 🌐 # l10n/i17n related changes
 	commitmeta          = !git o-o 📇 # Changes in metadata
 	commitoptimization  = !git o-o ⚡️ # Changes that make things faster or more efficient
-	commitrefactor      = !git o-o ♻️  # Refactoring
+	commitrefactor      = !git o-o ♻️ # Refactoring
 	commitrelease       = !git o-o 🚀 # Deploying stuff to prod
 	commitremoval       = !git o-o 🗑️ # Removing garbage
 	commitrename        = !git o-o 🚚 # Moving stuff around
