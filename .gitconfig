@@ -46,6 +46,7 @@
 	commitbreaking = !git o-o 💥
 	commitaccessibility = !git o-o ♿️
 	commitstrings = !git o-o 💬
+	commitdca = !git o-o 🙈
 	dif  = diff --minimal --patience -M50% -D -w #--color-words
 	difflines = diff --minimal --patience -M50% -D -w
 	delete-tag = "!f() { git tag -d \"${2:-$1}\" && if [ -n \"$2\" ]; then git push \"$1\" \":$2\"; fi; }; f"
