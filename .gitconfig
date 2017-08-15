@@ -29,6 +29,7 @@
 	push-for-review = !git push gerrit HEAD:refs/for/${1:-develop}
 	pass  = !ssh gerrit gerrit review $(git rev-parse HEAD) --verified 1 --code-review 2 -s
 	backlog = log --graph --pretty=tformat:'%C(white red bold) %h %Creset %C(cyan)%an%Creset %s %Cgreen(%cd)%Creset%C(yellow)%d%Creset' --abbrev-commit #--no-merges
+	taglog = "!git tag -l | while read T do; do git log -n 1 --pretty=tformat:'%C(red bold) %cd %Creset '$T $T | cat ; done"
 	tinylog = !git backlog -n10
 	last = rev-list --max-count=1 HEAD
 	remodule = submodule update --init --recursive --force
