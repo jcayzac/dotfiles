@@ -24,9 +24,30 @@
 [log]
 	date = iso
 [alias]
+	# Emoji prefix support, inspired from https://gitmoji.carloscuesta.me/
+	o-o = "!f() { local p=\"$1\" m=\"$2\"; shift 2; git commit -m \"$p $m\" ${1+\"$@\"}; }; f"
+	commitbug = !git o-o 🐛
+	commitcritical = !git o-o 🚑
+	commitdoc = !git o-o 📚
+	commitrelease = !git o-o 🚀
+	commitfeature = !git o-o ✨
+	commitui = !git o-o 💄
+	commitmeta = !git o-o 📇
+	commitrefactor = !git o-o ♻️
+	commitlocalization = !git o-o 🌐
+	commitoptimization = !git o-o ⚡️
+	commitcosmetics = !git o-o 🎨
+	commitdeprecation = !git o-o 💩
+	commitremoval = !git o-o 🗑️
+	commitlint = !git o-o 🚨
+	commitwip = !git o-o 🚧
+	committools = !git o-o 🔧
+	commitrename = !git o-o 🚚
+	commitbreaking = !git o-o 💥
+	commitaccessibility = !git o-o ♿️
+	commitstrings = !git o-o 💬
 	dif  = diff --minimal --patience -M50% -D -w #--color-words
 	difflines = diff --minimal --patience -M50% -D -w
-	comit = commit -S
 	delete-tag = "!f() { git tag -d \"${2:-$1}\" && if [ -n \"$2\" ]; then git push \"$1\" \":$2\"; fi; }; f"
 	push-for-review = !git push gerrit HEAD:refs/for/${1:-develop}
 	pass  = !ssh gerrit gerrit review $(git rev-parse HEAD) --verified 1 --code-review 2 -s
