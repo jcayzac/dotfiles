@@ -1,15 +1,17 @@
 [push]
-	default = matching
+	default = tracking
 [color]
 	ui = true
 [diff]
 	renames = copies
 	algorithm = histogram
+	mnemonicprefix = true
 [mergetool "diffmerge"]
 	cmd = diffmerge --merge --result=$MERGED $LOCAL $BASE $REMOTE
 	trustExitCode = false
 [merge]
 	tool = diffmerge
+	stat = true
 [gc]
 	auto = 1
 [format]
@@ -44,6 +46,7 @@
 	pager = /usr/local/opt/git/share/git-core/contrib/diff-highlight/diff-highlight | less -FXnSR
 	editor = vim
 	autocrlf = input
+	whitespace = trailing-space,space-before-tab
 [credential]
 	helper = store #osxkeychain
 [url "git@github.com:"]
@@ -56,3 +59,7 @@
 	sslVerify
 [http "https://gerrit.dev.rakuten-it.com"]
 	sslVerify = false
+[advice]
+	statusHints = false
+[rerere]
+	enabled = true
