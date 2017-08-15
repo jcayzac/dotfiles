@@ -32,6 +32,8 @@ brew 'coreutils'
 brew 'dos2unix'
 brew 'findutils'
 brew 'gnu-sed'
+brew 'less', args: ['with-pcre']
+brew 'lesspipe', args: ['with-syntax-highlighting']
 brew 'htop', args: ['with-ncurses']
 brew 'source-highlight'
 brew 'thefuck'
