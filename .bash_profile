@@ -5,8 +5,8 @@ DEFAULT_LOCALE='en_US.UTF-8'
 # Environment
 set +e +u +o pipefail
 export \
-	ANDROID_HOME='/usr/local/opt/android-sdk' \
-	ANDROID_SDK_ROOT='/usr/local/share/android-sdk' \
+	ANDROID_HOME='/usr/local/share/android-sdk' \
+	ANDROID_SDK_ROOT="$ANDROID_HOME" \
 	ANDROID_NDK_HOME='/usr/local/share/android-ndk' \
 	ANT_HOME='/usr/local/opt/ant' \
 	GIT_PS1_SHOWDIRTYSTATE=1 \

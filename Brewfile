@@ -18,12 +18,13 @@ brew 'libtool'
 brew 'autoconf'
 brew 'automake'
 brew 'readline'
+brew 'ncurses'
 brew 'openssl'
 brew 'libssh2'
 brew 'curl'
+brew 'cputhrottle'
 brew 'libsodium'
 brew 'pcre'
-brew 'homebrew/dupes/ncurses'
 brew 'git', args: ['with-blk-sha1', 'with-brewed-curl', 'with-brewed-openssl', 'with-pcre', 'with-persistent-https']
 brew 'bash'
 brew 'bash-completion'
@@ -32,6 +33,7 @@ brew 'colordiff'
 brew 'coreutils'
 brew 'dos2unix'
 brew 'findutils'
+brew 'fontconfig'
 brew 'gnu-sed'
 brew 'less', args: ['with-pcre']
 brew 'lesspipe', args: ['with-syntax-highlighting']
@@ -58,9 +60,13 @@ brew 'httrack'
 brew 'minisign'
 brew 'ncftp'
 brew 'wget'
-brew 'gnupg'
+brew 'nmap'
+brew 'rsync'
+brew 'gpg-agent'
+brew 'gpgme'
+brew 'dirmngr'
 brew 'aria2', args: ['with-libssh2']
-brew 'dnscrypt-proxy', args: ['with-plugins']
+brew 'dnscrypt-proxy', args: ['with-plugins'], restart_service: true
 cask 'google-chrome'
 cask 'firefox'
 cask 'transmission'
@@ -71,13 +77,24 @@ mas  'Slack', id: 803453959
 # Media
 brew 'exiftool'
 brew 'imagemagick', args: ['with-webp']
-brew 'ffmpeg', args: ['with-x265', 'with-faac', 'with-libvpx', 'with-theora', 'with-libvorbis']
+brew 'eigen'
+brew 'faac'
+brew 'fdk-aac'
+brew 'lame'
+brew 'flac'
+brew 'libogg'
+brew 'libvorbis'
+brew 'libvpx'
+brew 'theora'
+brew 'ffmpeg', args: ['with-x265', 'with-fdk-aac', 'with-libvpx', 'with-theora', 'with-libvorbis', 'with-webp']
+brew 'mkvtoolnix', args: ['with-qt']
+cask 'mkvtools'
 cask 'vlc'
 cask 'calibre'
 mas  'iMovie', id: 408981434
 
 # Programming
-#mas  'Xcode', id: 497799835
+mas  'Xcode', id: 497799835
 brew 'make'
 brew 'cmake'
 brew 'opencv'
@@ -103,9 +120,6 @@ brew 'maven'
 brew 'gradle'
 brew 'dex2jar'
 brew 'google-java-format'
-cask 'android-studio'
-cask 'intel-haxm'
-cask 'android-sdk'
-cask 'android-ndk'
+cask 'android-studio' # On first run, install the SDK to /usr/local/share/android-sdk
 
 # ex: noet ci pi sts=0 sw=4 ts=4 filetype=sh
