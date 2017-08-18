@@ -10,6 +10,7 @@ tap 'homebrew/dupes'
 tap 'homebrew/services'
 tap 'homebrew/python'
 tap 'homebrew/science'
+tap 'buo/cask-upgrade'
 
 # Basic system
 brew 'pkg-config'
