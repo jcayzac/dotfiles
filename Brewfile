@@ -94,17 +94,17 @@ brew 'watchman'
 brew 'hugo'
 cask 'sublime-text'
 cask 'atom'
-cask 'intel-haxm'
-cask 'android-studio'
 cask 'visual-studio-code'
 
-
-# Android SDK
+# Android
 brew 'ant'
 brew 'maven'
 brew 'gradle'
-brew 'android-sdk'
-brew 'android-ndk'
 brew 'dex2jar'
+brew 'google-java-format'
+cask 'android-studio'
+cask 'intel-haxm'
+cask 'android-sdk'
+cask 'android-ndk'
 
 # ex: noet ci pi sts=0 sw=4 ts=4 filetype=sh
