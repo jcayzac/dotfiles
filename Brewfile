@@ -101,6 +101,7 @@ brew 'opencv'
 brew 'ruby-build'
 brew 'rbenv'
 brew 'nvm'
+brew 'yarn', args: ['without-mode']
 brew 'numpy'
 brew 'go'
 brew 'graphviz'
