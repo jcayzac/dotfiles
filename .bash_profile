@@ -134,18 +134,6 @@ function_exists __git_ps1 && export PS1=${PS1}'\[\033[01;33m\]$(__git_ps1 "[%s] 
 if which rbenv   >/dev/null 2>&1; then eval "$(rbenv init -)"; fi
 if which thefuck >/dev/null 2>&1; then eval "$(thefuck --alias)"; fi
 
-[ ! -f ~/.gitauthor ] || {
-	while true
-	do
-		read GIT_AUTHOR_NAME
-		read GIT_AUTHOR_EMAIL
-		break
-	done < "${HOME}/.gitauthor"
-
-	[ -z "$GIT_AUTHOR_NAME"  ] || export GIT_AUTHOR_NAME  GIT_COMMITTER_NAME="$GIT_AUTHOR_NAME"
-	[ -z "$GIT_AUTHOR_EMAIL" ] || export GIT_AUTHOR_EMAIL GIT_COMMITTER_EMAIL="$GIT_AUTHOR_EMAIL"
-}
-
 # aliases and custom commands
 
 alias grep='grep --color'
