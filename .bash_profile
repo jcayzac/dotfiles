@@ -5,9 +5,9 @@ DEFAULT_LOCALE='en_US.UTF-8'
 # Environment
 set +e +u +o pipefail
 export \
-	ANDROID_HOME='/usr/local/share/android-sdk' \
-	ANDROID_SDK_ROOT="$ANDROID_HOME" \
-	ANDROID_NDK_HOME='/usr/local/share/android-ndk' \
+	ANDROID_HOME="$HOME/Library/Android/sdk" \
+	ANDROID_SDK_ROOT="$HOME/Library/Android/sdk" \
+	ANDROID_NDK_HOME="$HOME/Library/Android/sdk/ndk-bundle" \
 	ANT_HOME='/usr/local/opt/ant' \
 	GIT_PS1_SHOWDIRTYSTATE=1 \
 	GIT_PS1_SHOWSTASHSTATE=1 \
@@ -71,8 +71,8 @@ PATHS=(
 
 	# Android
 	"$GRADLE_HOME/bin"
-	"$ANDROID_HOME/bin"
 	"$ANDROID_HOME/tools"
+	"$ANDROID_HOME/tools/bin"
 	"$ANDROID_HOME/platform-tools"
 	"$MAVEN_HOME/bin"
 	"$ANT_HOME/bin"

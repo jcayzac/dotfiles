@@ -120,6 +120,6 @@ brew 'maven'
 brew 'gradle'
 brew 'dex2jar'
 brew 'google-java-format'
-cask 'android-studio' # On first run, install the SDK to /usr/local/share/android-sdk
+cask 'android-studio'
 
 # ex: noet ci pi sts=0 sw=4 ts=4 filetype=sh
