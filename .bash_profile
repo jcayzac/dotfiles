@@ -22,7 +22,9 @@ export \
 	HISTIGNORE='&:ls:cd:pwd:[bf]g:exit:fuck' \
 	HOMEBREW_NO_ANALYTICS=1 \
 	HOMEBREW_INSTALL_BADGE='🥃' \
-	JAVA_HOME="$('/usr/libexec/java_home' -v "$DEFAULT_JAVA" 2>/dev/null)" \
+    JAVA7_HOME="$(/usr/libexec/java_home -v 1.7 2>/dev/null || true)" \
+    JAVA8_HOME="$(/usr/libexec/java_home -v 1.8 2>/dev/null || true)" \
+    JAVA_HOME="$(/usr/libexec/java_home -v "$DEFAULT_JAVA" 2>/dev/null || true)" \
 	LANG="$DEFAULT_LOCALE" \
 	LC_COLLATE="$DEFAULT_LOCALE" \
 	LC_CTYPE="$DEFAULT_LOCALE" \
