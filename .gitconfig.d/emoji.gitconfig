@@ -30,4 +30,5 @@
 	committools         = !git o-o 🔧 # Changes to the tooling
 	commitui            = !git o-o 🎨 # UI changes
 	commitwip           = !git o-o 🚧 # Work in progress stuff (do not merge those)
+	commitexperimental  = !git o-o ⚗️ # Experimental stuff
 # ex: filetype=gitconfig
