@@ -2,7 +2,8 @@
 
 # tmux requires unrecognized OSC sequences to be wrapped with DCS tmux;
 # <sequence> ST, and for all ESCs in <sequence> to be replaced with ESC ESC. It
-# only accepts ESC backslash for ST.
+# only accepts ESC backslash for ST. We use TERM instead of TMUX because TERM
+# gets passed through ssh.
 function print_osc() {
     if [[ $TERM == screen* ]] ; then
         printf "\033Ptmux;\033\033]"
@@ -62,6 +63,13 @@ function show_help() {
     echo "   or: cat filename | imgcat" 1>& 2
 }
 
+function check_dependency() {
+  if ! (builtin command -V "$1" > /dev/null 2>& 1); then
+    echo "imgcat: missing dependency: can't find $1" 1>& 2
+    exit 1
+  fi
+}
+
 ## Main
 
 if [ -t 0 ]; then
@@ -76,6 +84,10 @@ if [ $has_stdin = f -a $# -eq 0 ]; then
     exit
 fi
 
+check_dependency awk
+check_dependency base64
+check_dependency wc
+
 # Look for command line flags.
 while [ $# -gt 0 ]; do
     case "$1" in
@@ -85,6 +97,16 @@ while [ $# -gt 0 ]; do
         ;;
     -p|--p|--print)
         print_filename=1
+        ;;
+    -u|--u|--url)
+        check_dependency curl
+        encoded_image=$(curl -s "$2" | base64) || (error "No such file or url $2"; exit 2)
+        has_stdin=f
+        print_image "$2" 1 "$encoded_image" "$print_filename"
+        set -- ${@:1:1} "-u" ${@:3}
+        if [ "$#" -eq 2 ]; then
+            exit
+        fi
         ;;
     -*)
         error "Unknown option flag: $1"
