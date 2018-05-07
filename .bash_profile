@@ -8,7 +8,7 @@ export \
 	ANDROID_HOME="$HOME/Library/Android/sdk" \
 	ANDROID_SDK_ROOT="$HOME/Library/Android/sdk" \
 	ANDROID_NDK_HOME="$HOME/Library/Android/sdk/ndk-bundle" \
-	ANT_HOME='/usr/local/opt/ant' \
+	ANT_HOME='/usr/local/opt/ant/libexec' \
 	GIT_PS1_SHOWDIRTYSTATE=1 \
 	GIT_PS1_SHOWSTASHSTATE=1 \
 	GIT_PS1_SHOWUNTRACKEDFILES=1 \
@@ -21,9 +21,11 @@ export \
 	HISTFILESIZE=10000 \
 	HISTIGNORE='&:ls:cd:pwd:[bf]g:exit:fuck' \
 	HOMEBREW_NO_ANALYTICS=1 \
-	HOMEBREW_INSTALL_BADGE='🥃' \
+	HOMEBREW_INSTALL_BADGE='  🥃  ' \
     JAVA7_HOME="$(/usr/libexec/java_home -v 1.7 2>/dev/null || true)" \
     JAVA8_HOME="$(/usr/libexec/java_home -v 1.8 2>/dev/null || true)" \
+    JAVA9_HOME="$(/usr/libexec/java_home -v 9 2>/dev/null || true)" \
+    JAVA10_HOME="$(/usr/libexec/java_home -v 10 2>/dev/null || true)" \
     JAVA_HOME="$(/usr/libexec/java_home -v "$DEFAULT_JAVA" 2>/dev/null || true)" \
 	LANG="$DEFAULT_LOCALE" \
 	LC_COLLATE="$DEFAULT_LOCALE" \
@@ -77,7 +79,7 @@ PATHS=(
 	"$ANDROID_HOME/tools/bin"
 	"$ANDROID_HOME/platform-tools"
 	"$MAVEN_HOME/bin"
-	"$ANT_HOME/bin"
+	"/usr/local/opt/ant/bin"
 
 	# Local
 	"/usr/local/bin"
