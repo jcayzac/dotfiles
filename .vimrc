@@ -40,7 +40,7 @@ syntax enable
 filetype plugin indent on
 
 " fuck spaces, we want tabs!
-set tabstop=4 softtabstop=4 shiftwidth=4 noexpandtab
+set tabstop=2 softtabstop=2 shiftwidth=2 noexpandtab
 set autoindent
 set smartindent
 set smarttab
