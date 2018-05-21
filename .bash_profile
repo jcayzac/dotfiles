@@ -185,6 +185,10 @@ brokenlinks() {
 	NSUnbufferedIO=YES gfind -O3 "$dir" -xtype l -print0 | xargs -0 ${1+"$@"}
 }
 
+unquarantine() {
+	xattr -dr com.apple.quarantine ${1+"$@"}
+}
+
 update_env() {
 	[ ! -t 1 ] || printf "\x1b[2J\x1b[H"
 	__msg() {
