@@ -23,6 +23,9 @@
 	browser = open
 [log]
 	date = iso
+	abbrevCommit = true
+[format]
+	pretty = tformat:%C(white red bold) %h %Creset %C(cyan)%an%Creset %s %Cgreen(%cd)%Creset%C(yellow)%d%Creset
 [core]
 	filemode = true
 	pager = /usr/local/opt/git/share/git-core/contrib/diff-highlight/diff-highlight | less -FXnSR

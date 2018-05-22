@@ -1,7 +1,7 @@
 [alias]
-	dif  = diff --minimal --patience -M50% -D -w #--color-words
+	dif  = diff --minimal --patience -M50% -D -w
 	delete-tag = "!f() { git tag -d \"${2:-$1}\" && if [ -n \"$2\" ]; then git push \"$1\" \":$2\"; fi; }; f"
-	backlog = log --graph --pretty=tformat:'%C(white red bold) %h %Creset %C(cyan)%an%Creset %s %Cgreen(%cd)%Creset%C(yellow)%d%Creset' --abbrev-commit #--no-merges
+	history = log --graph
 	taglog = "!git tag -l | while read T do; do git log -n 1 --pretty=tformat:'%C(red bold) %cd %Creset '$T $T | cat ; done"
 	last = rev-list --max-count=1 HEAD
 	remodule = submodule update --init --recursive --force
