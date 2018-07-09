@@ -189,6 +189,10 @@ unquarantine() {
 	xattr -dr com.apple.quarantine ${1+"$@"}
 }
 
+htmlpaste() {
+	osascript -e 'the clipboard as «class HTML»' | perl -ne 'print chr foreach unpack("C*",pack("H*",substr($_,11,-3)))'
+}
+
 update_env() {
 	[ ! -t 1 ] || printf "\x1b[2J\x1b[H"
 	__msg() {
