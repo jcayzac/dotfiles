@@ -22,11 +22,11 @@ export \
 	HISTIGNORE='&:ls:cd:pwd:[bf]g:exit:fuck' \
 	HOMEBREW_NO_ANALYTICS=1 \
 	HOMEBREW_INSTALL_BADGE='  🥃  ' \
-    JAVA7_HOME="$(/usr/libexec/java_home -v 1.7 2>/dev/null || true)" \
-    JAVA8_HOME="$(/usr/libexec/java_home -v 1.8 2>/dev/null || true)" \
-    JAVA9_HOME="$(/usr/libexec/java_home -v 9 2>/dev/null || true)" \
-    JAVA10_HOME="$(/usr/libexec/java_home -v 10 2>/dev/null || true)" \
-    JAVA_HOME="$(/usr/libexec/java_home -v "$DEFAULT_JAVA" 2>/dev/null || true)" \
+	JAVA7_HOME="$(/usr/libexec/java_home -v 1.7 2>&- || true)" \
+	JAVA8_HOME="$(/usr/libexec/java_home -v 1.8 2>&- || true)" \
+	JAVA9_HOME="$(/usr/libexec/java_home -v 9 2>&- || true)" \
+	JAVA10_HOME="$(/usr/libexec/java_home -v 10 2>&- || true)" \
+	JAVA_HOME="$(/usr/libexec/java_home -v "$DEFAULT_JAVA" 2>&- || true)" \
 	LANG="$DEFAULT_LOCALE" \
 	LC_COLLATE="$DEFAULT_LOCALE" \
 	LC_CTYPE="$DEFAULT_LOCALE" \
@@ -120,7 +120,7 @@ export PATH="$(join_strings : ${PATHS[*]})"
 	export HOMEBREW_GITHUB_API_TOKEN
 }
 
-which brew >/dev/null 2>&1 || {
+which brew >&- 2>&- || {
 	/usr/bin/ruby -e "$(/usr/bin/curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
 	brew tap Homebrew/bundle
 }
@@ -133,18 +133,20 @@ which brew >/dev/null 2>&1 || {
 function_exists __git_ps1 && export PS1=${PS1}'\[\033[01;33m\]$(__git_ps1 "[%s] ")\[\033[00m\]'
 [ ! -t 1 ] || [ ! -f ~/.iterm2_shell_integration.bash ] || . ~/.iterm2_shell_integration.bash
 
-[ ! -f ~/.nvm/nvm.sh ] || { . ~/.nvm/nvm.sh; nvm use stable >/dev/null; }
-[ ! which yarn >&- 2>&- ] || yarn config set prefix "$(npm config get prefix)" >&-
-
-if which rbenv   >/dev/null 2>&1; then eval "$(rbenv init -)"; fi
-if which thefuck >/dev/null 2>&1; then eval "$(thefuck --alias)"; fi
+[ ! -f ~/.nvm/nvm.sh ] || {
+	. ~/.nvm/nvm.sh
+	nvm use stable >/dev/null
+}
+[ ! which yarn >&- 2>&- ]    || yarn config set prefix "$(npm config get prefix)" >&-
+[ ! which rbenv >&- 2>&- ]   || eval "$(rbenv init -)"
+[ ! which thefuck >&- 2>&- ] || eval "$(thefuck --alias)"
 
 # aliases and custom commands
 
 alias grep='grep --color'
 alias grepjava='grep --include \*.java'
-if which gls    >/dev/null 2>&1; then alias ls="gls --color=auto --show-control-chars"; fi
-if which gnutar >/dev/null 2>&1; then alias tar='gnutar'; fi
+[ ! which gls    >&- 2>&- ]     || alias ls="gls --color=auto --show-control-chars"
+[ ! which gnutar >&- 2>&- ]     || alias tar='gnutar'
 [ ! -x "$HOME/.iTerm2/imgcat" ] || alias imgcat="$HOME/.iTerm2/imgcat"
 [ ! -x "$HOME/.iTerm2/it2dl" ]  || alias it2dl="$HOME/.iTerm2/it2dl"
 
@@ -200,7 +202,7 @@ update_env() {
 		printf "\n\x1b[40;34;1m\x1b[K\n  🤖  %s \x1b[K\n\x1b[K\x1b[0m\n\n" "$1"
 	}
 
-	if which brew >/dev/null 2>&1
+	if which brew >&- 2>&-
 	then
 		__msg "Updating Homebrew…"
 		brew update
@@ -209,12 +211,12 @@ update_env() {
 		brew cask cleanup
 	fi
 
-	if which gem >/dev/null 2>&1
+	if which gem >&- 2>&-
 	then
 		__msg "Updating Ruby gems…"
 		gem sources -q -u
 		gem update -q -N --no-update-sources
-		gem clean -q >/dev/null 2>&1
+		gem clean -q >&- 2>&-
 	fi
 
 	[ ! -x "${NVM_BIN:-/nowhere}/npm" ] || {
@@ -222,14 +224,14 @@ update_env() {
 		"$NVM_BIN/npm" -g update -q
 	}
 
-	if which apm >/dev/null 2>&1
+	if which apm >&- 2>&-
 	then
 		__msg "Updating Atom packages…"
 		apm upgrade --no-confirm
 	fi
 
 	# Skipping, as filters don't work the way they should
-	#if which android >/dev/null 2>&1
+	#if which android >&- 2>&-
 	#then
 	#	__msg "Updating the Android tools…"
 	#	expect -c '
@@ -242,7 +244,7 @@ update_env() {
 	#	'
 	#fi
 
-	if which pod >/dev/null 2>&1
+	if which pod >&- 2>&-
 	then
 		__msg "Updating Cocoapods specs…"
 		pod repo update --silent
@@ -255,7 +257,7 @@ update_env() {
 # extra setup
 #/usr/bin/find ~/Library -flags hidden -maxdepth 0 -exec /usr/bin/chflags nohidden "{}" +
 #
-#{ defaults read  com.apple.dock persistent-others | grep '"recents-tile"' >/dev/null 2>&1; } || \
+#{ defaults read  com.apple.dock persistent-others | grep '"recents-tile"' >&- 2>&- ; } || \
 #  defaults write com.apple.dock persistent-others -array-add '{ "tile-data" = { "list-type" = 1; }; "tile-type" = "recents-tile"; }'
 #
 # Enable subpixel font rendering on non-Apple LCDs
