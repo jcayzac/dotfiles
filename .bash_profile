@@ -154,6 +154,10 @@ dl() {
 	aria2c -x5 --http-accept-gzip=true --use-head=true ${1+"$@"}
 }
 
+unquarantine() {
+	xattr -drv com.apple.quarantine ${1+"$@"}
+}
+
 copy() {
 	# Fucked up over SMB/CIFS :-(
 	# rsync -c --no-xattrs --no-whole-file --inplace --progress ${1+"$@"}
