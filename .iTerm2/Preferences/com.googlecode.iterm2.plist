@@ -9676,6 +9676,8 @@
 	<false/>
 	<key>DisableFullscreenTransparency</key>
 	<true/>
+	<key>DisableMetalWhenIdle</key>
+	<true/>
 	<key>EnableRendezvous</key>
 	<false/>
 	<key>FocusFollowsMouse</key>
@@ -9728,6 +9730,8 @@
 	<true/>
 	<key>MaxVertically</key>
 	<false/>
+	<key>MetalSlowFrameRate</key>
+	<real>60</real>
 	<key>NSColorPanelMode</key>
 	<string>0</string>
 	<key>NSColorPickerSlidersDefaults</key>
@@ -9870,17 +9874,17 @@
 	<key>NSWindow Frame SUStatusFrame</key>
 	<string>1462 1613 400 129 702 900 1920 1080 </string>
 	<key>NSWindow Frame SUUpdateAlert</key>
-	<string>410 381 620 392 0 0 1440 900 </string>
+	<string>304 290 620 392 0 0 1440 900 </string>
 	<key>NSWindow Frame SUUpdateAlertFrame</key>
 	<string>357 1277 575 392 -195 800 1680 1028 </string>
 	<key>NSWindow Frame SessionsPreferences</key>
 	<string>269 126 606 469 0 0 1440 900 </string>
 	<key>NSWindow Frame SharedPreferences</key>
-	<string>222 448 918 381 0 0 1440 900 </string>
+	<string>160 1387 796 486 -227 900 1920 1080 </string>
 	<key>NSWindow Frame UKCrashReporter</key>
 	<string>569 272 592 584 0 0 1440 900 </string>
 	<key>NSWindow Frame iTerm Window 0</key>
-	<string>555 132 1130 727 0 0 1440 900 </string>
+	<string>563 1156 1130 727 -227 900 1920 1080 </string>
 	<key>New Bookmarks</key>
 	<array>
 		<dict>
@@ -10501,7 +10505,7 @@
 			<key>Screen</key>
 			<integer>-1</integer>
 			<key>Scrollback Lines</key>
-			<integer>2000</integer>
+			<integer>0</integer>
 			<key>Scrollback With Status Bar</key>
 			<false/>
 			<key>Scrollback in Alternate Screen</key>
@@ -10795,12 +10799,14 @@
 	<key>SUHasLaunchedBefore</key>
 	<true/>
 	<key>SULastCheckTime</key>
-	<date>2018-05-02T00:10:51Z</date>
+	<date>2018-07-10T05:03:17Z</date>
 	<key>SavePasteHistory</key>
 	<false/>
 	<key>ShowBookmarkName</key>
 	<false/>
 	<key>ShowFullScreenTabBar</key>
+	<false/>
+	<key>ShowMetalFPSmeter</key>
 	<false/>
 	<key>ShowPaneTitles</key>
 	<true/>
@@ -10852,10 +10858,12 @@
 	<key>findRegex_iTerm</key>
 	<false/>
 	<key>iTerm Version</key>
-	<string>3.1.6beta5</string>
+	<string>3.2.0beta6</string>
 	<key>kCommandHistoryHasEverBeenUsed</key>
 	<true/>
 	<key>moveToApplicationsFolderAlertSuppress</key>
+	<true/>
+	<key>preferIntegratedGPU</key>
 	<true/>
 </dict>
 </plist>
