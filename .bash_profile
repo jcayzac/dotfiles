@@ -133,7 +133,8 @@ which brew >/dev/null 2>&1 || {
 function_exists __git_ps1 && export PS1=${PS1}'\[\033[01;33m\]$(__git_ps1 "[%s] ")\[\033[00m\]'
 [ ! -t 1 ] || [ ! -f ~/.iterm2_shell_integration.bash ] || . ~/.iterm2_shell_integration.bash
 
-[ ! -f ~/.nvm/nvm.sh ]      || { . ~/.nvm/nvm.sh; nvm use stable >/dev/null; }
+[ ! -f ~/.nvm/nvm.sh ] || { . ~/.nvm/nvm.sh; nvm use stable >/dev/null; }
+[ ! which yarn >&- 2>&- ] || yarn config set prefix "$(npm config get prefix)" >&-
 
 if which rbenv   >/dev/null 2>&1; then eval "$(rbenv init -)"; fi
 if which thefuck >/dev/null 2>&1; then eval "$(thefuck --alias)"; fi
