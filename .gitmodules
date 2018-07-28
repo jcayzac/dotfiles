@@ -1,21 +1,24 @@
 [submodule ".vim/bundle/vim-javascript-syntax"]
 	path = .vim/bundle/vim-javascript-syntax
-	url = https://github.com/jelera/vim-javascript-syntax.git
+	url = https://github.com/jelera/vim-javascript-syntax
 [submodule ".vim/bundle/vim-flavored-markdown"]
 	path = .vim/bundle/vim-flavored-markdown
-	url = https://github.com/jtratner/vim-flavored-markdown.git
+	url = https://github.com/jtratner/vim-flavored-markdown
 [submodule ".lldb/plugins/chisel"]
 	path = .lldb/plugins/chisel
-	url = https://github.com/facebook/chisel.git
+	url = https://github.com/facebook/chisel
 [submodule ".vim/bundle/vim-fugitive"]
 	path = .vim/bundle/vim-fugitive
-	url = https://github.com/tpope/vim-fugitive.git
+	url = https://github.com/tpope/vim-fugitive
 [submodule ".vim/bundle/vim-css-color.git"]
-	path = .vim/bundle/vim-css-color.git
-	url = https://github.com/ap/vim-css-color.git
+	path = .vim/bundle/vim-css-color
+	url = https://github.com/ap/vim-css-color
 [submodule ".vim/bundle/vim-airline"]
 	path = .vim/bundle/vim-airline
 	url = https://github.com/bling/vim-airline
 [submodule ".vim/bundle/vim-pug"]
 	path = .vim/bundle/vim-pug
-	url = https://github.com/digitaltoad/vim-pug.git
+	url = https://github.com/digitaltoad/vim-pug
+[submodule ".vim/bundle/vim-toml"]
+	path = .vim/bundle/vim-toml
+	url = https://github.com/cespare/vim-toml
