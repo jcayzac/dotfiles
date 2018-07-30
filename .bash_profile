@@ -137,7 +137,10 @@ function_exists __git_ps1 && export PS1=${PS1}'\[\033[01;33m\]$(__git_ps1 "[%s] 
 	. ~/.nvm/nvm.sh
 	nvm use stable >/dev/null
 }
-[ ! which yarn >&- 2>&- ]    || yarn config set prefix "$(npm config get prefix)" >&-
+[ ! which yarn >&- 2>&- ]    || {
+	yarn config set prefix "$(npm config get prefix)" >&-
+	export PATH="$(yarn global bin):$PATH"
+}
 [ ! which rbenv >&- 2>&- ]   || eval "$(rbenv init -)"
 [ ! which thefuck >&- 2>&- ] || eval "$(thefuck --alias)"
 
