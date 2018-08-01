@@ -50,7 +50,7 @@ export \
 umask 022			# default mode = 755
 ulimit -S -n 10240	# raise number of open file handles
 shopt -s cmdhist	# save multiline commands in history
-tabs -4				# use 4sp-wide tabs
+tabs -2				# use 4sp-wide tabs
 
 function_exists() {
 	declare -f -F $1 >/dev/null
@@ -273,4 +273,4 @@ update_env() {
 # Site-specific
 [ ! -f "$HOME/.bash_profile.local" ] || . "$HOME/.bash_profile.local"
 
-# ex: noet ci pi sts=0 sw=4 ts=4 filetype=sh
+# ex: noet ci pi sts=0 sw=2 ts=2 filetype=sh
