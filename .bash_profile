@@ -226,10 +226,15 @@ update_env() {
 		gem clean -q >&- 2>&-
 	fi
 
-	[ ! -x "${NVM_BIN:-/nowhere}/npm" ] || {
-		__msg "Updating Node packages…"
+	if which yarn >&- 2>&-
+	then
+		__msg "Updating Yarn package…"
+		yarn global upgrade --latest
+	elif [ -x "${NVM_BIN:-/nowhere}/npm" ]
+	then
+		__msg "Updating NPM packages…"
 		"$NVM_BIN/npm" -g update -q
-	}
+	fi
 
 	if which apm >&- 2>&-
 	then
