@@ -27,6 +27,7 @@
 [format]
 	pretty = tformat:%C(white red bold) %h %Creset %C(cyan)%an%Creset %s %Cgreen(%cd)%Creset%C(yellow)%d%Creset
 [core]
+	longpaths = true
 	filemode = true
 	pager = /usr/local/opt/git/share/git-core/contrib/diff-highlight/diff-highlight | less -FXnSR
 	editor = vim
