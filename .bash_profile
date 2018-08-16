@@ -81,6 +81,10 @@ PATHS=(
 	"$MAVEN_HOME/bin"
 	"/usr/local/opt/ant/bin"
 
+	# .NET Core SDK
+	"/usr/local/share/dotnet"
+	"/Library/Frameworks/Mono.framework/Versions/Current/bin"
+
 	# Local
 	"/usr/local/bin"
 	"/usr/local/sbin"
