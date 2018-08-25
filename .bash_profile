@@ -233,7 +233,7 @@ update_env() {
 	if which yarn >&- 2>&-
 	then
 		__msg "Updating Yarn package…"
-		yarn global upgrade --latest
+		yarn global upgrade --latest -s
 	elif [ -x "${NVM_BIN:-/nowhere}/npm" ]
 	then
 		__msg "Updating NPM packages…"
