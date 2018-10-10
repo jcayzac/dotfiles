@@ -239,6 +239,12 @@ update_env() {
 		"$NVM_BIN/npm" -g update -q
 	fi
 
+	if which flutter >&- 2>&-
+	then
+		__msg "Updating Flutter…"
+		flutter upgrade
+	fi
+
 	if which apm >&- 2>&-
 	then
 		__msg "Updating Atom packages…"
