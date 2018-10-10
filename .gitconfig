@@ -4,6 +4,7 @@
 	ui = true
 [diff]
 	renames = copies
+	renameLimit = 1000
 	algorithm = histogram
 	mnemonicprefix = true
 [mergetool "diffmerge"]
