@@ -9884,7 +9884,7 @@
 	<key>NSWindow Frame UKCrashReporter</key>
 	<string>569 272 592 584 0 0 1440 900 </string>
 	<key>NSWindow Frame iTerm Window 0</key>
-	<string>0 135 1130 727 0 0 1440 900 </string>
+	<string>300 0 1130 727 0 0 1440 900 </string>
 	<key>NeverWarnAboutShortLivedSessions_9A4141FA-FD33-467E-A90C-906ED1900511</key>
 	<true/>
 	<key>NeverWarnAboutShortLivedSessions_9A4141FA-FD33-467E-A90C-906ED1900511_selection</key>
@@ -10805,7 +10805,7 @@
 	<key>SUHasLaunchedBefore</key>
 	<true/>
 	<key>SULastCheckTime</key>
-	<date>2018-08-14T00:53:45Z</date>
+	<date>2018-10-05T01:01:04Z</date>
 	<key>SavePasteHistory</key>
 	<false/>
 	<key>ShowBookmarkName</key>
@@ -10836,6 +10836,8 @@
 	<integer>0</integer>
 	<key>ThreeFingerEmulates</key>
 	<false/>
+	<key>ThrottleMetalConcurrentFrames</key>
+	<false/>
 	<key>TmuxDashboardLimit</key>
 	<integer>10</integer>
 	<key>TripleClickSelectsFullWrappedLines</key>
@@ -10851,8 +10853,12 @@
 	<false/>
 	<key>UseCompactLabel</key>
 	<true/>
+	<key>UseExperimentalFontMetrics</key>
+	<true/>
 	<key>UseLionStyleFullscreen</key>
 	<true/>
+	<key>UseMetal</key>
+	<false/>
 	<key>WebKitDefaultFontSize</key>
 	<integer>11</integer>
 	<key>WebKitStandardFont</key>
@@ -10870,7 +10876,7 @@
 	<key>findRegex_iTerm</key>
 	<false/>
 	<key>iTerm Version</key>
-	<string>3.2.0beta9</string>
+	<string>3.2.2beta2</string>
 	<key>kCommandHistoryHasEverBeenUsed</key>
 	<true/>
 	<key>moveToApplicationsFolderAlertSuppress</key>
