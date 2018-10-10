@@ -124,7 +124,7 @@ export PATH="$(join_strings : ${PATHS[*]})"
 	export HOMEBREW_GITHUB_API_TOKEN
 }
 
-which brew >&- 2>&- || {
+command -v brew >&- 2>&- || {
 	/usr/bin/ruby -e "$(/usr/bin/curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
 	brew tap Homebrew/bundle
 }
@@ -141,21 +141,22 @@ function_exists __git_ps1 && export PS1=${PS1}'\[\033[01;33m\]$(__git_ps1 "[%s] 
 	. ~/.nvm/nvm.sh
 	nvm use stable >/dev/null
 }
-[ ! which yarn >&- 2>&- ]    || {
+
+[ ! command -v yarn >&- 2>&- ] || {
 	yarn config set prefix "$(npm config get prefix)" >&-
 	export PATH="$(yarn global bin):$PATH"
 }
-[ ! which rbenv >&- 2>&- ]   || eval "$(rbenv init -)"
-[ ! which thefuck >&- 2>&- ] || eval "$(thefuck --alias)"
+[ ! command -v rbenv >&- 2>&- ] || eval "$(rbenv init -)"
+[ ! command -v thefuck >&- 2>&- ] || eval "$(thefuck --alias)"
 
 # aliases and custom commands
 
 alias grep='grep --color'
 alias grepjava='grep --include \*.java'
-[ ! which gls    >&- 2>&- ]     || alias ls="gls --color=auto --show-control-chars"
-[ ! which gnutar >&- 2>&- ]     || alias tar='gnutar'
+[ ! command -v gls    >&- 2>&- ] || alias ls="gls --color=auto --show-control-chars"
+[ ! command -v gnutar >&- 2>&- ] || alias tar='gnutar'
 [ ! -x "$HOME/.iTerm2/imgcat" ] || alias imgcat="$HOME/.iTerm2/imgcat"
-[ ! -x "$HOME/.iTerm2/it2dl" ]  || alias it2dl="$HOME/.iTerm2/it2dl"
+[ ! -x "$HOME/.iTerm2/it2dl" ] || alias it2dl="$HOME/.iTerm2/it2dl"
 
 dl() {
 	aria2c -x5 --http-accept-gzip=true --use-head=true ${1+"$@"}
@@ -213,7 +214,7 @@ update_env() {
 		printf "\n\x1b[40;34;1m\x1b[K\n  🤖  %s \x1b[K\n\x1b[K\x1b[0m\n\n" "$1"
 	}
 
-	if which brew >&- 2>&-
+	if command -v brew >&- 2>&-
 	then
 		__msg "Updating Homebrew…"
 		brew update
@@ -221,7 +222,7 @@ update_env() {
 		brew cleanup -s
 	fi
 
-	if which gem >&- 2>&-
+	if command -v gem >&- 2>&-
 	then
 		__msg "Updating Ruby gems…"
 		gem sources -q -u
@@ -229,7 +230,7 @@ update_env() {
 		gem clean -q >&- 2>&-
 	fi
 
-	if which yarn >&- 2>&-
+	if command -v yarn >&- 2>&-
 	then
 		__msg "Updating Yarn package…"
 		yarn global upgrade --latest -s
@@ -239,20 +240,20 @@ update_env() {
 		"$NVM_BIN/npm" -g update -q
 	fi
 
-	if which flutter >&- 2>&-
+	if command -v flutter >&- 2>&-
 	then
 		__msg "Updating Flutter…"
 		flutter upgrade
 	fi
 
-	if which apm >&- 2>&-
+	if command -v apm >&- 2>&-
 	then
 		__msg "Updating Atom packages…"
 		apm upgrade --no-confirm
 	fi
 
 	# Skipping, as filters don't work the way they should
-	#if which android >&- 2>&-
+	#if command -v android >&- 2>&-
 	#then
 	#	__msg "Updating the Android tools…"
 	#	expect -c '
@@ -265,7 +266,7 @@ update_env() {
 	#	'
 	#fi
 
-	if which pod >&- 2>&-
+	if command -v pod >&- 2>&-
 	then
 		__msg "Updating Cocoapods specs…"
 		pod repo update --silent
