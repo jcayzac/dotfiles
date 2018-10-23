@@ -34,7 +34,6 @@
 	pager = /usr/local/opt/git/share/git-core/contrib/diff-highlight/diff-highlight | less -FXnSR
 	editor = vim
 	autocrlf = input
-	whitespace = trailing-space,space-before-tab
 [credential]
 	helper = store #osxkeychain
 [url "git@github.com:"]
