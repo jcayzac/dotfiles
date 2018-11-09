@@ -31,3 +31,6 @@
 [submodule ".vim/bundle/dart-vim-plugin"]
 	path = .vim/bundle/dart-vim-plugin
 	url = https://github.com/dart-lang/dart-vim-plugin
+[submodule ".vim/bundle/kotlin-vim"]
+	path = .vim/bundle/kotlin-vim
+	url = https://github.com/udalov/kotlin-vim
