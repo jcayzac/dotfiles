@@ -223,6 +223,7 @@ update_env() {
 		brew update
 		brew upgrade --cleanup
 		brew cleanup -s
+		brew prune
 	fi
 
 	if command -v gem >&- 2>&-
