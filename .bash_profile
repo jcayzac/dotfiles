@@ -183,7 +183,63 @@ dash2m4a() {
 	ffmpeg -i "$1" -map 0 -c:v copy -c:a copy -c:s copy -c:d copy -c:t copy -f ipod "._tmp_$1" && mv "._tmp_$1" "$1"
 }
 
+# Optimize JPEG images with MozJPEG
+# Requires Bash 4.4+
+# Params:
+#   $1 path/to/image.jpg
+optimize-jpeg() {
+	(
+		# Have any failure below fail the function
+		set -e -u -o pipefail
+		if [[ "$1" =~ ^(.+)(\.o)?\.[jJ][pP][eE]?[gG]$ ]]
+		then
+			local BASE="${BASH_REMATCH[1]}"
+			local D="${BASE}.o.jpg"
+			local T="${BASE}.tmp"
+			if [[ "${BASE##*.}" == "o" ]]; then
+				# The filename is ######.o.jpg
+				printf "✅ Optimized: %s (-0%%)\n" "$1"
+			elif [ -e "$D" ]; then
+				# There already exists a sibling file with the .o.jpg extension
+				# This file shouldn't exist anymore
+				rm -f "$1"
+				printf "✅ Optimized: %s (-0%%)\n" "$D"
+			else
+				# Encode the image
+				/usr/local/opt/mozjpeg/bin/cjpeg -dct float -quality 90 "$1" >"$T" && mv -f "$T" "$D" || {
+					rm -f "$T"
+					false
+				}
 
+				# Compare sizes
+				local $(stat -s "$1")
+				local S_SIZE=$st_size
+				local $(stat -s "$D")
+				local D_SIZE=$st_size
+				if (( $D_SIZE < $S_SIZE ))
+				then
+					# Smaller file. Copy timestamps and get rid of original.
+					touch -f -r "$1" "$D"
+					rm -f "$1"
+					printf "✅ Optimized: %s (-%i%%)\n" "$D" "$(( 100 - $D_SIZE * 100 / $S_SIZE ))"
+				else
+					# Simply overwrite the result.
+					mv -f "$1" "$D"
+					printf "✅ Optimized: %s (-0%%)\n" "$D"
+				fi
+			fi
+		fi
+	)
+}
+
+# Call optimize-jpeg on every .jpg file found in the directories passed to the function
+optimize-jpegs() {
+	(
+		set -e -u -o pipefail
+		export -f optimize-jpeg
+		xargs -0 -P $(sysctl -n hw.ncpu) -I {} bash -c 'optimize-jpeg "$@"' _ {} < <(find ${1+"$@"} -iname \*.jpg -print0)
+	)
+}
 
 magnetize() {
 	open 'magnet:?xt=urn:btih:'"$1"
