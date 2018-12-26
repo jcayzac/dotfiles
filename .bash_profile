@@ -179,6 +179,12 @@ copy-movie() {
 	ncftpput -z -f "$HOME/.ncftp/hosts/mediaplayer" T_Drive/Films ${1+"$@"}
 }
 
+dash2m4a() {
+	ffmpeg -i "$1" -map 0 -c:v copy -c:a copy -c:s copy -c:d copy -c:t copy -f ipod "._tmp_$1" && mv "._tmp_$1" "$1"
+}
+
+
+
 magnetize() {
 	open 'magnet:?xt=urn:btih:'"$1"
 }
