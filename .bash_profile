@@ -1,5 +1,4 @@
 # Configuration
-DEFAULT_JAVA='1.8'
 DEFAULT_LOCALE='en_US.UTF-8'
 
 # Environment
@@ -8,13 +7,11 @@ export \
 	ANDROID_HOME="$HOME/Library/Android/sdk" \
 	ANDROID_SDK_ROOT="$HOME/Library/Android/sdk" \
 	ANDROID_NDK_HOME="$HOME/Library/Android/sdk/ndk-bundle" \
-	ANT_HOME='/usr/local/opt/ant/libexec' \
 	GIT_PS1_SHOWDIRTYSTATE=1 \
 	GIT_PS1_SHOWSTASHSTATE=1 \
 	GIT_PS1_SHOWUNTRACKEDFILES=1 \
 	GIT_PS1_SHOWUPSTREAM='verbose name' \
 	GOPATH="$HOME/.go" \
-	GRADLE_HOME='/usr/local/opt/gradle' \
 	GROOVY_HOME='/usr/local/opt/groovy/libexec' \
 	GREP_COLOR='01' \
 	HISTCONTROL='erasedups' \
@@ -22,11 +19,6 @@ export \
 	HISTIGNORE='&:ls:cd:pwd:[bf]g:exit:fuck' \
 	HOMEBREW_NO_ANALYTICS=1 \
 	HOMEBREW_INSTALL_BADGE='  🥃  ' \
-	JAVA7_HOME="$(/usr/libexec/java_home -v 1.7 2>&- || true)" \
-	JAVA8_HOME="$(/usr/libexec/java_home -v 1.8 2>&- || true)" \
-	JAVA9_HOME="$(/usr/libexec/java_home -v 9 2>&- || true)" \
-	JAVA10_HOME="$(/usr/libexec/java_home -v 10 2>&- || true)" \
-	JAVA_HOME="$(/usr/libexec/java_home -v "$DEFAULT_JAVA" 2>&- || true)" \
 	LANG="$DEFAULT_LOCALE" \
 	LC_COLLATE="$DEFAULT_LOCALE" \
 	LC_CTYPE="$DEFAULT_LOCALE" \
@@ -44,7 +36,6 @@ export \
 	LESS_ADVANCED_PREPROCESSOR=1 \
 	LS_COLORS='do=01;35:*.dmg=01;31:*.aac=01;35:*.img=01;31:*.tar=01;31:di=01;34:rs=0:*.qt=01;35:ex=01;32:ow=34;42:*.mov=01;35:*.jar=01;31:or=40;31;01:*.pvr=01;35:*.ogm=01;35:*.svgz=01;35:*.toast=01;31:*.asf=01;35:*.bz2=01;31:*.rar=01;31:*.sparsebundle=01;31:*.ogg=01;35:*.m2v=01;35:*.svg=01;35:*.sparseimage=01;31:*.7z=01;31:*.mp4=01;35:*.tbz2=01;31:bd=40;33;01:*.vob=01;35:*.zip=01;31:*.avi=01;35:*.mp3=01;35:so=01;35:*.m4a=01;35:ln=01;36:*.tgz=01;31:tw=30;42:*.png=01;35:*.wmv=01;35:sg=30;43:*.rpm=01;31:*.gz=01;31:*.tbz=01;31:*.mkv=01;35:*.mpg=01;35:*.pkg=01;31:*.mpeg=01;35:*.iso=01;31:ca=30;41:pi=41;33:*.wav=01;35:su=37;41:*.jpg=01;35:st=37;44:cd=40;33;01:*.m4v=01;35:mh=01;36:' \
 	MANPATH="$HOME/.prefix/share/man:/usr/local/share/man:/usr/share/man" \
-	MAVEN_HOME='/usr/local/opt/maven' \
 	PS1='\[\033[01;32m\]\u\[\033[01;34m\] \w \[\033[0m' \
 	SDKMAN_DIR="$HOME/.sdkman"
 
@@ -88,12 +79,9 @@ PATHS=(
 	"/usr/local/opt/go/libexec/bin"
 
 	# Android
-	"$GRADLE_HOME/bin"
 	"$ANDROID_HOME/tools"
 	"$ANDROID_HOME/tools/bin"
 	"$ANDROID_HOME/platform-tools"
-	"$MAVEN_HOME/bin"
-	"/usr/local/opt/ant/bin"
 
 	# .NET Core SDK
 	"/usr/local/share/dotnet"
@@ -152,23 +140,49 @@ function_exists __git_ps1 && export PS1=${PS1}'\[\033[01;33m\]$(__git_ps1 "[%s] 
 [ ! -t 1 ] || [ ! -f ~/.iterm2_shell_integration.bash ] || . ~/.iterm2_shell_integration.bash
 
 [ ! -f ~/.nvm/nvm.sh ] || {
-	. ~/.nvm/nvm.sh
-	nvm use stable >/dev/null
+	# Lazy initialization of NVM
+	function nvm() {
+		unset -f nvm node npm
+		. ~/.nvm/nvm.sh
+		nvm use stable >/dev/null
+		nvm ${1+"$@"}
+	}
+
+	function node() {
+		nvm --version >&- 2>&- && node ${1+"$@"}
+	}
+
+	function npm() {
+		nvm --version >&- 2>&- && npm ${1+"$@"}
+	}
 }
 
-[ ! -r "$SDKMAN_DIR/bin/sdkman-init.sh" ] || . "$SDKMAN_DIR/bin/sdkman-init.sh"
+[ ! -r "$SDKMAN_DIR/bin/sdkman-init.sh" ] || {
+	# Lazy initialization of SDKMAN
+	function sdk() {
+		unset -f sdk
+		. "$SDKMAN_DIR/bin/sdkman-init.sh"
+	}
+}
 
 ! has-command yarn || {
-	yarn config set prefix "$(npm config get prefix)" >&-
-	export PATH="$(yarn global bin):$PATH"
+	export PATH="$HOME/.yarn/bin:$PATH"
 }
+
 ! has-command rbenv || eval "$(rbenv init -)"
-! has-command thefuck || eval "$(thefuck --alias)"
+
+! has-command thefuck || {
+	# Lazy initialization of thefuck
+	function fuck() {
+		unset -f fuck
+		eval "$(thefuck --alias)"
+		fuck ${1+"$@"}
+	}
+}
 
 # aliases and custom commands
 
 alias grep='grep --color'
-alias grepjava='grep --include \*.java'
 ! has-command gls       || alias ls='gls --color=auto --show-control-chars'
 ! has-command gnutar    || alias tar='gnutar'
 ! has-command aria2c    || alias dl='aria2c -x5 --http-accept-gzip=true --use-head=true'
@@ -237,6 +251,7 @@ update_env() {
 		"$NVM_BIN/npm" -g update -q
 	fi
 
+	# FIXME: might break if the "java" bash extension isn't loaded
 	! has-command flutter || {
 		__msg "Updating Flutter…"
 		flutter upgrade

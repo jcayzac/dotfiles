@@ -1,0 +1,23 @@
+DEFAULT_JAVA='1.8'
+
+export \
+	ANT_HOME='/usr/local/opt/ant/libexec' \
+	GRADLE_HOME='/usr/local/opt/gradle' \
+	GROOVY_HOME='/usr/local/opt/groovy/libexec' \
+	JAVA7_HOME="$(/usr/libexec/java_home -v 1.7 2>&- || true)" \
+	JAVA8_HOME="$(/usr/libexec/java_home -v 1.8 2>&- || true)" \
+	JAVA9_HOME="$(/usr/libexec/java_home -v 9 2>&- || true)" \
+	JAVA10_HOME="$(/usr/libexec/java_home -v 10 2>&- || true)" \
+	JAVA_HOME="$(/usr/libexec/java_home -v "$DEFAULT_JAVA" 2>&- || true)" \
+	MAVEN_HOME='/usr/local/opt/maven'
+
+PATHS=(
+	"$GRADLE_HOME/bin"
+	"$MAVEN_HOME/bin"
+	"/usr/local/opt/ant/bin"
+)
+
+export PATH="$(join_strings : ${PATHS[*]}):$PATH"
+alias grepjava='grep --include \*.java'
+
+# ex: noet ci pi sts=0 sw=2 ts=2 filetype=sh
