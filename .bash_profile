@@ -53,10 +53,23 @@ ulimit -S -n 10240	# raise number of open file handles
 shopt -s cmdhist	# save multiline commands in history
 tabs -2				# use 4sp-wide tabs
 
+load () {
+	. "$HOME/.bash.d/$1"
+}
+
+[ ! -t 1 ] || {
+	function _load () {
+		COMPREPLY=($( cd "$HOME/.bash.d" && ls))
+	}
+	complete -F _load load
+}
+
 function_exists() {
 	declare -f -F $1 >/dev/null
 	return $?
 }
+
+alias has-command='command >&- 2>&- -v'
 
 join_strings() {
 	local d="$1"
@@ -125,7 +138,7 @@ export PATH="$(join_strings : ${PATHS[*]})"
 	export HOMEBREW_GITHUB_API_TOKEN
 }
 
-command -v brew >&- 2>&- || {
+has-command brew || {
 	/usr/bin/ruby -e "$(/usr/bin/curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
 	brew tap Homebrew/bundle
 }
@@ -145,101 +158,25 @@ function_exists __git_ps1 && export PS1=${PS1}'\[\033[01;33m\]$(__git_ps1 "[%s] 
 
 [ ! -r "$SDKMAN_DIR/bin/sdkman-init.sh" ] || . "$SDKMAN_DIR/bin/sdkman-init.sh"
 
-[ ! command -v yarn >&- 2>&- ] || {
+! has-command yarn || {
 	yarn config set prefix "$(npm config get prefix)" >&-
 	export PATH="$(yarn global bin):$PATH"
 }
-[ ! command -v rbenv >&- 2>&- ] || eval "$(rbenv init -)"
-[ ! command -v thefuck >&- 2>&- ] || eval "$(thefuck --alias)"
+! has-command rbenv || eval "$(rbenv init -)"
+! has-command thefuck || eval "$(thefuck --alias)"
 
 # aliases and custom commands
 
 alias grep='grep --color'
 alias grepjava='grep --include \*.java'
-[ ! command -v gls    >&- 2>&- ] || alias ls="gls --color=auto --show-control-chars"
-[ ! command -v gnutar >&- 2>&- ] || alias tar='gnutar'
+! has-command gls       || alias ls='gls --color=auto --show-control-chars'
+! has-command gnutar    || alias tar='gnutar'
+! has-command aria2c    || alias dl='aria2c -x5 --http-accept-gzip=true --use-head=true'
+! has-command xattr     || alias unquarantine='xattr -drv com.apple.quarantine'
+! has-command ditto     || alias copy='ditto --norsrc --noextattr --noqtn --noacl'
+! has-command ncftpput  || alias copy-movie="ncftpput -z -f '$HOME/.ncftp/hosts/mediaplayer' T_Drive/Films"
 [ ! -x "$HOME/.iTerm2/imgcat" ] || alias imgcat="$HOME/.iTerm2/imgcat"
-[ ! -x "$HOME/.iTerm2/it2dl" ] || alias it2dl="$HOME/.iTerm2/it2dl"
-
-dl() {
-	aria2c -x5 --http-accept-gzip=true --use-head=true ${1+"$@"}
-}
-
-unquarantine() {
-	xattr -drv com.apple.quarantine ${1+"$@"}
-}
-
-copy() {
-	# Fucked up over SMB/CIFS :-(
-	# rsync -c --no-xattrs --no-whole-file --inplace --progress ${1+"$@"}
-	ditto --norsrc --noextattr --noqtn --noacl ${1+"$@"}
-}
-
-copy-movie() {
-	ncftpput -z -f "$HOME/.ncftp/hosts/mediaplayer" T_Drive/Films ${1+"$@"}
-}
-
-dash2m4a() {
-	ffmpeg -i "$1" -map 0 -c:v copy -c:a copy -c:s copy -c:d copy -c:t copy -f ipod "._tmp_$1" && mv "._tmp_$1" "$1"
-}
-
-# Optimize JPEG images with MozJPEG
-# Requires Bash 4.4+
-# Params:
-#   $1 path/to/image.jpg
-optimize-jpeg() {
-	(
-		# Have any failure below fail the function
-		set -e -u -o pipefail
-		if [[ "$1" =~ ^(.+)(\.o)?\.[jJ][pP][eE]?[gG]$ ]]
-		then
-			local BASE="${BASH_REMATCH[1]}"
-			local D="${BASE}.o.jpg"
-			local T="${BASE}.tmp"
-			if [[ "${BASE##*.}" == "o" ]]; then
-				# The filename is ######.o.jpg
-				printf "✅ Optimized: %s (-0%%)\n" "$1"
-			elif [ -e "$D" ]; then
-				# There already exists a sibling file with the .o.jpg extension
-				# This file shouldn't exist anymore
-				rm -f "$1"
-				printf "✅ Optimized: %s (-0%%)\n" "$D"
-			else
-				# Encode the image
-				/usr/local/opt/mozjpeg/bin/cjpeg -dct float -quality 90 "$1" >"$T" && mv -f "$T" "$D" || {
-					rm -f "$T"
-					false
-				}
-
-				# Compare sizes
-				local $(stat -s "$1")
-				local S_SIZE=$st_size
-				local $(stat -s "$D")
-				local D_SIZE=$st_size
-				if (( $D_SIZE < $S_SIZE ))
-				then
-					# Smaller file. Copy timestamps and get rid of original.
-					touch -f -r "$1" "$D"
-					rm -f "$1"
-					printf "✅ Optimized: %s (-%i%%)\n" "$D" "$(( 100 - $D_SIZE * 100 / $S_SIZE ))"
-				else
-					# Simply overwrite the result.
-					mv -f "$1" "$D"
-					printf "✅ Optimized: %s (-0%%)\n" "$D"
-				fi
-			fi
-		fi
-	)
-}
-
-# Call optimize-jpeg on every .jpg file found in the directories passed to the function
-optimize-jpegs() {
-	(
-		set -e -u -o pipefail
-		export -f optimize-jpeg
-		xargs -0 -P $(sysctl -n hw.ncpu) -I {} bash -c 'optimize-jpeg "$@"' _ {} < <(find ${1+"$@"} -iname \*.jpg -print0)
-	)
-}
+[ ! -x "$HOME/.iTerm2/it2dl"  ] || alias it2dl="$HOME/.iTerm2/it2dl"
 
 magnetize() {
 	open 'magnet:?xt=urn:btih:'"$1"
@@ -265,10 +202,6 @@ brokenlinks() {
 	NSUnbufferedIO=YES gfind -O3 "$dir" -xtype l -print0 | xargs -0 ${1+"$@"}
 }
 
-unquarantine() {
-	xattr -dr com.apple.quarantine ${1+"$@"}
-}
-
 htmlpaste() {
 	osascript -e 'the clipboard as «class HTML»' | perl -ne 'print chr foreach unpack("C*",pack("H*",substr($_,11,-3)))'
 }
@@ -279,24 +212,22 @@ update_env() {
 		printf "\n\x1b[40;34;1m\x1b[K\n  🤖  %s \x1b[K\n\x1b[K\x1b[0m\n\n" "$1"
 	}
 
-	if command -v brew >&- 2>&-
-	then
+	! has-command brew || {
 		__msg "Updating Homebrew…"
 		brew update
 		brew upgrade --cleanup
 		brew cleanup -s
 		brew prune
-	fi
+	}
 
-	if command -v gem >&- 2>&-
-	then
+	! has-command gem || {
 		__msg "Updating Ruby gems…"
 		gem sources -q -u
 		gem update -q -N --no-update-sources
 		gem clean -q >&- 2>&-
-	fi
+	}
 
-	if command -v yarn >&- 2>&-
+	if has-command yarn
 	then
 		__msg "Updating Yarn package…"
 		yarn global upgrade --latest -s
@@ -306,19 +237,17 @@ update_env() {
 		"$NVM_BIN/npm" -g update -q
 	fi
 
-	if command -v flutter >&- 2>&-
-	then
+	! has-command flutter || {
 		__msg "Updating Flutter…"
 		flutter upgrade
-	fi
+	}
 
-	if command -v apm >&- 2>&-
-	then
+	! has-command apm || {
 		__msg "Updating Atom packages…"
 		apm upgrade --no-confirm
-	fi
+	}
 
-	if command -v sdk >&- 2>&-
+	if has-command sdk
 	then
 		__msg "Updating SDKMAN…"
 		sdk selfupdate
@@ -328,25 +257,10 @@ update_env() {
 		. "$SDKMAN_DIR/bin/sdkman-init.sh"
 	fi
 
-	# Skipping, as filters don't work the way they should
-	#if command -v android >&- 2>&-
-	#then
-	#	__msg "Updating the Android tools…"
-	#	expect -c '
-	#	set timeout -1;
-	#	spawn android update sdk --no-ui --filter 1,2
-	#	expect {
-	#		"Do you accept the license" { exp_send "y\r" ; exp_continue }
-	#		eof
-	#	}
-	#	'
-	#fi
-
-	if command -v pod >&- 2>&-
-	then
+	! has-command pod || {
 		__msg "Updating Cocoapods specs…"
 		pod repo update --silent
-	fi
+	}
 
 	printf "\n\x1b[40;32;1m\x1b[K\n  🚀  %s \x1b[K\n\x1b[K\x1b[0m\n\n" "Ready to take off!"
 }

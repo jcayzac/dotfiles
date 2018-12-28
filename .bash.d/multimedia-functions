@@ -1,0 +1,157 @@
+# $1: SRC extension (pass-in)
+# $2: DST extension
+# $3: conversion function SRC DST
+# $4: file path
+convert-file() (
+	set -e -u -o pipefail
+	shopt -s nocasematch
+	! [[ "${4##*.}" == "$1" ]] || {
+		local D="${4%.*}.$2" T="${4%.*}.tmp.$2"
+		eval $3 "$4" "$T"
+		mv -f "$T" "$D"
+		rm -f "$4"
+		printf '✅ Converted %s\n' "$D"
+	} || {
+		printf '❌ Could not convert %s\n' "$4"
+		false
+	}
+)
+
+# $1: functions to export
+# $2: processor function
+# $3: filters
+process-many() (
+  set -e -u -o pipefail
+
+	FUNCTIONS="$1"
+	PROCESSOR="$2"
+	FILTERS="$3"
+	shift 3
+
+  export -f convert-file $FUNCTIONS $PROCESSOR
+	xargs -0 -P $(sysctl -n hw.ncpu) -I {} bash -c "$PROCESSOR"' "$@"' _ {} < <(set -f; find ${1+"$@"} $FILTERS -print0)
+)
+
+! has-command ffmpeg || {
+	function ffm() {
+		ffmpeg -hide_banner -nostats -loglevel panic ${1+"$@"}
+	}
+
+	# $1: SRC extension (pass-in)
+	# $2: DST extension
+	# $3: ffmpeg arguments
+	# $4: file path
+	function convert-file-with-ffmpeg() (
+		set -e -u -o pipefail
+		local FFMPEG_ARGS="$3"
+		function ffmpeg-command() {
+			ffm -i "$1" $FFMPEG_ARGS "$2"
+		}
+		export -f ffmpeg-command
+		convert-file "$1" "$2" ffmpeg-command "$4"
+	)
+
+	# $1:  processor
+	# $2:  filters
+	# $3…: paths
+	function process-many-with-ffmpeg() {
+		process-many 'convert-file-with-ffmpeg ffm' ${1+"$@"}
+	}
+
+	# MPEG DASH → M4A
+	function convert-dash-to-m4a() {
+		convert-file-with-ffmpeg mpd m4a '-map_metadata 0 -map 0 -c:v copy -c:a copy -c:s copy -c:d copy -c:t copy -f ipod' "$1"
+	}
+
+	function convert-many-dash-to-m4a() {
+		process-many-with-ffmpeg convert-dash-to-m4a '-type f -iname *.mpd' ${1+"$@"}
+	}
+
+	# MOV → MP4
+	function convert-mov-to-mp4() {
+		convert-file-with-ffmpeg mov mp4 '-map_metadata 0 -map 0 -c:v copy -c:a copy -c:s copy -c:d copy -c:t copy -f mp4' "$1"
+	}
+
+	function convert-many-mov-to-mp4() {
+		process-many 'convert-file-with-ffmpeg ffm' convert-mov-to-mp4 '-type f -iname *.mov' ${1+"$@"}
+	}
+}
+
+! has-command exiftool || {
+	alias exif='exiftool -q -s'
+}
+
+! has-command ffm || ! has-command ffm || {
+  #
+	true
+}
+
+[ ! -x "/usr/local/opt/mozjpeg/bin/cjpeg" ] || {
+  function mozjpeg() {
+		(
+			set -e -u -o pipefail
+			export PATH="/usr/local/opt/mozjpeg/bin:$PATH"
+			cjpeg ${1+"$@"}
+		)
+  }
+	export -f mozjpeg
+
+
+	# Optimize JPEG images with MozJPEG
+	# Params:
+	#   $1 path/to/image.jpg
+	function optimize-jpeg() {
+		(
+			set -e -u -o pipefail
+			if [[ "$1" =~ ^(.+)(\.o)?\.[jJ][pP][eE]?[gG]$ ]]
+			then
+				local BASE="${BASH_REMATCH[1]}"
+				local D="${BASE}.o.jpg"
+				local T="${BASE}.tmp"
+				if [[ "${BASE##*.}" == "o" ]]; then
+					# The filename is ######.o.jpg
+					printf "✅ Optimized: %s (-0%%)\n" "$1"
+				elif [ -e "$D" ]; then
+					# There already exists a sibling file with the .o.jpg extension
+					# This file shouldn't exist anymore
+					rm -f "$1"
+					printf "✅ Optimized: %s (-0%%)\n" "$D"
+				else
+					# Encode the image
+					mozjpeg -dct float -quality 90 "$1" >"$T" && mv -f "$T" "$D" || {
+						rm -f "$T"
+						false
+					}
+
+					# Compare sizes
+					local $(stat -s "$1")
+					local S_SIZE=$st_size
+					local $(stat -s "$D")
+					local D_SIZE=$st_size
+					if (( $D_SIZE < $S_SIZE ))
+					then
+						# Smaller file. Copy timestamps and get rid of original.
+						touch -f -r "$1" "$D"
+						rm -f "$1"
+						printf "✅ Optimized: %s (-%i%%)\n" "$D" "$(( 100 - $D_SIZE * 100 / $S_SIZE ))"
+					else
+						# Simply overwrite the result.
+						mv -f "$1" "$D"
+						printf "✅ Optimized: %s (-0%%)\n" "$D"
+					fi
+				fi
+			fi
+		)
+	}
+	export -f optimize-jpeg
+
+	# Call optimize-jpeg on every .jpg file found in the directories passed to the function
+	function optimize-jpegs() {
+		(
+			set -e -u -o pipefail
+			xargs -0 -P $(sysctl -n hw.ncpu) -I {} bash -c 'optimize-jpeg "$@"' _ {} < <(find ${1+"$@"} -iname \*.jpg -print0)
+		)
+	}
+}
+
+# ex: noet ci pi sts=0 sw=2 ts=2 filetype=sh
