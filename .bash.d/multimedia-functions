@@ -1,35 +1,46 @@
+lowerextension() {
+	declare BASE="${1%.*}" EXT="${1##*.}"
+	declare NEW_NAME="${BASE}.${EXT,,}"
+	[ "$1" == "$NEW_NAME" ] ||  mv -v "$1" "$NEW_NAME"
+}
+
 # $1: SRC extension (pass-in)
 # $2: DST extension
 # $3: conversion function SRC DST
 # $4: file path
 convert-file() (
 	set -e -u -o pipefail
-	shopt -s nocasematch
-	! [[ "${4##*.}" == "$1" ]] || {
-		local D="${4%.*}.$2" T="${4%.*}.tmp.$2"
-		eval $3 "$4" "$T"
-		mv -f "$T" "$D"
-		rm -f "$4"
-		printf '✅ Converted %s\n' "$D"
-	} || {
-		printf '❌ Could not convert %s\n' "$4"
-		false
-	}
+	declare EXPECTED_EXT="${1,,}" DST_EXT="${2,,}" PROCESSOR="$3" SRC_FILE="$4"
+	declare FOUND_EXT="${SRC_FILE##*.}" DST_FILE="${SRC_FILE%.*}.$DST_EXT" TMP_FILE="${SRC_FILE%.*}.tmp.$DST_EXT"
+
+	# Only run if the file has the expected extension (e.g. "jpg")
+	if [[ "${FOUND_EXT,,}" == "$EXPECTED_EXT" ]]
+	then
+		$PROCESSOR "$SRC_FILE" "$TMP_FILE" && \
+			touch -r "$SRC_FILE" "$TMP_FILE" && \
+			mv -f "$TMP_FILE" "$DST_FILE" && \
+			trash -F "$SRC_FILE" && \
+			printf '✅ Converted %s\n' "$DST_FILE" || {
+				printf '❌ Could not convert %s\n' "$SRC_FILE"
+				rm -f "$TMP_FILE" >&- 2>&-
+				return 1
+			}
+	fi
 )
 
 # $1: functions to export
 # $2: processor function
 # $3: filters
 process-many() (
-  set -e -u -o pipefail
+	set -e -u -o pipefail
 
 	FUNCTIONS="$1"
 	PROCESSOR="$2"
 	FILTERS="$3"
 	shift 3
 
-  export -f convert-file $FUNCTIONS $PROCESSOR
-	xargs -0 -P $(sysctl -n hw.ncpu) -I {} bash -c "$PROCESSOR"' "$@"' _ {} < <(set -f; find ${1+"$@"} $FILTERS -print0)
+	export -f convert-file $FUNCTIONS $PROCESSOR
+	xargs -0 -P $(sysctl -n hw.ncpu) -I {} bash -c -e -u -o pipefail "$PROCESSOR"' "$@"' _ {} < <(set -f; find -E ${1+"$@"} $FILTERS -print0)
 )
 
 ! has-command ffmpeg || {
@@ -69,88 +80,176 @@ process-many() (
 
 	# MOV → MP4
 	function convert-mov-to-mp4() {
-		convert-file-with-ffmpeg mov mp4 '-map_metadata 0 -map 0 -c:v copy -c:a copy -c:s copy -c:d copy -c:t copy -f mp4' "$1"
+		convert-file-with-ffmpeg mov mp4 '-map_metadata 0 -movflags use_metadata_tags -c:v copy -c:a copy -f mp4' "$1"
 	}
 
 	function convert-many-mov-to-mp4() {
-		process-many 'convert-file-with-ffmpeg ffm' convert-mov-to-mp4 '-type f -iname *.mov' ${1+"$@"}
+		process-many-with-ffmpeg convert-mov-to-mp4 '-type f -iname *.mov' ${1+"$@"}
+	}
+
+	# MTS → MP4
+	# Assumes the MTS stream is H.264+AC3 and that the file's MTIME is the creation date
+	# Note: if the MTIME ever gets reset, the stream may have a DateTimeOriginal tag (unused here)!
+	function convert-mts-to-mp4() {
+		declare CREATION_DATE="$(date -r "$1" '+%Y-%m-%dT%H:%M:%S%z')"
+		convert-file-with-ffmpeg mts mp4 "-metadata creation_time=${CREATION_DATE} -c:v copy -c:a libfdk_aac -b:a 128k -f mp4" "$1"
+	}
+
+	function convert-many-mts-to-mp4() {
+		process-many-with-ffmpeg convert-mts-to-mp4 '-type f -iname *.mts' ${1+"$@"}
 	}
 }
 
 ! has-command exiftool || {
-	alias exif='exiftool -q -s'
+	alias exif='exiftool -q -s -m'
+
+	function set-missing-date-for-icloud-backup-image() {
+		declare DIR_PATH="${1%/*}" FILE_NAME="${1##*/}" FILE_EXT="${1##*.}"
+		declare DIR_NAME="${DIR_PATH##*/}"
+		! [[ "${FILE_EXT,,}" =~ ^(jpe?g|png)$ ]] || \
+		! [[ "$DIR_NAME" =~ ^([0-9]{4})([0-9]{2})([0-9]{2})-([0-9]{2})([0-9]{2})([0-9]{2})$ ]] || {
+			declare \
+				YEAR="${BASH_REMATCH[1]}" \
+				MONTH="${BASH_REMATCH[2]}" \
+				DAY="${BASH_REMATCH[3]}" \
+				HOUR="${BASH_REMATCH[4]}" \
+				MIN="${BASH_REMATCH[5]}" \
+				SEC="${BASH_REMATCH[6]}"
+			declare SUBSTITUTE_DATE="${YEAR}-${MONTH}-${DAY}T${HOUR}:${MIN}:${SEC}+0900"
+			printf 'Processing %s with candidate date = %s\n' "$1" "$SUBSTITUTE_DATE"
+			exiftool -m -overwrite_original -d '%Y-%m-%dT%H:%M:%S%z' -if '(not $DateTimeOriginal) or ($DateTimeOriginal =~ /^(0|3|4|190)/)' "-DateTimeOriginal=$SUBSTITUTE_DATE" "$1"
+		}
+	}
+
+	function set-missing-date-for-icloud-backup-images() {
+		process-many '' set-missing-date-for-icloud-backup-image '-type f' ${1+"$@"}
+	}
+
+	function fix-media-timestamps() (
+		set +e -u -o pipefail # Note +e
+		declare E='exiftool -m -r -P -progress -overwrite_original -api QuickTimeUTC'
+
+		function __msg() {
+			printf "\n\x1b[40;34;1m\x1b[K\n  🕰  %s \x1b[K\n\x1b[K\x1b[0m\n\n" "$1"
+		}
+
+		#set-missing-date-for-icloud-backup-images ${1+"$@"}
+
+		__msg 'Fix missing DateTimeOriginal if CreateDate is present'
+		$E -d '%Y-%m-%dT%H:%M:%S%z' \
+			-if '$CreateDate and not ($CreateDate =~ /^(0|3|4|190)/)' \
+			-if '(not $DateTimeOriginal) or ($DateTimeOriginal =~ /^(0|3|4|190)/)' \
+			'-CreateDate>DateTimeOriginal' \
+			${1+"$@"}
+
+		__msg 'Fix remaining missing CreateDate if DateTimeOriginal is present'
+		$E -d '%Y-%m-%dT%H:%M:%S%z' \
+			-if '$DateTimeOriginal and not ($DateTimeOriginal =~ /^(0|3|4|190)/)' \
+			-if '(not $CreateDate) or ($CreateDate =~ /^(0|3|4|190)/)' \
+			'-DateTimeOriginal>CreateDate' \
+			${1+"$@"}
+
+		__msg 'Fix timestamps with ModifyDate if present'
+		$E -d '%Y-%m-%dT%H:%M:%S%z' \
+			-if '(not $CreateDate) or ($CreateDate =~ /^(0|3|4|190)/)' \
+			-if '$ModifyDate and not ($ModifyDate =~ /^(0|3|4|190)/)' \
+			'-ModifyDate>CreateDate' \
+			'-ModifyDate>DateTimeOriginal' \
+			${1+"$@"}
+
+		__msg 'Fix remaining missing timestamps with file modification time'
+		$E -d '%Y-%m-%dT%H:%M:%S%z' \
+			-if '(not $CreateDate) or ($CreateDate =~ /^(0|3|4|190)/)' \
+			'-FileModifyDate>CreateDate' \
+			'-FileModifyDate>DateTimeOriginal' \
+			${1+"$@"}
+
+		__msg 'Fix files modification time and rename to match timestamp'
+		$E -d '%Y-%m-%dT%H:%M:%S%z' \
+			-charset 'filename=UTF8' \
+			'-FileModifyDate<CreateDate' \
+			'-FileName<${CreateDate#;DateFmt("%Y-%m-%dT%H%M%S%z.%%.5c")}${model;s/^/ /}${title;s/^/ - /}.%e' \
+			${1+"$@"}
+
+		printf "\n\x1b[40;32;1m\x1b[K\n  ✅ Done!\x1b[K\n\x1b[K\x1b[0m\n\n"
+	)
+
+	function show-media-creation-time() {
+		exiftool -m -r -api QuickTimeUTC -d '%Y-%m-%dT%H:%M:%S%z' -p '$Directory/$Filename:${CreateDate;s/^/ creation=/}${DateTimeOriginal;s/^/ original=/}' ${1+"$@"}
+	}
+
+	function set-media-creation-time() {
+		set +e -u -o pipefail # Note +e
+		declare CREATION_TIME="$1"
+		shift
+		exiftool -m -r -P -progress -overwrite_original -api QuickTimeUTC -d '%Y-%m-%dT%H:%M:%S%z' "-CreateDate=$CREATION_TIME" ${1+"$@"}
+	}
 }
 
 ! has-command ffm || ! has-command ffm || {
-  #
+	#
 	true
 }
 
 [ ! -x "/usr/local/opt/mozjpeg/bin/cjpeg" ] || {
-  function mozjpeg() {
-		(
-			set -e -u -o pipefail
-			export PATH="/usr/local/opt/mozjpeg/bin:$PATH"
-			cjpeg ${1+"$@"}
-		)
-  }
-	export -f mozjpeg
+	function mozjpeg() (
+		set -e -u -o pipefail
+		export PATH="/usr/local/opt/mozjpeg/bin:$PATH"
+		cjpeg ${1+"$@"}
+	)
 
 
 	# Optimize JPEG images with MozJPEG
 	# Params:
 	#   $1 path/to/image.jpg
-	function optimize-jpeg() {
-		(
-			set -e -u -o pipefail
-			if [[ "$1" =~ ^(.+)(\.o)?\.[jJ][pP][eE]?[gG]$ ]]
+	function optimize-jpeg() (
+		set -e -u -o pipefail
+		if [[ "$1" =~ ^(.+)\.[jJ][pP][eE]?[gG]$ ]]
+		then
+			declare BASE="${BASH_REMATCH[1]}"
+			declare D="${BASE}.o.jpg" T="${BASE}.tmp"
+			if [[ "${BASE##*.}" == "o" ]]
 			then
-				local BASE="${BASH_REMATCH[1]}"
-				local D="${BASE}.o.jpg"
-				local T="${BASE}.tmp"
-				if [[ "${BASE##*.}" == "o" ]]; then
-					# The filename is ######.o.jpg
-					printf "✅ Optimized: %s (-0%%)\n" "$1"
-				elif [ -e "$D" ]; then
-					# There already exists a sibling file with the .o.jpg extension
-					# This file shouldn't exist anymore
-					rm -f "$1"
-					printf "✅ Optimized: %s (-0%%)\n" "$D"
-				else
-					# Encode the image
-					mozjpeg -dct float -quality 90 "$1" >"$T" && mv -f "$T" "$D" || {
+				# The filename is ######.o.jpg
+				printf "✅ Optimized: %s (-0%%)\n" "$1"
+			elif [ -e "$D" ]
+			then
+				# There already exists a sibling file with the .o.jpg extension
+				# This file shouldn't exist anymore
+				trash -F "$1"
+				printf "✅ Optimized: %s (-0%%)\n" "$D"
+			else
+				# Encode the image
+				mozjpeg -dct float -quality 90 "$1" >"$T" && \
+					mv -f "$T" "$D" && {
+						# Compare sizes
+						local $(stat -s "$1")
+						local S_SIZE=$st_size
+						local $(stat -s "$D")
+						local D_SIZE=$st_size
+						if (( $D_SIZE < $S_SIZE ))
+						then
+							# Smaller file. Copy timestamps and get rid of original.
+							touch -f -r "$1" "$D"
+							trash -F "$1"
+							printf "✅ Optimized: %s (-%i%%)\n" "$D" "$(( 100 - $D_SIZE * 100 / $S_SIZE ))"
+						else
+							# Simply overwrite the result.
+							mv -f "$1" "$D"
+							printf "✅ Optimized: %s (-0%%)\n" "$D"
+						fi
+					} || {
+						printf '❌ Could not optimize %s\n' "$1"
 						rm -f "$T"
 						false
 					}
-
-					# Compare sizes
-					local $(stat -s "$1")
-					local S_SIZE=$st_size
-					local $(stat -s "$D")
-					local D_SIZE=$st_size
-					if (( $D_SIZE < $S_SIZE ))
-					then
-						# Smaller file. Copy timestamps and get rid of original.
-						touch -f -r "$1" "$D"
-						rm -f "$1"
-						printf "✅ Optimized: %s (-%i%%)\n" "$D" "$(( 100 - $D_SIZE * 100 / $S_SIZE ))"
-					else
-						# Simply overwrite the result.
-						mv -f "$1" "$D"
-						printf "✅ Optimized: %s (-0%%)\n" "$D"
-					fi
-				fi
 			fi
-		)
-	}
-	export -f optimize-jpeg
+		fi
+	)
 
 	# Call optimize-jpeg on every .jpg file found in the directories passed to the function
 	function optimize-jpegs() {
-		(
-			set -e -u -o pipefail
-			xargs -0 -P $(sysctl -n hw.ncpu) -I {} bash -c 'optimize-jpeg "$@"' _ {} < <(find ${1+"$@"} -iname \*.jpg -print0)
-		)
+		process-many mozjpeg optimize-jpeg '-type f -iregex .*\.jpe?g$' ${1+"$@"}
 	}
 }
 
