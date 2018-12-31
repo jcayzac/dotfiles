@@ -39,10 +39,11 @@ export \
 	PS1='\[\033[01;32m\]\u\[\033[01;34m\] \w \[\033[0m' \
 	SDKMAN_DIR="$HOME/.sdkman"
 
-umask 022			# default mode = 755
-ulimit -S -n 10240	# raise number of open file handles
-shopt -s cmdhist	# save multiline commands in history
-tabs -2				# use 4sp-wide tabs
+umask 022          # default mode = 755
+ulimit -S -n 10240 # raise number of open file handles
+shopt -s cmdhist   # save multiline commands in history
+shopt -s globstar  # support ** in glob patterns
+tabs -2            # use 2sp-wide tabs
 
 load () {
 	. "$HOME/.bash.d/$1"
