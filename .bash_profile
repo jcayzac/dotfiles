@@ -64,10 +64,9 @@ function_exists() {
 alias has-command='command >&- 2>&- -v'
 
 join_strings() {
-	local d="$1"
-	shift
-	printf '%s' "$1"
-	shift
+	declare d="$1"
+	printf '%s' "$2"
+	shift 2
 	printf '%s' "${@/#/$d}"
 }
 
@@ -150,11 +149,13 @@ function_exists __git_ps1 && export PS1=${PS1}'\[\033[01;33m\]$(__git_ps1 "[%s] 
 	}
 
 	function node() {
-		nvm --version >&- 2>&- && node ${1+"$@"}
+		nvm --version >&- 2>&-
+		node ${1+"$@"}
 	}
 
 	function npm() {
-		nvm --version >&- 2>&- && npm ${1+"$@"}
+		nvm --version >&- 2>&-
+		npm ${1+"$@"}
 	}
 }
 
