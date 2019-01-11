@@ -19,6 +19,7 @@ export \
 	HISTIGNORE='&:ls:cd:pwd:[bf]g:exit:fuck' \
 	HOMEBREW_NO_ANALYTICS=1 \
 	HOMEBREW_INSTALL_BADGE='  🥃  ' \
+	HOMEBREW_INSTALL_CLEANUP=1 \
 	LANG="$DEFAULT_LOCALE" \
 	LC_COLLATE="$DEFAULT_LOCALE" \
 	LC_CTYPE="$DEFAULT_LOCALE" \
@@ -231,7 +232,7 @@ update_env() {
 	! has-command brew || {
 		__msg "Updating Homebrew…"
 		brew update
-		brew upgrade --cleanup
+		brew upgrade
 		brew cleanup -s
 		brew prune
 	}
