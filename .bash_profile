@@ -52,7 +52,7 @@ load () {
 
 [ ! -t 1 ] || {
 	function _load () {
-		COMPREPLY=($( cd "$HOME/.bash.d" && ls))
+		COMPREPLY=($( cd "$HOME/.bash.d" && ls "$2"*))
 	}
 	complete -F _load load
 }
