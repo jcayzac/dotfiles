@@ -46,6 +46,18 @@ shopt -s cmdhist   # save multiline commands in history
 shopt -s globstar  # support ** in glob patterns
 tabs -2            # use 2sp-wide tabs
 
+# Enable extra builtins if available
+enable-loadable-builtin() {
+	declare module="$1"
+	shift
+	enable -f "/usr/local/opt/bash/lib/bash/$module" ${1+"$@"}
+}
+for _ in basename dirname finfo head realpath sleep strftime tee unlink
+do
+	enable-loadable-builtin "$_" "$_"
+done
+enable-loadable-builtin "truefalse" "true" "false"
+
 load () {
 	. "$HOME/.bash.d/$1"
 }
