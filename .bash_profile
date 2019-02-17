@@ -282,6 +282,7 @@ update_env() {
 	then
 		__msg "Updating SDKMAN…"
 		sdk selfupdate
+		yes | sdk update
 	else
 		__msg "Installing SDKMAN…"
 		curl -s "https://get.sdkman.io" | bash
