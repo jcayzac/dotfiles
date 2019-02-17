@@ -247,7 +247,6 @@ update_env() {
 		brew update
 		brew upgrade
 		brew cleanup -s
-		brew prune
 	}
 
 	! has-command gem || {
