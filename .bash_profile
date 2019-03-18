@@ -146,6 +146,14 @@ has-command brew || {
 
 [ -f ~/.iterm2_shell_integration.bash ] || /usr/bin/curl -fsSL -o ~/.iterm2_shell_integration.bash https://iterm2.com/misc/bash_startup.in
 
+if [ -d /usr/local/etc/bash_completion.d ]
+then
+	while read -d $'\0'
+	do
+		. "$REPLY"
+	done < <(find -sL /usr/local/etc/bash_completion.d -type f -print0)
+fi
+
 [ ! -f /usr/local/etc/bash_completion ] || . /usr/local/etc/bash_completion
 
 # changing PS1 is impossible after iTerm2 shell integration is enabled
@@ -157,7 +165,8 @@ function_exists __git_ps1 && export PS1=${PS1}'\[\033[01;33m\]$(__git_ps1 "[%s] 
 	function nvm() {
 		unset -f nvm node npm
 		. ~/.nvm/nvm.sh
-		nvm use stable >/dev/null
+		[ ! -f ~/.nvm/bash_completion ] || . ~/.nvm/bash_completion
+		nvm use default >/dev/null
 		nvm ${1+"$@"}
 	}
 
