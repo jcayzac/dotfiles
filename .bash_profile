@@ -1,8 +1,39 @@
-# Configuration
+set +e +u +o pipefail # continue on errors
+umask 022             # default mode = 755
+ulimit -S -n 10240    # raise number of open file handles
+shopt -s cmdhist      # save multiline commands in history
+shopt -s globstar     # support ** in glob patterns
+tabs -2               # use 2sp-wide tabs
+[ ! -t 1 ] || {       # bind keys for history search if this is a terminal
+	bind '"\e[5~": history-search-backward' # PgUp
+	bind '"\e[6~": history-search-forward'  # PgDn
+}
+
+##################
+# Base utilities #
+##################
+
+# Find if something is a command (better alternative to "which", "type" and others)
+#
+# $1  Command name
+alias has-command='command >&- 2>&- -v'
+
+# Join an array of strings.
+#
+# $1  Separator
+# $2… Strings
+join_strings() {
+	declare d="$1"
+	printf '%s' "$2"
+	shift 2
+	printf '%s' "${@/#/$d}"
+}
+
+####################
+# Base environment #
+####################
 DEFAULT_LOCALE='en_US.UTF-8'
 
-# Environment
-set +e +u +o pipefail
 export \
 	ANDROID_HOME="$HOME/Library/Android/sdk" \
 	ANDROID_SDK_ROOT="$HOME/Library/Android/sdk" \
@@ -12,7 +43,6 @@ export \
 	GIT_PS1_SHOWUNTRACKEDFILES=1 \
 	GIT_PS1_SHOWUPSTREAM='verbose name' \
 	GOPATH="$HOME/.go" \
-	GROOVY_HOME='/usr/local/opt/groovy/libexec' \
 	GREP_COLOR='01' \
 	HISTCONTROL='erasedups' \
 	HISTFILESIZE=10000 \
@@ -39,49 +69,6 @@ export \
 	MANPATH="$HOME/.prefix/share/man:/usr/local/share/man:/usr/share/man" \
 	PS1='\[\033[01;32m\]\u\[\033[01;34m\] \w \[\033[0m' \
 	SDKMAN_DIR="$HOME/.sdkman"
-
-umask 022          # default mode = 755
-ulimit -S -n 10240 # raise number of open file handles
-shopt -s cmdhist   # save multiline commands in history
-shopt -s globstar  # support ** in glob patterns
-tabs -2            # use 2sp-wide tabs
-
-# Enable extra builtins if available
-enable-loadable-builtin() {
-	declare module="$1"
-	shift
-	enable -f "/usr/local/opt/bash/lib/bash/$module" ${1+"$@"}
-}
-for _ in basename dirname finfo head realpath sleep strftime tee unlink
-do
-	enable-loadable-builtin "$_" "$_"
-done
-enable-loadable-builtin "truefalse" "true" "false"
-
-load () {
-	. "$HOME/.bash.d/$1"
-}
-
-[ ! -t 1 ] || {
-	function _load () {
-		COMPREPLY=($( cd "$HOME/.bash.d" && ls "$2"*))
-	}
-	complete -F _load load
-}
-
-function_exists() {
-	declare -f -F $1 >/dev/null
-	return $?
-}
-
-alias has-command='command >&- 2>&- -v'
-
-join_strings() {
-	declare d="$1"
-	printf '%s' "$2"
-	shift 2
-	printf '%s' "${@/#/$d}"
-}
 
 PATHS=(
 	# User
@@ -113,28 +100,57 @@ PATHS=(
 
 export PATH="$(join_strings : ${PATHS[*]})"
 
-[ ! -t 1 ] || {
-	bind '"\e[5~": history-search-backward' # bind PgUp
-	bind '"\e[6~": history-search-forward'  # bind PgDn
+##################
+# Extra builtins #
+##################
 
-	# Show a palette: fixed colors 1-15, then 24-bit gray ramp
-	# Shows immediately if 24-bit mode is supported.
-	declare COL COLS
-	read -r COLS < <(tput cols)
-	for ((COL=COLS; COL>15; --COL))
-	do
-		printf "\x1b[48;2;$COL;$((COL/2));$((COL/3))m "
-	done
-	for COL in {1..15}
-	do
-		printf "\x1b[48;5;%sm " "$COL"
-	done
-
-	printf "\x1b[0m\n"
+# Load a builtin from a module
+#
+# $1   Module name
+# $2   Function name
+# $3…  (Optional) Exported names. Defauts to function name.
+enable-loadable-builtin() {
+	declare module="$1"
+	shift
+	enable -f "/usr/local/opt/bash/lib/bash/$module" ${1+"$@"}
 }
 
-# Dependencies
-[ ! -f ~/.HOMEBREW_GITHUB_API_TOKEN ] || {
+# Load a builtin from a module.
+# Same as enable-loadable-builtin except swallows failures silently.
+enable-loadable-builtin-silent() {
+	enable-loadable-builtin >&- 2>&- ${1+"$@"} || true
+}
+
+# Load a bunch of useful builtins at startup
+for _ in basename dirname finfo head realpath sleep strftime tee unlink
+do
+	enable-loadable-builtin-silent "$_" "$_"
+done
+enable-loadable-builtin-silent "truefalse" "true" "false"
+
+###########################################################
+# Extra libraries of bash functions not loaded at startup #
+###########################################################
+
+# Load a library
+#
+# $1  Library name
+load () {
+	. "$HOME/.bash.d/$1"
+}
+
+# Enable completion if this is a terminal
+[ ! -t 1 ] || {
+	function _load () {
+		COMPREPLY=($( cd "$HOME/.bash.d" && ls "$2"*))
+	}
+	complete -F _load load
+}
+
+##################
+# Homebrew setup #
+##################
+[ ! -r ~/.HOMEBREW_GITHUB_API_TOKEN ] || {
 	read -d '' -r HOMEBREW_GITHUB_API_TOKEN <~/.HOMEBREW_GITHUB_API_TOKEN
 	export HOMEBREW_GITHUB_API_TOKEN
 }
@@ -144,108 +160,208 @@ has-command brew || {
 	brew tap Homebrew/bundle
 }
 
-[ -f ~/.iterm2_shell_integration.bash ] || /usr/bin/curl -fsSL -o ~/.iterm2_shell_integration.bash https://iterm2.com/misc/bash_startup.in
-
-if [ -d /usr/local/etc/bash_completion.d ]
-then
+###################
+# Bash completion #
+###################
+[ ! -d /usr/local/etc/bash_completion.d ] || {
 	while read -d $'\0'
 	do
 		. "$REPLY"
 	done < <(find -sL /usr/local/etc/bash_completion.d -type f -print0)
-fi
+}
 
-[ ! -f /usr/local/etc/bash_completion ] || . /usr/local/etc/bash_completion
+[ ! -r /usr/local/etc/bash_completion ] || . /usr/local/etc/bash_completion
 
-# changing PS1 is impossible after iTerm2 shell integration is enabled
-function_exists __git_ps1 && export PS1=${PS1}'\[\033[01;33m\]$(__git_ps1 "[%s] ")\[\033[00m\]'
-[ ! -t 1 ] || [ ! -f ~/.iterm2_shell_integration.bash ] || . ~/.iterm2_shell_integration.bash
+#######
+# Git #
+#######
 
-[ ! -f ~/.nvm/nvm.sh ] || {
-	# Lazy initialization of NVM
-	function nvm() {
-		unset -f nvm node npm
+# Install git prompt into PS1
+# Note: changing PS1 is impossible after iTerm2 shell integration is enabled
+! has-command __git_ps1 || export PS1=${PS1}'\[\033[01;33m\]$(__git_ps1 "[%s] ")\[\033[00m\]'
+
+#####################
+# iTerm integration #
+#####################
+
+# If this is a terminal…
+[ ! -t 1 ] || {
+
+	# …and the integrations aren't installed, install them
+	[ -f ~/.iterm2_shell_integration.bash ] || (
+		set -e
+		/usr/bin/curl -fsSL -o ~/.iterm2_shell_integration.bash.tmp https://iterm2.com/misc/bash_startup.in
+		mv ~/.iterm2_shell_integration.bash{.tmp,}
+	)
+
+	# …and the integrations are installed, load them
+	[ ! -r ~/.iterm2_shell_integration.bash ] || . ~/.iterm2_shell_integration.bash
+}
+
+###########
+# Node.js #
+###########
+
+# If NVM is installed, setup stubs to lazily load nvm, node and npm.
+# This greatly reduce startup time, as NVM is quite slow to kick in.
+[ ! -r ~/.nvm/nvm.sh ] || {
+	nvm() {
+		# Unset this stub and load the real nvm
+		unset -f nvm
 		. ~/.nvm/nvm.sh
-		[ ! -f ~/.nvm/bash_completion ] || . ~/.nvm/bash_completion
-		nvm use default >/dev/null
+
+		# Install bash completion
+		[ ! -r ~/.nvm/bash_completion ] || . ~/.nvm/bash_completion
+
+		# Setup default environment
+		nvm use default >&-
+
+		# Unset the remaining stubs
+		unset -f node npm
+
+		# Execute requested command
 		nvm ${1+"$@"}
 	}
 
-	function node() {
+	node() {
+		# Load NVM and replace all the stubs
 		nvm --version >&- 2>&-
+
+		# Execute requested command
 		node ${1+"$@"}
 	}
 
-	function npm() {
+	npm() {
+		# Load NVM and replace all the stubs
 		nvm --version >&- 2>&-
+
+		# Execute requested command
 		npm ${1+"$@"}
 	}
 }
 
-[ ! -r "$SDKMAN_DIR/bin/sdkman-init.sh" ] || {
-	# Lazy initialization of SDKMAN
-	function sdk() {
-		unset -f sdk
-		. "$SDKMAN_DIR/bin/sdkman-init.sh"
-		sdk ${1+"$@"}
-	}
-}
-
+# If Yarn is installed, add ~/.yarn/bin to the path
 ! has-command yarn || {
 	export PATH="$HOME/.yarn/bin:$PATH"
 }
 
+##########
+# SDKMAN #
+##########
+
+declare __sdkman_script_path="$SDKMAN_DIR/bin/sdkman-init.sh"
+[ ! -r "$__sdkman_script_path" ] || {
+	# Lazy initialization of SDKMAN
+	function sdk() {
+		unset -f sdk
+		. "$__sdkman_script_path"
+		sdk ${1+"$@"}
+	}
+}
+
+#########
+# Other #
+#########
+
+# If rbenv is installed, start it (it's fast enough)
 ! has-command rbenv || eval "$(rbenv init -)"
 
+# If thefuck is installed, install a stub to lazily load it
 ! has-command thefuck || {
 	# Lazy initialization of thefuck
 	function fuck() {
+		# Unset stub
 		unset -f fuck
+
+		# Install real alias
 		eval "$(thefuck --alias)"
+
+		# Execute requested command
 		fuck ${1+"$@"}
 	}
 }
 
-# aliases and custom commands
-
+# Grep looks better with color
 alias grep='grep --color'
-! has-command gls       || alias ls='gls --color=auto --show-control-chars'
-! has-command gnutar    || alias tar='gnutar'
-! has-command aria2c    || alias dl='aria2c -x5 --http-accept-gzip=true --use-head=true'
-! has-command xattr     || alias unquarantine='xattr -drv com.apple.quarantine'
-! has-command ditto     || alias copy='ditto --norsrc --noextattr --noqtn --noacl'
-! has-command ncftpput  || alias copy-movie="ncftpput -z -f '$HOME/.ncftp/hosts/mediaplayer' T_Drive/Films"
-[ ! -x "$HOME/.iTerm2/imgcat" ] || alias imgcat="$HOME/.iTerm2/imgcat"
-[ ! -x "$HOME/.iTerm2/it2dl"  ] || alias it2dl="$HOME/.iTerm2/it2dl"
 
+# So does ls
+! has-command gls       || alias ls='gls --color=auto --show-control-chars'
+
+# FIXME: I remember this broke a third-party script before.
+! has-command gnutar    || alias tar='gnutar'
+
+# Download stuff
+! has-command aria2c    || alias dl='aria2c -x5 --http-accept-gzip=true --use-head=true'
+
+# Remove the quarantine flag on downloaded stuff
+! has-command xattr     || alias unquarantine='xattr -drv com.apple.quarantine'
+
+# Copy bare stuff
+! has-command ditto     || alias copy='ditto --norsrc --noextattr --noqtn --noacl'
+
+# FIXME: don't hardcode those paths
+! has-command ncftpput  || alias copy-movie="ncftpput -z -f '$HOME/.ncftp/hosts/mediaplayer' T_Drive/Films"
+
+# Show a palette: fixed colors 1-15, then 24-bit gray ramp
+# Shows immediately if 24-bit mode is supported
+color-test() {
+	declare col=$(tput cols)
+
+	# 24-bit gradient
+	while (( col > 15))
+	do
+		printf '\x1b[48;2;%u;%u;%um ' $col $((col/2)) $((col/3))
+		col=$(( --col ))
+	done
+
+	# 4-bit color map for the end
+	for col in {1..15}
+	do
+		printf '\x1b[48;5;%sm ' $col
+	done
+
+	printf '\x1b[0m\n'
+}
+
+# Open a SHA-1 has a magnet link
 magnetize() {
 	open 'magnet:?xt=urn:btih:'"$1"
 }
 
+# Find hardlinks to a file
+#
+# $1  File
+# $2  (Optional) Directory to consider. Defaults to current directory.
+# $3… (Optional) Extra parameters for "find", to restrict results.
 hardlinks() {
-	# Usage: hardlinks <file> [dir] [extra find arguments]
-	local FN="$1" DIR="$2"
+	declare f="$1" dir="$2"
 	shift
-	if [ -d "$DIR" ]
+	if [ -d "$dir" ]
 	then
 		shift
 	else
-		DIR='.'
+		dir="$(pwd)"
 	fi
-	local $(stat -s "$FN")
-	find "$DIR" -inum $st_ino $@
+	declare $(stat -s "$f")
+	find "$dir" -inum $st_ino $@
 }
 
+# Find broken links
+#
+# $1  Directory to scan
 brokenlinks() {
-	local dir="$1"
+	declare dir="$1"
 	shift
 	NSUnbufferedIO=YES gfind -O3 "$dir" -xtype l -print0 | xargs -0 ${1+"$@"}
 }
 
+# Paste HTML content as markup, not plain text
 htmlpaste() {
 	osascript -e 'the clipboard as «class HTML»' | perl -ne 'print chr foreach unpack("C*",pack("H*",substr($_,11,-3)))'
 }
 
-update_env() {
+# Update stuff
+update_stuff() {
 	[ ! -t 1 ] || printf "\x1b[2J\x1b[H"
 	__msg() {
 		printf "\n\x1b[40;34;1m\x1b[K\n  🤖  %s \x1b[K\n\x1b[K\x1b[0m\n\n" "$1"
@@ -316,6 +432,6 @@ update_env() {
 #defaults write -g AppleFontSmoothing -int 2
 
 # Site-specific
-[ ! -f "$HOME/.bash_profile.local" ] || . "$HOME/.bash_profile.local"
+[ ! -r "$HOME/.bash_profile.local" ] || . "$HOME/.bash_profile.local"
 
 # ex: noet ci pi sts=0 sw=2 ts=2 filetype=sh
