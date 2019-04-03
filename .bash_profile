@@ -163,12 +163,6 @@ has-command brew || {
 ###################
 # Bash completion #
 ###################
-[ ! -d /usr/local/etc/bash_completion.d ] || {
-	while read -d $'\0'
-	do
-		. "$REPLY"
-	done < <(find -sL /usr/local/etc/bash_completion.d -type f -print0)
-}
 
 [ ! -r /usr/local/etc/bash_completion ] || . /usr/local/etc/bash_completion
 
