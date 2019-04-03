@@ -199,7 +199,7 @@ has-command brew || {
 # If NVM is installed, setup stubs to lazily load nvm, node and npm.
 # This greatly reduce startup time, as NVM is quite slow to kick in.
 [ ! -r ~/.nvm/nvm.sh ] || {
-	nvm() {
+	function nvm() {
 		# Unset this stub and load the real nvm
 		unset -f nvm
 		. ~/.nvm/nvm.sh
@@ -217,7 +217,7 @@ has-command brew || {
 		nvm ${1+"$@"}
 	}
 
-	node() {
+	function node() {
 		# Load NVM and replace all the stubs
 		nvm --version >&- 2>&-
 
@@ -225,7 +225,7 @@ has-command brew || {
 		node ${1+"$@"}
 	}
 
-	npm() {
+	function npm() {
 		# Load NVM and replace all the stubs
 		nvm --version >&- 2>&-
 
