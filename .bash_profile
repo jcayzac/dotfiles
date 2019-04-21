@@ -349,72 +349,136 @@ brokenlinks() {
 	NSUnbufferedIO=YES gfind -O3 "$dir" -xtype l -print0 | xargs -0 ${1+"$@"}
 }
 
+# VS.Code launcher
+code() {
+	open -b com.microsoft.VSCode ${1+"$@"} --args --disable-gpu
+}
+
 # Paste HTML content as markup, not plain text
 htmlpaste() {
 	osascript -e 'the clipboard as «class HTML»' | perl -ne 'print chr foreach unpack("C*",pack("H*",substr($_,11,-3)))'
 }
 
 # Update stuff
-update_stuff() {
-	[ ! -t 1 ] || printf "\x1b[2J\x1b[H"
-	__msg() {
-		printf "\n\x1b[40;34;1m\x1b[K\n  🤖  %s \x1b[K\n\x1b[K\x1b[0m\n\n" "$1"
-	}
+__update_stuff_sub() {
+	case "$1" in
+		brew)
+			! has-command brew || {
+				echo "Updating Homebrew…"
+				brew update
+				brew upgrade
+				nohup brew cleanup -s >&- 2>&- &
+			}
+			;;
 
-	! has-command brew || {
-		__msg "Updating Homebrew…"
-		brew update
-		brew upgrade
-		brew cleanup -s
-	}
+		gems)
+			! has-command gem || {
+				echo "Updating Ruby gems…"
+				gem sources -q -u
+				gem update -q -N --no-update-sources
+				nohup gem clean -q >&- 2>&- &
+			}
+			;;
 
-	! has-command gem || {
-		__msg "Updating Ruby gems…"
-		gem sources -q -u
-		gem update -q -N --no-update-sources
-		gem clean -q >&- 2>&-
-	}
+		node)
+			! has-command nvm || {
+				echo "Updating NVM…"
+				git -C ~/.nvm fetch -qtpP
+				git -C ~/.nvm checkout "$(git -C ~/.nvm describe --abbrev=0 origin/master)"
+				unset -f nvm node npm
+				. ~/.nvm/nvm.sh
+				nvm install -s --lts
+			}
+			! has-command npm || {
+				echo "Updating NPM packages…"
+				npm -g update -q
+			}
+			! has-command yarn || {
+				echo "Updating Yarn packages…"
+				yarn global upgrade --latest -s
+			}
+			;;
 
-	if has-command yarn
-	then
-		__msg "Updating Yarn package…"
-		yarn global upgrade --latest -s
-	elif [ -x "${NVM_BIN:-/nowhere}/npm" ]
-	then
-		__msg "Updating NPM packages…"
-		"$NVM_BIN/npm" -g update -q
-	fi
+		flutter)
+			! has-command flutter || {
+				echo "Updating Flutter…"
+				flutter upgrade
+			}
+		 	;;
 
-	# FIXME: might break if the "java" bash extension isn't loaded
-	! has-command flutter || {
-		__msg "Updating Flutter…"
-		flutter upgrade
-	}
+		atom)
+			! has-command apm || {
+				echo "Updating Atom packages…"
+				apm upgrade --no-confirm
+			}
+			;;
 
-	! has-command apm || {
-		__msg "Updating Atom packages…"
-		apm upgrade --no-confirm
-	}
+		sdk)
+			if [ -r "$__sdkman_script_path" ]
+			then
+				echo "Updating SDKMAN…"
+				. "$__sdkman_script_path"
+				sdk selfupdate
+				yes | sdk update
+			else
+				echo "Installing SDKMAN…"
+				curl -s "https://get.sdkman.io" | bash
+			fi
+			;;
 
-	if has-command sdk
-	then
-		__msg "Updating SDKMAN…"
-		sdk selfupdate
-		yes | sdk update
-	else
-		__msg "Installing SDKMAN…"
-		curl -s "https://get.sdkman.io" | bash
-		. "$SDKMAN_DIR/bin/sdkman-init.sh"
-	fi
-
-	! has-command pod || {
-		__msg "Updating Cocoapods specs…"
-		pod repo update --silent
-	}
-
-	printf "\n\x1b[40;32;1m\x1b[K\n  🚀  %s \x1b[K\n\x1b[K\x1b[0m\n\n" "Ready to take off!"
+		pods)
+			! has-command pod || {
+				echo "Updating Cocoapods specs…"
+				pod repo update --silent
+			}
+			;;
+	esac
 }
 
+update_stuff() {
+	has-command parallel || brew install parallel
+	[ "${1:-}" != 'times' ] || declare LOG="${TMPDIR}update_stuff.$$.log"
+
+	# Export stuff needed in __update_stuff_sub
+	export -f sdk || true
+	export -f __update_stuff_sub
+	export __sdkman_script_path
+
+	printf "\x1b[2J\x1b[0;0f"
+	SHELL="$BASH" parallel \
+		-j8 \
+		${LOG+--joblog "$LOG"} \
+		--line-buffer \
+		--rpl '{color} $_="\033[38;2;".(127 + int rand(128)).";".(127 + int rand(128)).";".(127 + int rand(128))."m"' \
+		--tagstring '{color}[{}]' \
+		__update_stuff_sub ::: brew gems node flutter atom sdk
+
+	# Reload some commands
+	[ ! -r ~/.nvm/nvm.sh ] || {
+		echo "🌀 Reloading NVM…"
+		unset -f nvm node npm
+		. ~/.nvm/nvm.sh
+		nvm use --lts >/dev/null
+	}
+	! has-command thefuck || {
+		echo "🌀 Reloading THEFUCK…"
+		unset -f fuck
+		eval "$(thefuck --alias)"
+	}
+	[ ! -r "$__sdkman_script_path" ] || {
+		echo "🌀 Reloading SDKMAN…"
+		unset -f sdk
+		. "$__sdkman_script_path"
+	}
+
+	[ -z "${LOG:-}" ] || {
+		printf '\x1b[40;32;1m\x1b[K⏱ Times:\x1b[0m\n'
+		cat "$LOG"
+		rm "$LOG"
+	}
+
+	printf '\x1b[40;32;1m\x1b[K🏵 All Done.\x1b[0m\n'
+}
 
 # extra setup
 #/usr/bin/find ~/Library -flags hidden -maxdepth 0 -exec /usr/bin/chflags nohidden "{}" +
