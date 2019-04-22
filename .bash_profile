@@ -118,10 +118,26 @@ enable-loadable-builtin() {
 }
 
 # Load a bunch of useful builtins at startup
-for _ in basename dirname finfo head realpath sleep strftime tee unlink 'truefalse true false'
+for _ in \
+	'basename' \
+	'dirname' \
+	'fdflags' \
+	'finfo' \
+	'head' \
+	'mypid enable_mypid' \
+	'realpath' \
+	'sleep' \
+	'strftime' \
+	'tee' \
+	'unlink' \
+	'truefalse true false'  \
+
 do
-	enable-loadable-builtin $_ || true
+	enable-loadable-builtin $_
 done
+
+# Enable $MYPID
+enable_mypid
 
 ###########################################################
 # Extra libraries of bash functions not loaded at startup #
@@ -341,16 +357,17 @@ htmlpaste() {
 # Update stuff
 __update_stuff_sub() {
 	case "$1" in
-		brew)
+		brew*)
 			! has-command brew || {
 				echo "Updating Homebrew…"
+				export HOMEBREW_NO_COLOR=1
 				brew update
 				brew upgrade
 				nohup brew cleanup -s >/dev/null 2>&1 &
 			}
 			;;
 
-		gems)
+		gems*)
 			! has-command gem || {
 				echo "Updating Ruby gems…"
 				gem sources -q -u
@@ -359,13 +376,17 @@ __update_stuff_sub() {
 			}
 			;;
 
-		node)
+		node*)
 			! has-command nvm || {
 				echo "Updating NVM…"
 				git -C ~/.nvm fetch -qtpP
-				git -C ~/.nvm checkout "$(git -C ~/.nvm describe --abbrev=0 origin/master)"
-				unset -f nvm node npm
-				. ~/.nvm/nvm.sh
+				declare current_version="$(git -C ~/.nvm describe)"
+				declare next_version="$(git -C ~/.nvm describe --abbrev=0 origin/master)"
+				[ "$current_version" == "$next_version" ] || {
+					git -C ~/.nvm checkout "$next_version"
+					unset -f nvm node npm
+					. ~/.nvm/nvm.sh
+				}
 				nvm install -s --lts
 			}
 			! has-command npm || {
@@ -378,34 +399,39 @@ __update_stuff_sub() {
 			}
 			;;
 
-		flutter)
+		flutter*)
 			! has-command flutter || {
 				echo "Updating Flutter…"
 				flutter upgrade
 			}
 		 	;;
 
-		atom)
+		atom*)
 			! has-command apm || {
 				echo "Updating Atom packages…"
-				apm upgrade --no-confirm
+				apm upgrade --no-confirm --no-color
 			}
 			;;
 
-		sdk)
+		sdk*)
+			export sdkman_colour_enable="false"
 			if [ -r "$__sdkman_script_path" ]
 			then
 				echo "Updating SDKMAN…"
 				. "$__sdkman_script_path"
 				sdk selfupdate
 				yes | sdk update
+				for _ in archives broadcast temp
+				do
+					sdk flush $_
+				done
 			else
 				echo "Installing SDKMAN…"
 				curl -s "https://get.sdkman.io" | bash
 			fi
 			;;
 
-		pods)
+		pods*)
 			! has-command pod || {
 				echo "Updating Cocoapods specs…"
 				pod repo update --silent
@@ -414,49 +440,68 @@ __update_stuff_sub() {
 	esac
 }
 
-update_stuff() {
+update-stuff() {
 	has-command parallel || brew install parallel
 	[ "${1:-}" != 'times' ] || declare LOG="${TMPDIR}update_stuff.$$.log"
+
+	# Save stome state
+	declare nvm_verinfo="$(nvm --version 2>&1 || true)"
+	declare thefuck_verinfo="$(thefuck --version 2>&1 || true)"
 
 	# Export stuff needed in __update_stuff_sub
 	export -f sdk || true
 	export -f __update_stuff_sub
 	export __sdkman_script_path
 
-	printf "\x1b[2J\x1b[0;0f"
+	printf '\x1b[2J\x1b[0;0f'
 	SHELL="$BASH" parallel \
-		-j8 \
+		-j0 \
 		${LOG+--joblog "$LOG"} \
 		--line-buffer \
-		--rpl '{color} $_="\033[38;2;".(127 + int rand(128)).";".(127 + int rand(128)).";".(127 + int rand(128))."m"' \
-		--tagstring '{color}[{}]' \
-		__update_stuff_sub ::: brew gems node flutter atom sdk
+		--rpl '{tag} my @col = split /\s+/, $arg[1]; $_=sprintf("\x1b[0m\x1b[38;2;%i;%i;%im%8s\x1b[10G%s\x1b[12G", 127 + (8 * int rand(16)), 95 + (8 * int rand(20)), 127 + (8 * int rand(16)), $col[0], $col[1]);' \
+		--tagstring '{tag}' \
+		__update_stuff_sub <<-EOT
+			brew		☕️
+			gems		💎
+			node		🔮
+			flutter		🐦
+			atom		⚛️
+			sdk			📦
+			EOT
+	
+	function __color() { printf '\x1b[0m\x1b[38;2;%i;%i;%im' $1 ${2:-$1} ${3:-$1}; }
 
 	# Reload some commands
-	[ ! -r ~/.nvm/nvm.sh ] || {
-		echo "🌀 Reloading NVM…"
+	function msg() { printf '\x1b[10G%s\x1b[13G%s\n' "$1" "$2"; }
+	function msg_reload() { msg '🌀' "Reloading ${1}…"; }
+	__color 128
+
+	[ ! -r ~/.nvm/nvm.sh ] || [ "$nvm_verinfo" == "$(nvm --version 2>&1 || true)" ] || {
+		msg_reload 'NVM'
 		unset -f nvm node npm
 		. ~/.nvm/nvm.sh
 		nvm use --lts >/dev/null
 	}
-	! has-command thefuck || {
-		echo "🌀 Reloading THEFUCK…"
+	! has-command thefuck || [ "$thefuck_verinfo" == "$(thefuck --version 2>&1 || true)" ] || {
+		msg_reload 'THEFUCK'
 		unset -f fuck
 		eval "$(thefuck --alias)"
 	}
 	[ ! -r "$__sdkman_script_path" ] || {
-		echo "🌀 Reloading SDKMAN…"
+		msg_reload 'SDKMAN'
 		unset -f sdk
 		. "$__sdkman_script_path"
 	}
 
 	[ -z "${LOG:-}" ] || {
-		printf '\x1b[40;32;1m\x1b[K⏱ Times:\x1b[0m\n'
+		msg '⏱' 'Times:'
 		cat "$LOG"
 		rm "$LOG"
 	}
 
-	printf '\x1b[40;32;1m\x1b[K🏵 All Done.\x1b[0m\n'
+	__color 100 240 100
+	msg '✅' 'All Done.'
+	printf '\x1b[0m\n'
 }
 
 # extra setup
