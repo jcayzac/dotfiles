@@ -16,7 +16,7 @@ tabs -2               # use 2sp-wide tabs
 # Find if something is a command (better alternative to "which", "type" and others)
 #
 # $1  Command name
-alias has-command='command >&- 2>&- -v'
+alias has-command='command >/dev/null 2>&1 -v'
 
 # Join an array of strings.
 #
@@ -112,21 +112,16 @@ export PATH="$(join_strings : ${PATHS[*]})"
 enable-loadable-builtin() {
 	declare module="$1"
 	shift
-	enable -f "/usr/local/opt/bash/lib/bash/$module" ${1+"$@"}
-}
-
-# Load a builtin from a module.
-# Same as enable-loadable-builtin except swallows failures silently.
-enable-loadable-builtin-silent() {
-	enable-loadable-builtin >&- 2>&- ${1+"$@"} || true
+	declare args="$@"
+	[ -n "$args" ] || args="$module"
+	enable -f "/usr/local/opt/bash/lib/bash/$module" $args
 }
 
 # Load a bunch of useful builtins at startup
-for _ in basename dirname finfo head realpath sleep strftime tee unlink
+for _ in basename dirname finfo head realpath sleep strftime tee unlink 'truefalse true false'
 do
-	enable-loadable-builtin-silent "$_" "$_"
+	enable-loadable-builtin $_ || true
 done
-enable-loadable-builtin-silent "truefalse" "true" "false"
 
 ###########################################################
 # Extra libraries of bash functions not loaded at startup #
@@ -351,7 +346,7 @@ __update_stuff_sub() {
 				echo "Updating Homebrew…"
 				brew update
 				brew upgrade
-				nohup brew cleanup -s >&- 2>&- &
+				nohup brew cleanup -s >/dev/null 2>&1 &
 			}
 			;;
 
@@ -360,7 +355,7 @@ __update_stuff_sub() {
 				echo "Updating Ruby gems…"
 				gem sources -q -u
 				gem update -q -N --no-update-sources
-				nohup gem clean -q >&- 2>&- &
+				nohup gem clean -q >/dev/null 2>&1 &
 			}
 			;;
 
@@ -467,7 +462,7 @@ update_stuff() {
 # extra setup
 #/usr/bin/find ~/Library -flags hidden -maxdepth 0 -exec /usr/bin/chflags nohidden "{}" +
 #
-#{ defaults read  com.apple.dock persistent-others | grep '"recents-tile"' >&- 2>&- ; } || \
+#{ defaults read  com.apple.dock persistent-others | grep '"recents-tile"' >/dev/null 2>&1 ; } || \
 #  defaults write com.apple.dock persistent-others -array-add '{ "tile-data" = { "list-type" = 1; }; "tile-type" = "recents-tile"; }'
 #
 # Enable subpixel font rendering on non-Apple LCDs
