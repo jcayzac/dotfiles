@@ -200,36 +200,20 @@ has-command brew || {
 # This greatly reduce startup time, as NVM is quite slow to kick in.
 [ ! -r ~/.nvm/nvm.sh ] || {
 	function nvm() {
-		# Unset this stub and load the real nvm
-		unset -f nvm
+		unset -f nvm node npm
 		. ~/.nvm/nvm.sh
-
-		# Install bash completion
+		nvm use --lts >/dev/null
 		[ ! -r ~/.nvm/bash_completion ] || . ~/.nvm/bash_completion
-
-		# Setup default environment
-		nvm use default >&-
-
-		# Unset the remaining stubs
-		unset -f node npm
-
-		# Execute requested command
 		nvm ${1+"$@"}
 	}
 
 	function node() {
-		# Load NVM and replace all the stubs
-		nvm --version >&- 2>&-
-
-		# Execute requested command
+		nvm --version >/dev/null 2>&1
 		node ${1+"$@"}
 	}
 
 	function npm() {
-		# Load NVM and replace all the stubs
-		nvm --version >&- 2>&-
-
-		# Execute requested command
+		nvm --version >/dev/null 2>&1
 		npm ${1+"$@"}
 	}
 }
