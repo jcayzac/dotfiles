@@ -74,6 +74,9 @@ PATHS=(
 	# User
 	"$HOME/.prefix/bin"
 
+	# Rust
+	"$HOME/.cargo/bin"
+
 	# Go
 	"$HOME/.go/bin"
 	"/usr/local/opt/go/libexec/bin"
@@ -437,6 +440,17 @@ __update_stuff_sub() {
 				pod repo update --silent
 			}
 			;;
+		
+		rust*)
+			! has-command rustup || {
+				echo "Updating Rust toolchain…"
+				rustup update
+				D="$HOME/.bash_completion.d"
+				[ ! -d "$D" ] || mkdir -p "$D"
+				rustup completions bash >"$D/rustup"
+				rustup completions bash cargo >"$D/cargo"
+			}
+			;;
 	esac
 }
 
@@ -461,11 +475,12 @@ update-stuff() {
 		--rpl '{tag} my @col = split /\s+/, $arg[1]; $_=sprintf("\x1b[0m\x1b[38;2;%i;%i;%im%8s\x1b[10G%s\x1b[12G", 127 + (8 * int rand(16)), 95 + (8 * int rand(20)), 127 + (8 * int rand(16)), $col[0], $col[1]);' \
 		--tagstring '{tag}' \
 		__update_stuff_sub <<-EOT
+			atom		⚛️
 			brew		☕️
+			flutter		🐦
 			gems		💎
 			node		🔮
-			flutter		🐦
-			atom		⚛️
+			rust		⚙️
 			sdk			📦
 			EOT
 	

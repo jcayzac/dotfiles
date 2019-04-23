@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+declare __="$HOME/.bash_completion.d"
+
+[ ! -d "$__" ] || {
+	for i in $(LC_ALL=C command ls "$__")
+	do
+		. "$__/$i"
+	done
+}
+# ex: noet ci pi sts=0 sw=2 ts=2 filetype=sh
