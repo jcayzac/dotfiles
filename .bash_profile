@@ -213,7 +213,7 @@ has-command brew || /usr/bin/ruby -e "$(/usr/bin/curl -fsSL https://raw.githubus
 	function nvm() {
 		unset -f nvm node npm
 		. ~/.nvm/nvm.sh
-		nvm use --lts >/dev/null
+		nvm use node >/dev/null
 		[ ! -r ~/.nvm/bash_completion ] || . ~/.nvm/bash_completion
 		nvm ${1+"$@"}
 	}
@@ -387,7 +387,7 @@ __update_stuff_sub() {
 					unset -f nvm node npm
 					. ~/.nvm/nvm.sh
 				}
-				nvm install -s --lts
+				nvm install -s node --latest-npm --reinstall-packages-from=node
 			}
 			! has-command npm || {
 				echo "Updating NPM packages…"
@@ -437,7 +437,7 @@ __update_stuff_sub() {
 				pod repo update --silent
 			}
 			;;
-		
+
 		rust*)
 			! has-command rustup || {
 				echo "Updating Rust toolchain…"
@@ -480,7 +480,7 @@ update-stuff() {
 			rust		⚙️
 			sdk			📦
 			EOT
-	
+
 	function __color() { printf '\x1b[0m\x1b[38;2;%i;%i;%im' $1 ${2:-$1} ${3:-$1}; }
 
 	# Reload some commands
@@ -492,7 +492,7 @@ update-stuff() {
 		msg_reload 'NVM'
 		unset -f nvm node npm
 		. ~/.nvm/nvm.sh
-		nvm use --lts >/dev/null
+		nvm use node >/dev/null
 	}
 	! has-command thefuck || [ "$thefuck_verinfo" == "$(thefuck --version 2>&1 || true)" ] || {
 		msg_reload 'THEFUCK'
