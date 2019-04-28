@@ -19,9 +19,6 @@ _rustup() {
             add)
                 cmd+="__add"
                 ;;
-            analyze)
-                cmd+="__analyze"
-                ;;
             completions)
                 cmd+="__completions"
                 ;;
@@ -34,17 +31,11 @@ _rustup() {
             default-host)
                 cmd+="__default__host"
                 ;;
-            disable)
-                cmd+="__disable"
-                ;;
             doc)
                 cmd+="__doc"
                 ;;
             docs)
                 cmd+="__docs"
-                ;;
-            enable)
-                cmd+="__enable"
                 ;;
             help)
                 cmd+="__help"
@@ -82,9 +73,6 @@ _rustup() {
             target)
                 cmd+="__target"
                 ;;
-            telemetry)
-                cmd+="__telemetry"
-                ;;
             toolchain)
                 cmd+="__toolchain"
                 ;;
@@ -110,7 +98,7 @@ _rustup() {
 
     case "${cmd}" in
         rustup)
-            opts=" -v -h -V  --verbose --help --version   show install uninstall update default toolchain target component override run which doc man self set self telemetry set completions help  docs"
+            opts=" -v -h -V  --verbose --help --version   show install uninstall update default toolchain target component override run which doc man self set completions help  docs"
             if [[ ${cur} == -* || ${COMP_CWORD} -eq 1 ]] ; then
                 COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
                 return 0
@@ -756,81 +744,6 @@ _rustup() {
                     COMPREPLY=($(compgen -f "${cur}"))
                     return 0
                     ;;
-                *)
-                    COMPREPLY=()
-                    ;;
-            esac
-            COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
-            return 0
-            ;;
-        rustup__telemetry)
-            opts=" -h -V  --help --version   enable disable analyze help"
-            if [[ ${cur} == -* || ${COMP_CWORD} -eq 2 ]] ; then
-                COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
-                return 0
-            fi
-            case "${prev}" in
-                
-                *)
-                    COMPREPLY=()
-                    ;;
-            esac
-            COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
-            return 0
-            ;;
-        rustup__telemetry__analyze)
-            opts=" -h -V  --help --version  "
-            if [[ ${cur} == -* || ${COMP_CWORD} -eq 3 ]] ; then
-                COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
-                return 0
-            fi
-            case "${prev}" in
-                
-                *)
-                    COMPREPLY=()
-                    ;;
-            esac
-            COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
-            return 0
-            ;;
-        rustup__telemetry__disable)
-            opts=" -h -V  --help --version  "
-            if [[ ${cur} == -* || ${COMP_CWORD} -eq 3 ]] ; then
-                COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
-                return 0
-            fi
-            case "${prev}" in
-                
-                *)
-                    COMPREPLY=()
-                    ;;
-            esac
-            COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
-            return 0
-            ;;
-        rustup__telemetry__enable)
-            opts=" -h -V  --help --version  "
-            if [[ ${cur} == -* || ${COMP_CWORD} -eq 3 ]] ; then
-                COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
-                return 0
-            fi
-            case "${prev}" in
-                
-                *)
-                    COMPREPLY=()
-                    ;;
-            esac
-            COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
-            return 0
-            ;;
-        rustup__telemetry__help)
-            opts=" -h -V  --help --version  "
-            if [[ ${cur} == -* || ${COMP_CWORD} -eq 3 ]] ; then
-                COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
-                return 0
-            fi
-            case "${prev}" in
-                
                 *)
                     COMPREPLY=()
                     ;;
