@@ -169,10 +169,7 @@ load () {
 	export HOMEBREW_GITHUB_API_TOKEN
 }
 
-has-command brew || {
-	/usr/bin/ruby -e "$(/usr/bin/curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
-	brew tap Homebrew/bundle
-}
+has-command brew || /usr/bin/ruby -e "$(/usr/bin/curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
 
 ###################
 # Bash completion #
