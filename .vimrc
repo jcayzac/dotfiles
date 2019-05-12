@@ -64,8 +64,7 @@ set lcs=tab:\ \ ,trail:\
 " enable nice color scheme
 set background=dark
 :colorscheme ir_black
-highlight ColorColumn ctermbg=7
-highlight ColorColumn guibg=Gray
+:hi ColorColumn ctermbg=237 guibg=#3a3a3a
 
 " display trailing spaces in dark grey
 :hi ExtraWhitespace ctermbg=237 guibg=#3a3a3a
