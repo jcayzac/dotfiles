@@ -257,6 +257,18 @@ declare __sdkman_script_path="$SDKMAN_DIR/bin/sdkman-init.sh"
 	}
 }
 
+declare __sdkman_config_path="$SDKMAN_DIR/etc/config"
+[ ! -r "$__sdkman_config_path" ] || [ "$(\shasum -a 256 < "$__sdkman_config_path")" == 'fe63be0dab36808ede6681c0a237b605844122c729de24d68ff8f0f9a78a3ddb  -' ] || cat >"$__sdkman_config_path" <<EOT
+sdkman_auto_answer=true
+sdkman_auto_selfupdate=true
+sdkman_insecure_ssl=false
+sdkman_curl_connect_timeout=7
+sdkman_curl_max_time=10
+sdkman_beta_channel=false
+sdkman_debug_mode=false
+sdkman_colour_enable=false
+EOT
+
 #########
 # Other #
 #########
