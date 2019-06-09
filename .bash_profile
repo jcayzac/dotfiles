@@ -376,103 +376,103 @@ htmlpaste() {
 }
 
 # Update stuff
-__update_stuff_sub() {
-	case "$1" in
-		brew*)
-			! has-command brew || {
-				echo "Updating Homebrew…"
-				export HOMEBREW_NO_COLOR=1
-				brew update
-				brew upgrade
-				nohup brew cleanup -s >/dev/null 2>&1 &
-			}
-			;;
-
-		gems*)
-			! has-command gem || {
-				echo "Updating Ruby gems…"
-				gem sources -q -u
-				gem update -q -N --no-update-sources
-				nohup gem clean -q >/dev/null 2>&1 &
-			}
-			;;
-
-		node*)
-			! has-command nvm || {
-				echo "Updating NVM…"
-				git -C ~/.nvm fetch -qtpP
-				declare current_version="$(git -C ~/.nvm describe)"
-				declare next_version="$(git -C ~/.nvm describe --abbrev=0 origin/master)"
-				[ "$current_version" == "$next_version" ] || {
-					git -C ~/.nvm checkout "$next_version"
-					unset -f nvm node npm
-					. ~/.nvm/nvm.sh
-				}
-				nvm install -s node --latest-npm --reinstall-packages-from=node
-			}
-			! has-command npm || {
-				echo "Updating NPM packages…"
-				npm -g update -q
-			}
-			! has-command yarn || {
-				echo "Updating Yarn packages…"
-				yarn global upgrade --latest -s
-			}
-			;;
-
-		flutter*)
-			! has-command flutter || {
-				echo "Updating Flutter…"
-				flutter upgrade
-			}
-		 	;;
-
-		atom*)
-			! has-command apm || {
-				echo "Updating Atom packages…"
-				apm upgrade --no-confirm --no-color
-			}
-			;;
-
-		sdk*)
-			export sdkman_colour_enable="false"
-			if [ -r "$__sdkman_script_path" ]
-			then
-				echo "Updating SDKMAN…"
-				. "$__sdkman_script_path"
-				sdk selfupdate
-				yes | sdk update
-				for _ in archives broadcast temp
-				do
-					sdk flush $_
-				done
-			else
-				echo "Installing SDKMAN…"
-				curl -s "https://get.sdkman.io" | bash
-			fi
-			;;
-
-		pods*)
-			! has-command pod || {
-				echo "Updating Cocoapods specs…"
-				pod repo update --silent
-			}
-			;;
-
-		rust*)
-			! has-command rustup || {
-				echo "Updating Rust toolchain…"
-				rustup update
-				D="$HOME/.bash_completion.d"
-				[ ! -d "$D" ] || mkdir -p "$D"
-				rustup completions bash >"$D/rustup"
-				rustup completions bash cargo >"$D/cargo"
-			}
-			;;
-	esac
-}
-
 update-stuff() {
+	function __update_stuff_sub() {
+		case "$1" in
+			brew*)
+				! has-command brew || {
+					echo "Updating Homebrew…"
+					export HOMEBREW_NO_COLOR=1
+					brew update
+					brew upgrade
+					nohup brew cleanup -s >/dev/null 2>&1 &
+				}
+				;;
+
+			gems*)
+				! has-command gem || {
+					echo "Updating Ruby gems…"
+					gem sources -q -u
+					gem update -q -N --no-update-sources
+					nohup gem clean -q >/dev/null 2>&1 &
+				}
+				;;
+
+			node*)
+				! has-command nvm || {
+					echo "Updating NVM…"
+					git -C ~/.nvm fetch -qtpP
+					declare current_version="$(git -C ~/.nvm describe)"
+					declare next_version="$(git -C ~/.nvm describe --abbrev=0 origin/master)"
+					[ "$current_version" == "$next_version" ] || {
+						git -C ~/.nvm checkout "$next_version"
+						unset -f nvm node npm
+						. ~/.nvm/nvm.sh
+					}
+					nvm install -s node --latest-npm --reinstall-packages-from=node
+				}
+				! has-command npm || {
+					echo "Updating NPM packages…"
+					npm -g update -q
+				}
+				! has-command yarn || {
+					echo "Updating Yarn packages…"
+					yarn global upgrade --latest -s
+				}
+				;;
+
+			flutter*)
+				! has-command flutter || {
+					echo "Updating Flutter…"
+					flutter upgrade
+				}
+				;;
+
+			atom*)
+				! has-command apm || {
+					echo "Updating Atom packages…"
+					apm upgrade --no-confirm --no-color
+				}
+				;;
+
+			sdk*)
+				export sdkman_colour_enable="false"
+				if [ -r "$__sdkman_script_path" ]
+				then
+					echo "Updating SDKMAN…"
+					. "$__sdkman_script_path"
+					sdk selfupdate
+					yes | sdk update
+					for _ in archives broadcast temp
+					do
+						sdk flush $_
+					done
+				else
+					echo "Installing SDKMAN…"
+					curl -s "https://get.sdkman.io" | bash
+				fi
+				;;
+
+			pods*)
+				! has-command pod || {
+					echo "Updating Cocoapods specs…"
+					pod repo update --silent
+				}
+				;;
+
+			rust*)
+				! has-command rustup || {
+					echo "Updating Rust toolchain…"
+					rustup update
+					D="$HOME/.bash_completion.d"
+					[ ! -d "$D" ] || mkdir -p "$D"
+					rustup completions bash >"$D/rustup"
+					rustup completions bash cargo >"$D/cargo"
+				}
+				;;
+		esac
+	}
+
 	has-command parallel || brew install parallel
 	[ "${1:-}" != 'times' ] || declare LOG="${TMPDIR}update_stuff.$$.log"
 
