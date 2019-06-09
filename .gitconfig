@@ -23,15 +23,15 @@
 	port = 54321
 	browser = open
 [log]
-	date = iso
+	date = human
 	abbrevCommit = true
 [format]
-	pretty = tformat:%C(white red bold) %h %Creset %C(cyan)%an%Creset %s %Cgreen(%cd)%Creset%C(yellow)%d%Creset
+	pretty = tformat:%C(white red bold) %h %Creset %C(cyan)%an%Creset %<(16)%Cgreen%cd%Creset %s %C(yellow)%d%Creset
 [core]
   precomposeUnicode = true
 	longpaths = true
 	filemode = true
-	pager = /usr/local/opt/git/share/git-core/contrib/diff-highlight/diff-highlight | less -FXnSR
+	pager = /usr/local/opt/git/share/git-core/contrib/diff-highlight/diff-highlight | less -FXnSRx2
 	editor = vim
 	autocrlf = input
 [credential]
