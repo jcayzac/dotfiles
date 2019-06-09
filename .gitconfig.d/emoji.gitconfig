@@ -1,6 +1,6 @@
 [alias]
 	# Emoji prefix support, inspired from https://gitmoji.carloscuesta.me/
-	o-o = "!f() { local p=\"$1\" m=\"$2\"; shift 2; git commit -m \"$p $m\" ${1+\"$@\"}; }; f"
+	o-o = "!f() { local p=\"$1\" m=\"$2\"; shift 2; git commit -m \"$p	$m\" ${1+\"$@\"}; }; f"
 	commitaccessibility = !git o-o ♿️ # Accessibility-related changes
 	commitautomation    = !git o-o 🤖 # Automation-related changes
 	commitbreaking      = !git o-o 🔥 # Backward compatibility-breaking changes
