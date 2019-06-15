@@ -6,7 +6,6 @@ tap 'caskroom/fonts'
 tap 'homebrew/bundle'
 tap 'homebrew/completions'
 tap 'homebrew/core'
-tap 'homebrew/dupes'
 tap 'homebrew/services'
 tap 'homebrew/python'
 tap 'homebrew/science'
@@ -72,7 +71,6 @@ cask 'firefox'
 cask 'transmission'
 cask 'jdownloader'
 cask 'skype'
-mas  'Slack', id: 803453959
 
 # Media
 brew 'exiftool'
@@ -97,11 +95,9 @@ mas  'iMovie', id: 408981434
 mas  'Xcode', id: 497799835
 brew 'make'
 brew 'cmake'
-brew 'opencv'
 brew 'ruby-build'
 brew 'rbenv'
 brew 'nvm'
-brew 'yarn', args: ['without-mode']
 brew 'numpy'
 brew 'go'
 brew 'graphviz'
@@ -110,9 +106,6 @@ brew 'bazel'
 brew 'wellington'
 brew 'flow'
 brew 'watchman'
-brew 'hugo'
-cask 'sublime-text'
-cask 'atom'
 cask 'visual-studio-code'
 
 # Android
@@ -120,7 +113,6 @@ brew 'ant'
 brew 'maven'
 brew 'gradle'
 brew 'dex2jar'
-brew 'google-java-format'
 cask 'android-studio'
 
 # ex: noet ci pi sts=0 sw=4 ts=4 filetype=sh
