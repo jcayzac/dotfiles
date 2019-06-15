@@ -476,7 +476,6 @@ update-stuff() {
 	[ "${1:-}" != 'times' ] || declare LOG="${TMPDIR}update_stuff.$$.log"
 
 	# Save stome state
-	declare nvm_verinfo="$(nvm --version 2>&1 || true)"
 	declare thefuck_verinfo="$(thefuck --version 2>&1 || true)"
 
 	# Export stuff needed in __update_stuff_sub
@@ -507,7 +506,7 @@ update-stuff() {
 	function msg_reload() { msg '🌀' "Reloading ${1}…"; }
 	__color 128
 
-	[ ! -r ~/.nvm/nvm.sh ] || [ "$nvm_verinfo" == "$(nvm --version 2>&1 || true)" ] || {
+	[ ! -r ~/.nvm/nvm.sh ] || {
 		msg_reload 'NVM'
 		__jc_nvm_reload
 	}
