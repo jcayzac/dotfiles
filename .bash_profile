@@ -127,7 +127,6 @@ for _ in \
 	'fdflags' \
 	'finfo' \
 	'head' \
-	'mypid enable_mypid' \
 	'realpath' \
 	'sleep' \
 	'strftime' \
@@ -138,9 +137,6 @@ for _ in \
 do
 	enable-loadable-builtin $_
 done
-
-# Enable $MYPID
-enable_mypid
 
 ###########################################################
 # Extra libraries of bash functions not loaded at startup #
