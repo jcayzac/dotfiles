@@ -212,32 +212,47 @@ fi
 # Node.js #
 ###########
 
-# If NVM is installed, setup stubs to lazily load nvm, node and npm.
-# This greatly reduce startup time, as NVM is quite slow to kick in.
+# Source "nvm" but don't use any version yet
 [ ! -r ~/.nvm/nvm.sh ] || {
-	function nvm() {
-		unset -f nvm node npm
+	. ~/.nvm/nvm.sh --no-use
+
+	# Call "nvm use" when entering a directory with a .nvmrc
+	__jc_nvmrc_probe_dir=
+
+	function __jc_nvmrc_probe() {
+		[[ "$__jc_nvmrc_probe_dir" == "$PWD" ]] || [ ! -r .nvmrc ] || {
+			__jc_nvmrc_probe_dir="$PWD"
+			nvm use
+		}
+	}
+
+	function __jc_nvmrc_reprobe() {
+		__jc_nvmrc_probe_dir=
+		__jc_nvmrc_probe
+	}
+
+	function __jc_nvm_reload() {
+		nvm deactivate >/dev/null 2>&1
+		nvm unload
 		. ~/.nvm/nvm.sh
-		nvm use node >/dev/null
-		[ ! -r ~/.nvm/bash_completion ] || . ~/.nvm/bash_completion
-		nvm ${1+"$@"}
+		__jc_nvmrc_reprobe
 	}
 
-	function node() {
-		nvm --version >/dev/null 2>&1
-		node ${1+"$@"}
-	}
-
-	function npm() {
-		nvm --version >/dev/null 2>&1
-		npm ${1+"$@"}
-	}
+	[[ "$PWD" == "$HOME" ]] || __jc_nvmrc_probe
+	PROMPT_COMMAND="__jc_nvmrc_probe${PROMPT_COMMAND+;$PROMPT_COMMAND}"
 }
 
-# If Yarn is installed, add ~/.yarn/bin to the path
-! has-command yarn || {
-	export PATH="$HOME/.yarn/bin:$PATH"
-}
+# Prevent "yarn global" from ever being used.
+# I manage my projects with Yarn, but global modules with NPM (including Yarn).
+if [ -r ~/.yarnrc ]
+then
+	\grep 'prefix "/nope"' ~/.yarnrc >/dev/null 2>&1 || {
+		\sed -i '' 's/^prefix.*$/prefix "\/nope"/' ~/.yarnrc
+	}
+else
+	echo 'prefix "/nope"' >~/.yarnrc
+fi
+
 
 ##########
 # SDKMAN #
@@ -395,25 +410,20 @@ update-stuff() {
 				;;
 
 			node*)
-				! has-command nvm || {
+				[ ! -r ~/.nvm/nvm.sh ] || {
 					echo "Updating NVM…"
 					git -C ~/.nvm fetch -qtpP
 					declare current_version="$(git -C ~/.nvm describe)"
 					declare next_version="$(git -C ~/.nvm describe --abbrev=0 origin/master)"
-					[ "$current_version" == "$next_version" ] || {
-						git -C ~/.nvm checkout "$next_version"
-						unset -f nvm node npm
-						. ~/.nvm/nvm.sh
-					}
-					nvm install -s node --latest-npm --reinstall-packages-from=node
+					[ "$current_version" == "$next_version" ] || git -C ~/.nvm checkout "$next_version"
+					. ~/.nvm/nvm.sh
+					nvm install node --latest-npm --reinstall-packages-from=node
+					nvm use node
 				}
 				! has-command npm || {
 					echo "Updating NPM packages…"
+					npm i -g yarn@latest
 					npm -g update -q
-				}
-				! has-command yarn || {
-					echo "Updating Yarn packages…"
-					yarn global upgrade --latest -s
 				}
 				;;
 
@@ -421,13 +431,6 @@ update-stuff() {
 				! has-command flutter || {
 					echo "Updating Flutter…"
 					flutter upgrade
-				}
-				;;
-
-			atom*)
-				! has-command apm || {
-					echo "Updating Atom packages…"
-					apm upgrade --no-confirm --no-color
 				}
 				;;
 
@@ -489,7 +492,6 @@ update-stuff() {
 		--rpl '{tag} my @col = split /\s+/, $arg[1]; $_=sprintf("\x1b[0m\x1b[38;2;%i;%i;%im%8s\x1b[10G%s\x1b[12G", 127 + (8 * int rand(16)), 95 + (8 * int rand(20)), 127 + (8 * int rand(16)), $col[0], $col[1]);' \
 		--tagstring '{tag}' \
 		__update_stuff_sub <<-EOT
-			atom		⚛️
 			brew		☕️
 			flutter		🐦
 			gems		💎
@@ -507,15 +509,15 @@ update-stuff() {
 
 	[ ! -r ~/.nvm/nvm.sh ] || [ "$nvm_verinfo" == "$(nvm --version 2>&1 || true)" ] || {
 		msg_reload 'NVM'
-		unset -f nvm node npm
-		. ~/.nvm/nvm.sh
-		nvm use node >/dev/null
+		__jc_nvm_reload
 	}
+
 	! has-command thefuck || [ "$thefuck_verinfo" == "$(thefuck --version 2>&1 || true)" ] || {
 		msg_reload 'THEFUCK'
 		unset -f fuck
 		eval "$(thefuck --alias)"
 	}
+
 	[ ! -r "$__sdkman_script_path" ] || {
 		msg_reload 'SDKMAN'
 		unset -f sdk
