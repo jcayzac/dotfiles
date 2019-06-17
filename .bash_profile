@@ -394,9 +394,10 @@ update-stuff() {
 				! has-command brew || {
 					echo "Updating Homebrew…"
 					export HOMEBREW_NO_COLOR=1
-					brew update
+					brew update | grep -v 'Already up-to-date'
 					brew upgrade
 					nohup brew cleanup -s >/dev/null 2>&1 &
+					echo "✔︎ Done"
 				}
 				;;
 
@@ -404,8 +405,9 @@ update-stuff() {
 				! has-command gem || {
 					echo "Updating Ruby gems…"
 					gem sources -q -u
-					gem update -q -N --no-update-sources
+					gem update -q -N --no-update-sources | grep -v 'Nothing to update'
 					nohup gem clean -q >/dev/null 2>&1 &
+					echo "✔︎ Done"
 				}
 				;;
 
@@ -416,9 +418,11 @@ update-stuff() {
 					declare current_version="$(git -C ~/.nvm describe)"
 					declare next_version="$(git -C ~/.nvm describe --abbrev=0 origin/master)"
 					[ "$current_version" == "$next_version" ] || git -C ~/.nvm checkout "$next_version"
-					. ~/.nvm/nvm.sh
-					nvm install node --latest-npm --reinstall-packages-from=node
-					nvm use node
+					echo "Using NVM $next_version"
+					. ~/.nvm/nvm.sh --no-use
+					! nvm use node >/dev/null 2>&1 || declare CURRENT=$(nvm current)
+					nvm install node --latest-npm 2>&1 | grep -v 'is already installed'
+					[ "$(nvm current)" == "${CURRENT-none}" ] || nvm reinstall-packages $CURRENT
 				}
 				! has-command npm || {
 					npm ls -g yarn >/dev/null 2>&1 || {
@@ -428,12 +432,17 @@ update-stuff() {
 					echo "Updating NPM packages…"
 					npm -g update -q
 				}
+				! has-command nvm || {
+					nvm cache clear
+					echo "✔︎ Done"
+				}
 				;;
 
 			flutter*)
 				! has-command flutter || {
 					echo "Updating Flutter…"
 					flutter upgrade
+					echo "✔︎ Done"
 				}
 				;;
 
@@ -443,33 +452,38 @@ update-stuff() {
 				then
 					echo "Updating SDKMAN…"
 					. "$__sdkman_script_path"
-					sdk selfupdate
-					yes | sdk update
+					sdk selfupdate | grep -v 'No update available'
+					echo "Updating SDKs…"
+					yes | sdk update | grep -vE '^\s*(?:No new candidate|====|\*\s+20[0-9\-]+)'
+					echo "Flushing…"
 					for _ in archives broadcast temp
 					do
-						sdk flush $_
+						sdk flush $_ >/dev/null
 					done
 				else
 					echo "Installing SDKMAN…"
-					curl -s "https://get.sdkman.io" | bash
+					curl -sL "https://get.sdkman.io" | bash
 				fi
+				echo "✔︎ Done"
 				;;
 
 			pods*)
 				! has-command pod || {
 					echo "Updating Cocoapods specs…"
 					pod repo update --silent
+					echo "✔︎ Done"
 				}
 				;;
 
 			rust*)
 				! has-command rustup || {
 					echo "Updating Rust toolchain…"
-					rustup update
+					rustup update | grep -vE '(?:^\s*$|unchanged)'
 					D="$HOME/.bash_completion.d"
 					[ ! -d "$D" ] || mkdir -p "$D"
 					rustup completions bash >"$D/rustup"
 					rustup completions bash cargo >"$D/cargo"
+					echo "✔︎ Done"
 				}
 				;;
 		esac
@@ -533,7 +547,7 @@ update-stuff() {
 	}
 
 	__color 100 240 100
-	msg '✅' 'All Done.'
+	msg '' '✔︎ All Done.'
 	printf '\x1b[0m\n'
 }
 
