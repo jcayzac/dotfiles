@@ -421,8 +421,11 @@ update-stuff() {
 					nvm use node
 				}
 				! has-command npm || {
+					npm ls -g yarn >/dev/null 2>&1 || {
+						echo "Yarn not found. Installing…"
+						npm i -g yarn@latest
+					}
 					echo "Updating NPM packages…"
-					npm i -g yarn@latest
 					npm -g update -q
 				}
 				;;
