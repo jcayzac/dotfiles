@@ -213,8 +213,10 @@ fi
 ###########
 
 # Source "nvm" but don't use any version yet
-[ ! -r ~/.nvm/nvm.sh ] || {
-	. ~/.nvm/nvm.sh --no-use
+export __jc_nvmsh_path="$HOME/.nvm/nvm.sh"
+
+[ ! -r "$__jc_nvmsh_path" ] || {
+	. "$__jc_nvmsh_path" --no-use
 
 	# Call "nvm use" when entering a directory with a .nvmrc
 	__jc_nvmrc_probe_dir=
@@ -234,13 +236,16 @@ fi
 	function __jc_nvm_reload() {
 		nvm deactivate >/dev/null 2>&1
 		nvm unload
-		. ~/.nvm/nvm.sh
+
+		. "$__jc_nvmsh_path"
 		__jc_nvmrc_reprobe
 	}
 
 	[[ "$PWD" == "$HOME" ]] || __jc_nvmrc_probe
 	PROMPT_COMMAND="__jc_nvmrc_probe${PROMPT_COMMAND+;$PROMPT_COMMAND}"
 }
+
+alias __jc_yarn_install='npm ls -g yarn >/dev/null 2>&1 || npm i -g yarn@latest'
 
 # Prevent "yarn global" from ever being used.
 # I manage my projects with Yarn, but global modules with NPM (including Yarn).
@@ -412,24 +417,22 @@ update-stuff() {
 				;;
 
 			node*)
-				[ ! -r ~/.nvm/nvm.sh ] || {
+				[ ! -r "$__jc_nvmsh_path" ] || {
 					echo "Updating NVM…"
 					git -C ~/.nvm fetch -qtpP
 					declare current_version="$(git -C ~/.nvm describe)"
 					declare next_version="$(git -C ~/.nvm describe --abbrev=0 origin/master)"
 					[ "$current_version" == "$next_version" ] || git -C ~/.nvm checkout "$next_version"
 					echo "Using NVM $next_version"
-					. ~/.nvm/nvm.sh --no-use
+					. "$__jc_nvmsh_path" --no-use
 					! nvm use node >/dev/null 2>&1 || declare CURRENT=$(nvm current)
 					nvm install node --latest-npm 2>&1 | grep -v 'is already installed'
-					[ "$(nvm current)" == "${CURRENT-none}" ] || nvm reinstall-packages $CURRENT
+					nvm use node >/dev/null 2>&1
+					[ "${CURRENT-none}" == 'none' ] || [ "$(nvm current)" == "$CURRENT" ] || nvm reinstall-packages $CURRENT
 				}
 				! has-command npm || {
-					npm ls -g yarn >/dev/null 2>&1 || {
-						echo "Yarn not found. Installing…"
-						npm i -g yarn@latest
-					}
 					echo "Updating NPM packages…"
+					__jc_yarn_install
 					npm -g update -q
 				}
 				! has-command nvm || {
@@ -523,7 +526,7 @@ update-stuff() {
 	function msg_reload() { msg '🌀' "Reloading ${1}…"; }
 	__color 128
 
-	[ ! -r ~/.nvm/nvm.sh ] || {
+	[ ! -r "$__jc_nvmsh_path" ] || {
 		msg_reload 'NVM'
 		__jc_nvm_reload
 	}
