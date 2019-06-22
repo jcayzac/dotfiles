@@ -67,8 +67,7 @@ export \
 	LESS_ADVANCED_PREPROCESSOR=1 \
 	LS_COLORS='do=01;35:*.dmg=01;31:*.aac=01;35:*.img=01;31:*.tar=01;31:di=01;34:rs=0:*.qt=01;35:ex=01;32:ow=34;42:*.mov=01;35:*.jar=01;31:or=40;31;01:*.pvr=01;35:*.ogm=01;35:*.svgz=01;35:*.toast=01;31:*.asf=01;35:*.bz2=01;31:*.rar=01;31:*.sparsebundle=01;31:*.ogg=01;35:*.m2v=01;35:*.svg=01;35:*.sparseimage=01;31:*.7z=01;31:*.mp4=01;35:*.tbz2=01;31:bd=40;33;01:*.vob=01;35:*.zip=01;31:*.avi=01;35:*.mp3=01;35:so=01;35:*.m4a=01;35:ln=01;36:*.tgz=01;31:tw=30;42:*.png=01;35:*.wmv=01;35:sg=30;43:*.rpm=01;31:*.gz=01;31:*.tbz=01;31:*.mkv=01;35:*.mpg=01;35:*.pkg=01;31:*.mpeg=01;35:*.iso=01;31:ca=30;41:pi=41;33:*.wav=01;35:su=37;41:*.jpg=01;35:st=37;44:cd=40;33;01:*.m4v=01;35:mh=01;36:' \
 	MANPATH="$HOME/.prefix/share/man:/usr/local/share/man:/usr/share/man" \
-	PS1='\[\033[01;32m\]\u\[\033[01;34m\] \w \[\033[0m' \
-	SDKMAN_DIR="$HOME/.sdkman"
+	PS1='\[\033[01;32m\]\u\[\033[01;34m\] \w \[\033[0m'
 
 PATHS=(
 	# User
@@ -259,32 +258,6 @@ else
 fi
 
 
-##########
-# SDKMAN #
-##########
-
-declare __sdkman_script_path="$SDKMAN_DIR/bin/sdkman-init.sh"
-[ ! -r "$__sdkman_script_path" ] || {
-	# Lazy initialization of SDKMAN
-	function sdk() {
-		unset -f sdk
-		. "$__sdkman_script_path"
-		sdk ${1+"$@"}
-	}
-}
-
-declare __sdkman_config_path="$SDKMAN_DIR/etc/config"
-[ ! -r "$__sdkman_config_path" ] || [ "$(\shasum -a 256 < "$__sdkman_config_path")" == 'fe63be0dab36808ede6681c0a237b605844122c729de24d68ff8f0f9a78a3ddb  -' ] || cat >"$__sdkman_config_path" <<EOT
-sdkman_auto_answer=true
-sdkman_auto_selfupdate=true
-sdkman_insecure_ssl=false
-sdkman_curl_connect_timeout=7
-sdkman_curl_max_time=10
-sdkman_beta_channel=false
-sdkman_debug_mode=false
-sdkman_colour_enable=false
-EOT
-
 #########
 # Other #
 #########
@@ -449,27 +422,6 @@ update-stuff() {
 				}
 				;;
 
-			sdk*)
-				export sdkman_colour_enable="false"
-				if [ -r "$__sdkman_script_path" ]
-				then
-					echo "Updating SDKMAN…"
-					. "$__sdkman_script_path"
-					sdk selfupdate | grep -v 'No update available'
-					echo "Updating SDKs…"
-					yes | sdk update | grep -vE '^\s*(?:No new candidate|====|\*\s+20[0-9\-]+)'
-					echo "Flushing…"
-					for _ in archives broadcast temp
-					do
-						sdk flush $_ >/dev/null
-					done
-				else
-					echo "Installing SDKMAN…"
-					curl -sL "https://get.sdkman.io" | bash
-				fi
-				echo "✔︎ Done"
-				;;
-
 			pods*)
 				! has-command pod || {
 					echo "Updating Cocoapods specs…"
@@ -498,12 +450,8 @@ update-stuff() {
 	# Save stome state
 	declare thefuck_verinfo="$(thefuck --version 2>&1 || true)"
 
-	# Export stuff needed in __update_stuff_sub
-	export -f sdk || true
-	export -f __update_stuff_sub
-	export __sdkman_script_path
-
 	printf '\x1b[2J\x1b[0;0f'
+	export -f __update_stuff_sub
 	SHELL="$BASH" parallel \
 		-j0 \
 		${LOG+--joblog "$LOG"} \
@@ -516,7 +464,6 @@ update-stuff() {
 			gems		💎
 			node		🔮
 			rust		⚙️
-			sdk			📦
 			EOT
 
 	function __color() { printf '\x1b[0m\x1b[38;2;%i;%i;%im' $1 ${2:-$1} ${3:-$1}; }
@@ -535,12 +482,6 @@ update-stuff() {
 		msg_reload 'THEFUCK'
 		unset -f fuck
 		eval "$(thefuck --alias)"
-	}
-
-	[ ! -r "$__sdkman_script_path" ] || {
-		msg_reload 'SDKMAN'
-		unset -f sdk
-		. "$__sdkman_script_path"
 	}
 
 	[ -z "${LOG:-}" ] || {
