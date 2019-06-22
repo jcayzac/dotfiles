@@ -461,10 +461,10 @@ update-stuff() {
 		--tagstring '{tag}' \
 		__update_stuff_sub <<-EOT
 			brew		☕️
-			flutter		🐦
+			#flutter		🐦
 			gems		💎
 			node		🔮
-			rust		⚙️
+			#rust		⚙️
 			EOT
 
 	function __color() { printf '\x1b[0m\x1b[38;2;%i;%i;%im' $1 ${2:-$1} ${3:-$1}; }
