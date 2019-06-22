@@ -18,15 +18,16 @@ tabs -2               # use 2sp-wide tabs
 # $1  Command name
 alias has-command='command >/dev/null 2>&1 -v'
 
-# Join an array of strings.
+# Join an array of strings
 #
 # $1  Separator
 # $2… Strings
 join_strings() {
-	declare d="$1"
-	printf '%s' "$2"
-	shift 2
-	printf '%s' "${@/#/$d}"
+	declare separator="$1"
+	declare -a args=("${@:2}")
+	declare result
+	printf -v result '%s' "${args[@]/#/$separator}"
+	printf '%s' "${result:${#separator}}"
 }
 
 ####################
