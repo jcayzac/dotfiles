@@ -400,7 +400,7 @@ update-stuff() {
 					echo "Using NVM $next_version"
 					. "$__jc_nvmsh_path" --no-use
 					! nvm use node >/dev/null 2>&1 || declare CURRENT=$(nvm current)
-					nvm install node --latest-npm 2>&1 | grep -v 'is already installed'
+					nvm install node --latest-npm |& grep -v 'is already installed'
 					nvm use node >/dev/null 2>&1
 					[ "${CURRENT-none}" == 'none' ] || [ "$(nvm current)" == "$CURRENT" ] || nvm reinstall-packages $CURRENT
 				}
