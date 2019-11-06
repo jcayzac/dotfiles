@@ -138,6 +138,10 @@ do
 	enable-loadable-builtin $_
 done
 
+# Export our dotfiles folder
+export DOTFILES_DIR="$(dirname "$(realpath "${BASH_SOURCE[0]}")")"
+
+
 ###########################################################
 # Extra libraries of bash functions not loaded at startup #
 ###########################################################
@@ -188,7 +192,14 @@ fi
 
 # Install git prompt into PS1
 # Note: changing PS1 is impossible after iTerm2 shell integration is enabled
-! has-command __git_ps1 || export PS1=${PS1}'\[\033[01;33m\]$(__git_ps1 "[%s] ")\[\033[00m\]'
+
+# The regular git prompt is broken since updating to git 2.24: it takes 5 seconds to compute
+#! has-command __git_ps1 || export PS1=${PS1}'\[\033[01;33m\]$(__git_ps1 "[%s] ")\[\033[00m\]'
+
+__jc_old_ps1=$PS1
+. "$DOTFILES_DIR/.gitstatus/gitstatus.prompt.sh"
+export PS1=${__jc_old_ps1}'\[\033[01;33m\]${GITSTATUS_PROMPT+$GITSTATUS_PROMPT }\[\033[00m\]'
+
 
 #####################
 # iTerm integration #
