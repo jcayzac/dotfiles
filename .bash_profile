@@ -30,6 +30,17 @@ join_strings() {
 	printf '%s' "${result:${#separator}}"
 }
 
+# Owner of HOME
+export LANDLORD=$(id -nu $(stat -f '%u' "$HOME"))
+
+__jc_update_user_indicator() {
+	case "$(id -nu)" in
+		"root")      USER_INDICATOR='🚨' ;; # Root
+		"$LANDLORD") USER_INDICATOR='👤' ;; # Owner of the HOME
+		*)           USER_INDICATOR='🎭' ;; # Impersonating another account
+	esac
+}
+
 ####################
 # Base environment #
 ####################
@@ -69,7 +80,7 @@ export \
 	LS_COLORS='do=01;35:*.dmg=01;31:*.aac=01;35:*.img=01;31:*.tar=01;31:di=01;34:rs=0:*.qt=01;35:ex=01;32:ow=34;42:*.mov=01;35:*.jar=01;31:or=40;31;01:*.pvr=01;35:*.ogm=01;35:*.svgz=01;35:*.toast=01;31:*.asf=01;35:*.bz2=01;31:*.rar=01;31:*.sparsebundle=01;31:*.ogg=01;35:*.m2v=01;35:*.svg=01;35:*.sparseimage=01;31:*.7z=01;31:*.mp4=01;35:*.tbz2=01;31:bd=40;33;01:*.vob=01;35:*.zip=01;31:*.avi=01;35:*.mp3=01;35:so=01;35:*.m4a=01;35:ln=01;36:*.tgz=01;31:tw=30;42:*.png=01;35:*.wmv=01;35:sg=30;43:*.rpm=01;31:*.gz=01;31:*.tbz=01;31:*.mkv=01;35:*.mpg=01;35:*.pkg=01;31:*.mpeg=01;35:*.iso=01;31:ca=30;41:pi=41;33:*.wav=01;35:su=37;41:*.jpg=01;35:st=37;44:cd=40;33;01:*.m4v=01;35:mh=01;36:' \
 	MANPATH="$HOME/.prefix/share/man:/usr/local/share/man:/usr/share/man" \
 	PROMPT_DIRTRIM=2 \
-	PS1='\[\033[01;32m\]\u\[\033[01;34m\] \w \[\033[0m'
+	PS1='${USER_INDICATOR}\[\033[01;34m\]\w\[\033[0m '
 
 PATHS=(
 	# User
@@ -197,10 +208,15 @@ fi
 # The regular git prompt is broken since updating to git 2.24: it takes 5 seconds to compute
 #! has-command __git_ps1 || export PS1=${PS1}'\[\033[01;33m\]$(__git_ps1 "[%s] ")\[\033[00m\]'
 
-__jc_old_ps1=$PS1
+__jc_old_ps1="$PS1"
 . "$DOTFILES_DIR/.gitstatus/gitstatus.prompt.sh"
-export PS1=${__jc_old_ps1}'\[\033[01;33m\]${GITSTATUS_PROMPT+$GITSTATUS_PROMPT }\[\033[00m\]'
+export PS1=${__jc_old_ps1}'\[\033[01;33m\]${GITSTATUS_PROMPT:+$GITSTATUS_PROMPT }\[\033[00m\]'
 
+####################################
+# PROMPT_COMMAND                   #
+# Must come after gitstatus prompt #
+####################################
+PROMPT_COMMAND="__jc_update_user_indicator${PROMPT_COMMAND:+;$PROMPT_COMMAND}"
 
 #####################
 # iTerm integration #
@@ -254,7 +270,7 @@ export __jc_nvmsh_path="$HOME/.nvm/nvm.sh"
 	}
 
 	[[ "$PWD" == "$HOME" ]] || __jc_nvmrc_probe
-	PROMPT_COMMAND="__jc_nvmrc_probe${PROMPT_COMMAND+;$PROMPT_COMMAND}"
+	PROMPT_COMMAND="__jc_nvmrc_probe${PROMPT_COMMAND:+;$PROMPT_COMMAND}"
 }
 
 alias __jc_yarn_install='npm ls -g yarn >/dev/null 2>&1 || npm i -g yarn@latest'
