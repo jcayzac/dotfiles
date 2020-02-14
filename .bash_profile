@@ -3,6 +3,7 @@ umask 022             # default mode = 755
 ulimit -S -n 10240    # raise number of open file handles
 shopt -s cmdhist      # save multiline commands in history
 shopt -s globstar     # support ** in glob patterns
+shopt -s promptvars   # expand prompts
 tabs -2               # use 2sp-wide tabs
 [ ! -t 1 ] || {       # bind keys for history search if this is a terminal
 	bind '"\e[5~": history-search-backward' # PgUp
@@ -33,14 +34,6 @@ join_strings() {
 # Owner of HOME
 export LANDLORD=$(id -nu $(stat -f '%u' "$HOME"))
 
-__jc_update_user_indicator() {
-	case "$(id -nu)" in
-		"root")      USER_INDICATOR='🚨' ;; # Root
-		"$LANDLORD") USER_INDICATOR='👤' ;; # Owner of the HOME
-		*)           USER_INDICATOR='🎭' ;; # Impersonating another account
-	esac
-}
-
 ####################
 # Base environment #
 ####################
@@ -50,10 +43,6 @@ export \
 	ANDROID_HOME="$HOME/Library/Android/sdk" \
 	ANDROID_SDK_ROOT="$HOME/Library/Android/sdk" \
 	ANDROID_NDK_HOME="$HOME/Library/Android/sdk/ndk-bundle" \
-	GIT_PS1_SHOWDIRTYSTATE=1 \
-	GIT_PS1_SHOWSTASHSTATE=1 \
-	GIT_PS1_SHOWUNTRACKEDFILES=1 \
-	GIT_PS1_SHOWUPSTREAM='verbose name' \
 	GOPATH="$HOME/.go" \
 	GREP_COLOR='01' \
 	HISTCONTROL='erasedups' \
@@ -80,7 +69,7 @@ export \
 	LS_COLORS='do=01;35:*.dmg=01;31:*.aac=01;35:*.img=01;31:*.tar=01;31:di=01;34:rs=0:*.qt=01;35:ex=01;32:ow=34;42:*.mov=01;35:*.jar=01;31:or=40;31;01:*.pvr=01;35:*.ogm=01;35:*.svgz=01;35:*.toast=01;31:*.asf=01;35:*.bz2=01;31:*.rar=01;31:*.sparsebundle=01;31:*.ogg=01;35:*.m2v=01;35:*.svg=01;35:*.sparseimage=01;31:*.7z=01;31:*.mp4=01;35:*.tbz2=01;31:bd=40;33;01:*.vob=01;35:*.zip=01;31:*.avi=01;35:*.mp3=01;35:so=01;35:*.m4a=01;35:ln=01;36:*.tgz=01;31:tw=30;42:*.png=01;35:*.wmv=01;35:sg=30;43:*.rpm=01;31:*.gz=01;31:*.tbz=01;31:*.mkv=01;35:*.mpg=01;35:*.pkg=01;31:*.mpeg=01;35:*.iso=01;31:ca=30;41:pi=41;33:*.wav=01;35:su=37;41:*.jpg=01;35:st=37;44:cd=40;33;01:*.m4v=01;35:mh=01;36:' \
 	MANPATH="$HOME/.prefix/share/man:/usr/local/share/man:/usr/share/man" \
 	PROMPT_DIRTRIM=2 \
-	PS1='${USER_INDICATOR}\[\033[01;34m\]\w\[\033[0m '
+	PS1='\[\033[01;34m\]\w\[\033[0m '
 
 PATHS=(
 	# User
@@ -202,21 +191,55 @@ fi
 # Git #
 #######
 
-# Install git prompt into PS1
-# Note: changing PS1 is impossible after iTerm2 shell integration is enabled
+. "$DOTFILES_DIR/.gitstatus/gitstatus.plugin.sh"
 
-# The regular git prompt is broken since updating to git 2.24: it takes 5 seconds to compute
-#! has-command __git_ps1 || export PS1=${PS1}'\[\033[01;33m\]$(__git_ps1 "[%s] ")\[\033[00m\]'
+__jc_ps1="$PS1"
+__jc_gitstatus_prompt_update() {
+  GITSTATUS_PROMPT=""
+	PS1="$__jc_ps1"
 
-__jc_old_ps1="$PS1"
-. "$DOTFILES_DIR/.gitstatus/gitstatus.prompt.sh"
-export PS1=${__jc_old_ps1}'\[\033[01;33m\]${GITSTATUS_PROMPT:+$GITSTATUS_PROMPT }\[\033[00m\]'
+  gitstatus_query "$@"                  || return 1  # error
+  [[ "$VCS_STATUS_RESULT" == ok-sync ]] || return 0  # not a git repo
 
-####################################
-# PROMPT_COMMAND                   #
-# Must come after gitstatus prompt #
-####################################
-PROMPT_COMMAND="__jc_update_user_indicator${PROMPT_COMMAND:+;$PROMPT_COMMAND}"
+  # These somehow fuck up bash history in iTerm2
+  local      reset=$'\033[0m'         # no color
+  local      clean=$'\033[38;5;076m'  # green foreground
+  local  untracked=$'\033[38;5;014m' # teal foreground
+  local   modified=$'\033[38;5;011m' # yellow foreground
+  local conflicted=$'\033[38;5;196m' # red foreground
+
+  local p
+
+  local where  # branch name, tag or commit
+  if [[ -n "$VCS_STATUS_LOCAL_BRANCH" ]]; then
+    where="$VCS_STATUS_LOCAL_BRANCH"
+  elif [[ -n "$VCS_STATUS_TAG" ]]; then
+    p+='\['"${reset}"'\]#'
+    where="$VCS_STATUS_TAG"
+  else
+    p+='\['"${reset}"'\]@'
+    where="${VCS_STATUS_COMMIT:0:8}"
+  fi
+
+  (( ${#where} > 32 )) && where="${where:0:12}…${where: -12}"  # truncate long branch names and tags
+  p+='\['"${clean}"'\]'"${where}"
+
+  (( VCS_STATUS_COMMITS_BEHIND )) && p+=' \['"${clean}"'\]⇣'"${VCS_STATUS_COMMITS_BEHIND}"
+  (( VCS_STATUS_COMMITS_AHEAD && !VCS_STATUS_COMMITS_BEHIND )) && p+=" "
+  (( VCS_STATUS_COMMITS_AHEAD  )) && p+='\['"${clean}"'\]⇡'"${VCS_STATUS_COMMITS_AHEAD}"
+  (( VCS_STATUS_STASHES        )) && p+=' \['"${clean}"'\]*'"${VCS_STATUS_STASHES}"
+  [[ -n "$VCS_STATUS_ACTION"   ]] && p+=' \['"${conflicted}"'\]'"${VCS_STATUS_ACTION}"
+  (( VCS_STATUS_NUM_CONFLICTED )) && p+=' \['"${conflicted}"'\]~'"${VCS_STATUS_NUM_CONFLICTED}"
+  (( VCS_STATUS_NUM_STAGED     )) && p+=' \['"${modified}"'\]+'"${VCS_STATUS_NUM_STAGED}"
+  (( VCS_STATUS_NUM_UNSTAGED   )) && p+=' \['"${modified}"'\]!'"${VCS_STATUS_NUM_UNSTAGED}"
+  (( VCS_STATUS_NUM_UNTRACKED  )) && p+=' \['"${untracked}"'\]?'"${VCS_STATUS_NUM_UNTRACKED}"
+
+  GITSTATUS_PROMPT="${p}"'\['"${reset}"'\]'
+	PS1+="$GITSTATUS_PROMPT "
+}
+
+gitstatus_stop && gitstatus_start -s -1 -u -1 -c -1 -d -1
+PROMPT_COMMAND="__jc_gitstatus_prompt_update${PROMPT_COMMAND:+;$PROMPT_COMMAND}"
 
 #####################
 # iTerm integration #
