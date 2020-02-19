@@ -1,0 +1,5 @@
+function webperf() {
+	lighthouse "$1" --quiet --chrome-flags=--headless --view
+}
+
+# ex: noet ci pi sts=0 sw=2 ts=2 filetype=sh
