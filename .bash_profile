@@ -333,6 +333,32 @@ fi
 	}
 }
 
+# Input piper
+__jc_pipe_input() {
+  case "${1:--}" in
+    http?(s):*)
+      curl -sL "$1"
+      ;;
+    -)
+      cat
+      ;;
+    *)
+      cat "$1"
+      ;;
+  esac
+}
+
+
+# YAML prettifier
+yaml-beautify() {
+  __jc_pipe_input "${1:--}" | npx prettier --single-quote --stdin-filepath foo.yaml
+}
+
+# JSON to YAML converter
+function json-to-yaml() {
+	__jc_pipe_input "${1:--}" | yq r - -P | yaml-beautify
+}
+
 # Grep looks better with color
 alias grep='grep --color'
 
