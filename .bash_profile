@@ -3,6 +3,7 @@ umask 022             # default mode = 755
 ulimit -S -n 10240    # raise number of open file handles
 shopt -s cmdhist      # save multiline commands in history
 shopt -s globstar     # support ** in glob patterns
+shopt -s extglob      # extended globs
 shopt -s promptvars   # expand prompts
 tabs -2               # use 2sp-wide tabs
 [ ! -t 1 ] || {       # bind keys for history search if this is a terminal
