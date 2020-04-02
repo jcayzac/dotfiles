@@ -1,0 +1,47 @@
+# $1: urlset URL
+phdl-url() {
+	local url="$1"
+
+	# Read args
+	declare -a args
+	IFS=, read -ra args <<< "$url"
+
+	(( ${#args[@]} > 2 )) || {
+		echo >&2 "Wrong URL: $url"
+		return 1
+	}
+
+	# Select best program
+	declare programCount=$(( ${#args[@]} - 2 ))
+	declare program=0
+	while true; do
+		# 1080p program?
+		! [[ "${args[$(( program + 1))]}" =~ 1080 ]] || break
+
+		# Not found, reset to 0 (best)
+		! (( ++program == programCount )) || {
+			program=0
+			break
+		}
+	done
+
+	# Build filename
+	declare fn="${args[-1]}"
+	fn="${args[$(( program + 1))]}${fn%%.urlset*}"
+	fn="${fn%%.mp4*}.mp4"
+
+	# Download
+	printf 'Saving program %u/%u to "%s"…\n' $program $programCount "$fn"
+	ffmpeg -hide_banner -v quiet -stats \
+		-i "$url" \
+		-map 0:p:${program}:0 \
+		-map 0:p:${program}:1 \
+		-c copy -bsf:a aac_adtstoasc \
+		"$fn"
+}
+
+phdl() {
+	phdl-url "$(pbpaste)"
+}
+
+# ex: noet ci pi sts=0 sw=2 ts=2 filetype=sh
