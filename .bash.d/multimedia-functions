@@ -115,11 +115,20 @@ fix-many-filenames() {
 
 	# MOV → MP4
 	function convert-mov-to-mp4() {
-		convert-file-with-ffmpeg mov mp4 '-map_metadata 0 -movflags use_metadata_tags -c:v copy -c:a copy -f mp4' "$1"
+		convert-file-with-ffmpeg mov mp4 '-map_metadata 0 -movflags +faststart -movflags use_metadata_tags -c:v copy -c:a copy -f mp4' "$1"
 	}
 
 	function convert-many-mov-to-mp4() {
 		process-many-with-ffmpeg convert-mov-to-mp4 '-type f -iname *.mov' ${1+"$@"}
+	}
+
+	# MP4 → Optimized MP4 for streaming
+	function optimize-mp4() {
+		convert-file-with-ffmpeg mp4 mp4 '-map_metadata 0 -movflags +faststart -movflags use_metadata_tags -c:v copy -c:a copy -f mp4' "$1"
+	}
+
+	function optimize-many-mp4() {
+		process-many-with-ffmpeg optimize-mp4 '-type f -iname *.mp4' ${1+"$@"}
 	}
 
 	# MTS → MP4
