@@ -1,6 +1,6 @@
 # $1: urlset URL
 phdl-url() {
-	local url="$1"
+	declare url="$1"
 
 	# Read args
 	declare -a args
@@ -36,7 +36,8 @@ phdl-url() {
 		-i "$url" \
 		-map 0:p:${program}:0 \
 		-map 0:p:${program}:1 \
-		-c copy -bsf:a aac_adtstoasc \
+		-movflags +faststart -movflags use_metadata_tags  \
+		-c copy \
 		"$fn"
 }
 
