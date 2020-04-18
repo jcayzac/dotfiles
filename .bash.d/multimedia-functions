@@ -44,17 +44,19 @@ delete-empty-folders() {
 
 fix-filename() {
 	declare BASE="${1%.*}" EXT="${1##*.}"
-	# Trim whitespace
-	if [[ "$BASE" =~ [[:space:]]*([^[:space:]]|[^[:space:]].*[^[:space:]])[[:space:]]* ]]
-	then
-		BASE="${BASH_REMATCH[1]}"
-	fi
-	declare NEW_NAME="${BASE}.${EXT,,}"
-	[ "$1" == "$NEW_NAME" ] ||  {
-		printf '%s → %s\n' "$1" "$NEW_NAME"
-		mv -f "$1" "${NEW_NAME}.tmp" && mv -n "${NEW_NAME}.tmp" "$NEW_NAME" || {
-			rm -f "${NEW_NAME}.tmp"
-			false
+	[[ "$EXT" == 'DS_Store' ]] || {
+		# Trim whitespace
+		if [[ "$BASE" =~ [[:space:]]*([^[:space:]]|[^[:space:]].*[^[:space:]])[[:space:]]* ]]
+		then
+			BASE="${BASH_REMATCH[1]}"
+		fi
+		declare NEW_NAME="${BASE}.${EXT,,}"
+		[ "$1" == "$NEW_NAME" ] ||  {
+			printf '%s → %s\n' "$1" "$NEW_NAME"
+			mv -f "$1" "${NEW_NAME}.tmp" && mv -n "${NEW_NAME}.tmp" "$NEW_NAME" || {
+				rm -f "${NEW_NAME}.tmp"
+				false
+			}
 		}
 	}
 }
