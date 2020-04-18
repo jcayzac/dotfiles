@@ -1,20 +1,39 @@
-# $1: urlset URL
+# Download 1080p videos from PH.
+#
+# Usage: Open video page in Chrome with Developer Tools/Network ON,
+# filter on 'm3u8' and copy the URL of any 'master.m3u8' that shows up.
+#
+# $1: master.m3u8 URL
+#
+# Example:
+#   phdl-url 'https://ev-h.phprcdn.com/hls/videos/201909/29/251688272/,1080P_4000K,720P_4000K,480P_2000K,240P_400K,_251688272.mp4.urlset/master.m3u8?validfrom=1587197103&validto=1587204303&hdl=-1&hash=xX2MGVGrMb3rlLUKCp0u5YGDpMI%3D'
 phdl-url() {
 	declare url="$1"
 
-	# Read args
+	# Read parameters from the urlset URL. We need at least 3 parameters.
+	#
+	# Example:
+	#   args[0] https://ev-h.phprcdn.com/hls/videos/201909/29/251688272/
+	#   args[1] 1080P_4000K
+	#   args[2] 720P_4000K
+	#   args[3] 480P_2000K
+	#   args[4] 240P_400K
+	#   args[5] _251688272.mp4.urlset/master.m3u8?validfrom=1587197103&validto=1587204303&hdl=-1&hash=xX2MGVGrMb3rlLUKCp0u5YGDpMI%3D
 	declare -a args
 	IFS=, read -ra args <<< "$url"
-
 	(( ${#args[@]} > 2 )) || {
 		echo >&2 "Wrong URL: $url"
 		return 1
 	}
 
-	# Select best program
+	# Select best program from args[start+1..end-1]
+	#
+	# Prefer a 1080p version if there's one. Otherwise just assume the
+	# first program is the best quality.
 	declare programCount=$(( ${#args[@]} - 2 ))
 	declare program=0
-	while true; do
+	while true
+	do
 		# 1080p program?
 		! [[ "${args[$(( program + 1))]}" =~ 1080 ]] || break
 
@@ -25,12 +44,18 @@ phdl-url() {
 		}
 	done
 
-	# Build filename
+	# Build filename from args[program + 1] and args[end].
+	#
+	# Example:
+	#   program 0
+	#   args[1] 1080P_4000K
+	#   args[5] _251688272.mp4.urlset/master.m3u8?validfrom=1587197103&validto=1587204303&hdl=-1&hash=xX2MGVGrMb3rlLUKCp0u5YGDpMI%3D
+	#   fn      1080P_4000K_251688272.mp4
 	declare fn="${args[-1]}"
 	fn="${args[$(( program + 1))]}${fn%%.urlset*}"
 	fn="${fn%%.mp4*}.mp4"
 
-	# Download
+	# Stream the program to a local file
 	printf 'Saving program %u/%u to "%s"…\n' $program $programCount "$fn"
 	ffmpeg -hide_banner -v quiet -stats \
 		-i "$url" \
@@ -41,6 +66,7 @@ phdl-url() {
 		"$fn"
 }
 
+# Invoke phdl-url with the URL in the current pasteboard
 phdl() {
 	phdl-url "$(pbpaste)"
 }
