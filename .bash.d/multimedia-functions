@@ -79,8 +79,13 @@ fix-many-filenames() {
 }
 
 ! has-command ffmpeg || {
-	function ffm() {
-		ffmpeg -hide_banner -nostats -loglevel panic ${1+"$@"}
+	# Put the computer to sleep when there's no more active ffmpeg process
+	function sleep-when-ffmpeg-is-done() {
+		while true
+		do
+			(( $(ps aux | grep ffmpeg | wc -l) > 1 )) || break
+			sleep 30
+		done && pmset sleepnow
 	}
 
 	# $1: SRC extension (pass-in)
@@ -91,7 +96,7 @@ fix-many-filenames() {
 		set -e -u -o pipefail
 		local FFMPEG_ARGS="$3"
 		function ffmpeg-command() {
-			ffm -i "$1" $FFMPEG_ARGS "$2"
+			ffmpeg -hide_banner -nostats -loglevel panic -i "$1" $FFMPEG_ARGS "$2"
 		}
 		export -f ffmpeg-command
 		convert-file "$1" "$2" ffmpeg-command "$4"
@@ -101,7 +106,7 @@ fix-many-filenames() {
 	# $2:  filters
 	# $3…: paths
 	function process-many-with-ffmpeg() {
-		process-many 'convert-file-with-ffmpeg ffm' ${1+"$@"}
+		process-many 'convert-file-with-ffmpeg' ${1+"$@"}
 	}
 
 	# MPEG DASH → M4A
@@ -136,7 +141,7 @@ fix-many-filenames() {
 	# Note: if the MTIME ever gets reset, the stream may have a DateTimeOriginal tag (unused here)!
 	function convert-mts-to-mp4() {
 		declare CREATION_DATE="$(date -r "$1" '+%Y-%m-%dT%H:%M:%S%z')"
-		convert-file-with-ffmpeg mts mp4 "-metadata creation_time=${CREATION_DATE} -c:v copy -c:a libfdk_aac -b:a 128k -f mp4" "$1"
+		convert-file-with-ffmpeg mts mp4 "-metadata creation_time=${CREATION_DATE} -c:v copy -c:a libfdk_aac -b:a 128k -movflags +faststart -f mp4" "$1"
 	}
 
 	function convert-many-mts-to-mp4() {
@@ -145,7 +150,7 @@ fix-many-filenames() {
 
 	function convert-avi-to-mp4() {
 		declare CREATION_DATE="$(date -r "$1" '+%Y-%m-%dT%H:%M:%S%z')"
-		convert-file-with-ffmpeg avi mp4 "-metadata creation_time=${CREATION_DATE} -c:v libx264 -crf 15 -preset slow -c:a libfdk_aac -b:a 128k -f mp4" "$1"
+		convert-file-with-ffmpeg avi mp4 "-metadata creation_time=${CREATION_DATE} -c:v libx264 -crf 15 -preset slow -c:a libfdk_aac -b:a 128k -movflags +faststart -f mp4" "$1"
 	}
 
 	function convert-many-avi-to-mp4() {
@@ -237,11 +242,6 @@ fix-many-filenames() {
 		shift
 		exiftool -m -r -P -progress -overwrite_original -api QuickTimeUTC -d '%Y-%m-%dT%H:%M:%S%z' "-CreateDate=$CREATION_TIME" ${1+"$@"}
 	)
-}
-
-! has-command ffm || ! has-command ffm || {
-	#
-	true
 }
 
 # Requires `brew install ghostscript`
