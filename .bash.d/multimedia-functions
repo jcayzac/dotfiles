@@ -8,18 +8,31 @@ convert-file() (
 	declare FOUND_EXT="${SRC_FILE##*.}" DST_FILE="${SRC_FILE%.*}.$DST_EXT" TMP_FILE="${SRC_FILE%.*}.tmp.$DST_EXT"
 
 	# Only run if the file has the expected extension (e.g. "jpg")
-	if [[ "${FOUND_EXT,,}" == "$EXPECTED_EXT" ]]
-	then
-		$PROCESSOR "$SRC_FILE" "$TMP_FILE" && \
-			touch -r "$SRC_FILE" "$TMP_FILE" && \
-			mv -f "$TMP_FILE" "$DST_FILE" && \
-			trash -F "$SRC_FILE" && \
-			printf '✅ Converted %s\n' "$DST_FILE" || {
-				printf '❌ Could not convert %s\n' "$SRC_FILE"
-				rm -f "$TMP_FILE" >&- 2>&-
-				return 1
-			}
-	fi
+	[[ "${FOUND_EXT,,}" == "$EXPECTED_EXT" ]]
+
+	# Install cleanup trap
+	function cleanup() {
+		declare status=$?
+		if (( $status == 0 ))
+			then printf '✅ Converted %s\n' "$DST_FILE"
+			else printf '❌ Could not convert %s\n' "$SRC_FILE"
+		fi
+		rm -f "$TMP_FILE" >/dev/null 2>&1 || true
+		return $status
+	}
+	trap cleanup SIGINT SIGTERM EXIT
+
+	# Process file
+	$PROCESSOR "$SRC_FILE" "$TMP_FILE"
+
+	# Copy last-modified timestamp
+	touch -r "$SRC_FILE" "$TMP_FILE"
+
+	# Rename file to proper destination
+	mv -f "$TMP_FILE" "$DST_FILE"
+
+	# Trash source file, only if name is different from destination file, ignoring case.
+	[[ "${SRC_FILE,,}" == "${DST_FILE,,}" ]] || trash -F "$SRC_FILE"
 )
 
 # $1: functions to export
