@@ -5,6 +5,7 @@
 	laststash = stash show -p stash@{0}
 	taglog = "!git tag -l | while read T do; do git log -n 1 --pretty=tformat:'%C(red bold) %cd %Creset '$T $T | cat ; done"
 	last = rev-list --max-count=1 HEAD
+	merged = branch --merged
 	remodule = submodule update --init --recursive --force
 	reinit = !git clean -fdx && git submodule foreach --recursive git clean -fdx && git reset --hard && git submodule foreach --recursive git reset --hard && git remodule
 	tarball = !git archive HEAD --format=tar | bzip2 > "$(git rev-parse --git-dir)/../snapshot-$(git last).tar.bz2"
