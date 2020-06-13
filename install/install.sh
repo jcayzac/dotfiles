@@ -9,47 +9,51 @@ mkdir -p "$STATE_DIR"
 chmod 700 "$STATE_DIR"
 cd "$STATE_DIR"
 
-# Setup sudo
-(
-	read -s -p "Enter password for sudo (1/2): " PASSWORD
+delete-if-exists() {
+	[ ! -e "$1" ] || {
+		printf '  Deleting [%s]…\n' "$1"
+		rm -rf "$1"
+	}
+}
+
+make-password-program() (
+	declare PROGRAM="$1"
+	declare TEMPLATE="$2"
+	declare PROMPT="Enter password for $3"
+
+	read -s -p "$PROMPT (1/2): " PASSWORD
 	echo
-	read -s -p "Enter password for sudo (2/2): " PASSWORD_AGAIN
+	read -s -p "$PROMPT (2/2): " PASSWORD_AGAIN
 	echo
 	[[ "$PASSWORD" == "$PASSWORD_AGAIN" ]] || {
 		printf "The passwords don't match!\n"
 		exit 1
 	}
 
-	printf '#!/bin/bash\n'"printf '%s'"'\n' "$PASSWORD" >password-for-sudo
-	chmod 700 password-for-sudo
+	delete-if-exists "$PROGRAM"
+	printf "$TEMPLATE" "$PASSWORD" >"$PROGRAM"
+	chmod 700 "$PROGRAM"
 )
 
+
+# Setup sudo
+make-password-program \
+  password-for-sudo \
+	'#!/bin/bash\n'"printf '%s'"'\n' \
+	'sudo'
 export SUDO_ASKPASS="$STATE_DIR/password-for-sudo"
 alias sudo='/usr/bin/sudo -A'
-
 sudo true || {
 	printf '***Error: Wrong password\n'
 	exit 1
 }
 
 # Setup decryptor
-(
-	read -s -p "Enter password for decrypting (1/2): " PASSWORD
-	echo
-	read -s -p "Enter password for decrypting (2/2): " PASSWORD_AGAIN
-	echo
-	[[ "$PASSWORD" == "$PASSWORD_AGAIN" ]] || {
-		printf "The passwords don't match!\n"
-		exit 1
-	}
-
-	printf '#!/bin/bash\nexec openssl enc -d -pass '"'pass:$PASSWORD'"' "${1+$@}"' >decryptor
-	chmod 700 decryptor
-)
-
-function decrypt() {
-	"$STATE_DIR/decryptor" "${1+$@}"
-}
+make-password-program \
+  decryptor \
+	'#!/bin/bash\nexec openssl enc -d -pass '"'pass:%s'"' "${1+$@}"' \
+	'decrypting'
+alias decrypt="$STATE_DIR/decryptor"
 
 # Any AD notation in the groups means it's a work machine
 if /usr/bin/id -p | grep -E ^groups | cut -d $'\t' -f2 | grep '\\' >/dev/null 2>&1
@@ -58,13 +62,6 @@ then
 else
 	declare PROFILE="home"
 fi
-
-delete-if-exists() {
-	[ ! -e "$1" ] || {
-		printf '  Deleting [%s]…\n' "$1"
-		rm -rf "$1"
-	}
-}
 
 download() {
 	printf '  Downloading [%s]…\n' "$1"
