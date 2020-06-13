@@ -14,4 +14,4 @@
 	fi
 )
 
-do-sudo xcodebuild -license accept
+sudo xcodebuild -license accept

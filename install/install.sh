@@ -25,11 +25,10 @@ cd "$STATE_DIR"
 	chmod 700 password-for-sudo
 )
 
-do-sudo() {
-	SUDO_ASKPASS="$STATE_DIR/password-for-sudo" sudo -A "${1+$@}"
-}
+export SUDO_ASKPASS="$STATE_DIR/password-for-sudo"
+alias sudo='/usr/bin/sudo -A'
 
-do-sudo true || {
+sudo true || {
 	printf '***Error: Wrong password\n'
 	exit 1
 }
