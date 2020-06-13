@@ -1,17 +1,14 @@
 #!/bin/bash -e -u -o pipefail
-declare SSH_CONFIG_ENC="ssh-config.tbe"
-declare SSH_CONFIG_DEC="ssh-config.tar.bz2"
-
-delete-if-exists "$SSH_CONFIG_ENC"
-delete-if-exists "$SSH_CONFIG_DEC"
-delete-if-exists "$HOME/.ssh"
-
-download "$SSH_CONFIG_ENC"
 
 printf '  Decrypting…\n'
-decrypt -in "$SSH_CONFIG_ENC" | tar -C "$HOME" --no-same-permissions -xvjf -
+delete-if-exists ".ssh"
+decrypt -in "bootstrap/ssh-config.tbe" | tar --no-same-permissions -xvjf -
 
 printf '  Enforcing permissions…\n'
-chmod 700 ~/.ssh
-chmod 600 ~/.ssh/*
-chmod 644 ~/.ssh/*.pub ~/.ssh/known_hosts
+chmod 700 .ssh
+chmod 600 .ssh/*
+chmod 644 .ssh/*.pub .ssh/known_hosts
+
+printf '  Moving into place…\n'
+delete-if-exists "$HOME/.ssh"
+mv .ssh "$HOME"/
