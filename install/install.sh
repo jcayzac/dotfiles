@@ -92,12 +92,12 @@ printf '  Configuration profile: [%s]\n' "$PROFILE"
 printf '  Configuration version: [%s]\n' "$VERSION"
 
 source-phase() {
-	printf '\033[38;5;076mPhase: %s\033[0m\n' "$1"
+	printf '\x1b[38;5;076mPhase: %s\x1b[0m\n' "$1"
 	declare CHECKPOINT="checkpoint--${1}"
 	[ -f "$CHECKPOINT" ] || {
 		. "bootstrap/${1}"
 		touch "$CHECKPOINT"
-		printf '  \033[38;5;014mPhase [%s] completed successfully.\033[0m\n\n' "$1"
+		printf '  \x1b[38;5;014mPhase [%s] completed successfully.\x1b[0m\n\n' "$1"
 	}
 }
 
@@ -111,4 +111,4 @@ source-phase "defaults"
 
 printf '\nCleaning up…\n'
 rm -rf "$STATE_DIR"
-printf '\033[38;5;014mAll Done.\033[0m\n'
+printf '\x1b[38;5;014mAll Done.\x1b[0m\n'
