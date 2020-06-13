@@ -1,3 +1,13 @@
 #!/bin/bash -e -u -o pipefail
-git -C "$HOME" clone https://github.com/nvm-sh/nvm.git .nvm
-git -C "$HOME/.nvm" checkout 'v0.35.3'
+declare NVM_VERSION="0.35.3"
+
+printf '  Cloning nvm repo…\n'
+delete-if-exists .nvm
+git clone -q https://github.com/nvm-sh/nvm.git .nvm
+
+printf '  Setting version %s…\n' "$NVM_VERSION"
+git -C .nvm checkout "v$NVM_VERSION"
+
+printf '  Moving into place…\n'
+delete-if-exists "$HOME/.nvm"
+mv .nvm "$HOME"/
