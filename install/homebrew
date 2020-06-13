@@ -1,0 +1,54 @@
+#!/bin/bash -e -u -o pipefail
+declare HOMEBREW_API_TOKEN_ENC="homebrew-api-token.txe"
+
+download "$HOMEBREW_API_TOKEN_ENC"
+printf '  Decrypting API token…\n'
+decrypt -in "$HOMEBREW_API_TOKEN_ENC" -out "$HOME/.HOMEBREW_GITHUB_API_TOKEN"
+chmod 600 "$HOME/.HOMEBREW_GITHUB_API_TOKEN"
+read -d '' -r HOMEBREW_GITHUB_API_TOKEN <"$HOME/.HOMEBREW_GITHUB_API_TOKEN"
+export HOMEBREW_GITHUB_API_TOKEN
+
+download 'homebrew-install.sh' 'https://raw.githubusercontent.com/Homebrew/install/master/install.sh'
+printf '  Installing Homebrew…\n'
+/bin/bash 'homebrew-install.sh'
+
+download 'homebrew.packages'
+
+# Add profile-specific config
+(
+	set +e +o pipefail
+	download "homebrew.packages.$PROFILE" >/dev/null 2>&1
+	declare E=$?
+	[[ $E != 22 ]] || exit 0  # 404 not found just exists
+	set -e -o pipefail
+	( exit $E )
+
+	echo >>'homebrew.packages'
+	cat "homebrew.packages.$PROFILE" >>'homebrew.packages'
+	rm "homebrew.packages.$PROFILE"
+)
+
+declare TAPS="$( grep -E '^[^/]+/' <homebrew.packages | cut -d/ -f1-2 | sort -u )"
+declare PACKAGES="$( grep -Ev '^(#|homebrew/cask)' <homebrew.packages )"
+declare CASKS="$( grep -E '^homebrew/cask' <homebrew.packages )"
+
+for TAP in $TAPS
+do
+	printf '  Tapping [%s]…\n' "$TAP"
+  brew tap -q --shallow "$TAP"
+done
+
+printf '  Fetching packages…\n'
+brew fetch $PACKAGES
+
+printf '  Fetching casks…\n'
+brew cask fetch $CASKS
+
+printf '  Installing packages…\n'
+brew install $PACKAGES mas
+
+printf '  Installing casks…\n'
+brew cask install $CASKS
+
+printf '  Cleaning up…'
+brew cleanup -v -s

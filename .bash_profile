@@ -443,6 +443,17 @@ htmlpaste() {
 	osascript -e 'the clipboard as «class HTML»' | perl -ne 'print chr foreach unpack("C*",pack("H*",substr($_,11,-3)))'
 }
 
+# SSH config backup
+ssh-config-backup() (
+	declare ARCHIVE="ssh-config-$$.tar.bz2"
+	set -e -u -o pipefail
+	cd "$HOME"
+	mkdir -p ".dotfiles/install"
+	tar --posix -cf "$ARCHIVE" .ssh
+	chmod 600 "$ARCHIVE"
+	openssl enc -e -aes256 -in "$ARCHIVE" -out ".dotfiles/install/ssh-config.tbe"
+)
+
 # Update stuff
 update-stuff() {
 	function __update_stuff_sub() {

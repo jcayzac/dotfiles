@@ -1,0 +1,17 @@
+#!/bin/bash -e -u -o pipefail
+
+(
+	set +e +o pipefail
+	declare OUTPUT="$(xcode-select --install 2>&1)"
+	declare STATUS=$?
+
+	if [[ "$OUTPUT" =~ 'already installed' ]]
+	then
+		printf '  Build tools are already installed.\n'
+	else
+		printf '%s\n' "$OUTPUT"
+		exit $STATUS
+	fi
+)
+
+do-sudo xcodebuild -license accept

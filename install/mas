@@ -1,0 +1,20 @@
+#!/bin/bash -e -u -o pipefail
+
+download 'mas.packages'
+
+# Add profile-specific config
+(
+	set +e +o pipefail
+	download "mas.packages.$PROFILE" >/dev/null 2>&1
+	declare E=$?
+	[[ $E != 22 ]] || exit 0  # 404 not found just exists
+	set -e -o pipefail
+	( exit $E )
+
+	echo >>'mas.packages'
+	cat "mas.packages.$PROFILE" >>'mas.packages'
+	rm "mas.packages.$PROFILE"
+)
+
+printf '  Installing AppStore apps…\n'
+mas install $(grep -Ev '^[[:space:]]*#' <mas.packages | cut -d ' ' -f1)
