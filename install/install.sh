@@ -87,7 +87,9 @@ mv "bootstrap0/install" "bootstrap"
 rm -rf "bootstrap0"
 
 read VERSION <VERSION
-printf '  Configuration version: %s\n' "$VERSION"
+
+printf '  Configuration profile: [%s]\n' "$PROFILE"
+printf '  Configuration version: [%s]\n' "$VERSION"
 
 source-phase() {
 	printf '\033[38;5;076mPhase: %s\033[0m\n' "$1"
