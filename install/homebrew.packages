@@ -51,8 +51,10 @@ homebrew/cask/android-studio
 
 # Network
 aria2
+duck
 libssh2
 pure-ftpd
+homebrew/cask/cyberduck
 homebrew/cask/google-chrome
 homebrew/cask/jdownloader
 homebrew/cask/ngrok
