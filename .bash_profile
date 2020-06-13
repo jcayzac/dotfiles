@@ -452,6 +452,7 @@ ssh-config-backup() (
 	tar --posix -cf "$ARCHIVE" .ssh
 	chmod 600 "$ARCHIVE"
 	openssl enc -e -aes256 -in "$ARCHIVE" -out ".dotfiles/install/ssh-config.tbe"
+	rm "$ARCHIVE"
 )
 
 # Update stuff
