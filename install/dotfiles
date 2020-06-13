@@ -1,13 +1,13 @@
 #!/bin/bash -e -u -o pipefail
 
 link-dotfile() {
-	ln -sf "$DOTFILES_DIR/$1" "$HOME/$1"
+	delete-if-exists "$HOME/$1"
+	ln -s "$DOTFILES_DIR/$1" "$HOME/$1"
 }
 
-[ -d "$DOTFILES_DIR" ] || {
-	printf '  Cloning configuration repo…\n'
-	git clone 'git@github.com:jcayzac/dotfiles.git' "$DOTFILES_DIR"
-}
+printf '  Cloning configuration repo…\n'
+delete-if-exists "$DOTFILES_DIR"
+git clone "git@github.com:${DOTFILES_REPO}.git" "$DOTFILES_DIR"
 
 printf '  Pulling submodules…\n'
 git -C "$DOTFILES_DIR" submodule update --init --recursive --force

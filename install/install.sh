@@ -1,7 +1,6 @@
 #!/bin/bash
 set -e -u -o pipefail
-
-export DOTFILES_URL="https://raw.githubusercontent.com/jcayzac/dotfiles/master/install"
+export DOTFILES_REPO='jcayzac/dotfiles'
 export DOTFILES_DIR="$HOME/.dotfiles"
 export LANG='en_US.UTF-8'
 
@@ -72,12 +71,32 @@ download() {
 	curl -fsSL -o "$1" "${2:-$DOTFILES_URL/$1}"
 }
 
+# Bootstrap a temporary shallow clone of the install directory
+printf 'Pulling the configuration locally…\n'
+delete-if-exists "bootstrap"
+delete-if-exists "bootstrap0"
+mkdir "bootstrap0"
+(
+	cd "bootstrap0"
+	git init -q
+	git remote add origin "https://github.com/$DOTFILES_REPO"
+	git config core.sparseCheckout true
+	echo /install >.git/info/sparse-checkout
+	git fetch -q --depth=1 origin master
+	git checkout -q FETCH_HEAD
+	git show-ref HEAD --abbrev -s >../VERSION
+)
+mv "bootstrap0/install" "bootstrap"
+rm -rf "bootstrap0"
+
+read VERSION <VERSION
+printf '  Configuration version: %s\n' "$VERSION"
+
 source-phase() {
 	printf '\033[38;5;076mPhase: %s\033[0m\n' "$1"
 	declare CHECKPOINT="checkpoint--${1}"
 	[ -f "$CHECKPOINT" ] || {
-		download "phase-${1}" "$DOTFILES_URL/${1}"
-		. "phase-${1}"
+		. "bootstrap/${1}"
 		touch "$CHECKPOINT"
 		printf '  \033[38;5;014mPhase [%s] completed successfully.\033[0m\n\n' "$1"
 	}
