@@ -88,6 +88,7 @@ source-phase "ssh-config"
 source-phase "dotfiles"
 source-phase "buildtools"
 source-phase "homebrew"
+source-phase "node"
 source-phase "mas"
 source-phase "defaults"
 
