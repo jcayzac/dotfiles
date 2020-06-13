@@ -34,7 +34,7 @@ printf '  Fetching casks…\n'
 brew cask fetch $CASKS
 
 printf '  Installing packages…\n'
-brew install $PACKAGES mas
+brew install $PACKAGES
 
 printf '  Installing casks…\n'
 brew cask install $CASKS

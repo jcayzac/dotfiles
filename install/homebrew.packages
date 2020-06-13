@@ -95,7 +95,12 @@ webp
 x265
 homebrew/cask/iina
 
+# Required by other phases
+mas
+homebrew/cask/swiftdefaultappsprefpane
+
 # Unsorted
+blueutil
 graphite2
 gts
 jasper
@@ -110,6 +115,7 @@ pigz
 pkg-config
 qpdf
 shared-mime-info
+sleepwatcher
 sqlite
 termtosvg
 vim
