@@ -4,6 +4,16 @@
 curl -fsSL 'https://raw.githubusercontent.com/jcayzac/dotfiles/master/install/install.sh' | /bin/bash
 ```
 
+## State dir, phases and checkpoints
+
+The script maintains its state in the `~/INSTALL_STATE` directory, which has
+permission `700` and is deleted after the install is complete.
+
+_Phases_ are applied in sequence, e.g. `ssh-config`, `buildtools`, `homebrew` etc.
+When a phase completes, the script saves a _checkpoint_. Running the script
+multiple times (e.g. if a phase failed and had to be modified) skips all the
+phases whose checkpoint is found.
+
 ## Passwords
 
 When it starts, the script asks for some passwords:
