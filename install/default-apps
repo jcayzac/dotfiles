@@ -1,0 +1,2 @@
+#!/bin/bash -e -u -o pipefail
+unzip -oqq "$(brew cask --cache swiftdefaultappsprefpane)" swda
