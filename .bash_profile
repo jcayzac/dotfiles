@@ -552,7 +552,7 @@ update-stuff() {
 		__update_stuff_sub <<-EOT
 			brew		☕️
 			#flutter		🐦
-			gems		💎
+			#gems		💎
 			node		🔮
 			#rust		⚙️
 			EOT
