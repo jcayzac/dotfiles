@@ -1,56 +1,106 @@
-[push]
-	default = tracking
-[color]
-	ui = true
-[diff]
-	renames = copies
-	renameLimit = 1000
-	algorithm = histogram
-	mnemonicprefix = true
-[mergetool "diffmerge"]
-	cmd = diffmerge --merge --result=$MERGED $LOCAL $BASE $REMOTE
-	trustExitCode = false
-[merge]
-	tool = diffmerge
-	stat = true
-[gc]
-	auto = 1
-[format]
-	pretty = fuller
-[instaweb]
-	local = true
-	httpd = webrick
-	port = 54321
-	browser = open
-[log]
-	date = human
-	abbrevCommit = true
-[format]
-	pretty = tformat:%C(white red bold) %h %Creset %C(cyan)%an%Creset %<(16)%Cgreen%cd%Creset %s %C(yellow)%d%Creset
 [core]
-  precomposeUnicode = true
-	longpaths = true
-	filemode = true
-	pager = /usr/local/opt/git/share/git-core/contrib/diff-highlight/diff-highlight | less -FXnSRx2
-	editor = vim
+	# https://git-scm.com/docs/git-config#Documentation/git-config.txt-coreautocrlf
+	#
+	# Do not automatically convert EOL sequences, keep the original sequence.
 	autocrlf = input
+
+	# https://git-scm.com/docs/git-config#Documentation/git-config.txt-coreeditor
+	#
+	# Use the first match from the PATH for `vim` as default editor for everything.
+	editor = vim
+
+	# https://git-scm.com/docs/git-config#Documentation/git-config.txt-corepager
+	#
+	# Less options:
+	# -F: Quit (don't be interactive) if content fits on one screen.
+	# -X: Don't clear the screen on exit.
+	# -n: No line numbers.
+	# -S: Truncate long lines.
+	# -R: Allow colors and styles to pass through.
+	# -x2: Tabs are rendered as two spaces.
+	pager = /usr/local/opt/git/share/git-core/contrib/diff-highlight/diff-highlight | less -FXnSRx2
+
+	# https://git-scm.com/docs/git-config#Documentation/git-config.txt-coreprecomposeUnicode
+	#
+	# Revert macOS unicode decomposition so that repos can be shared with Windows and Linux
+	precomposeUnicode = true
+
 [credential]
-	helper = store #osxkeychain
-[url "git@github.com:"]
-	insteadOf = git://github.com/
-[http]
-	sslVerify
-[advice]
-	statusHints = false
-[rerere]
-	enabled = true
+	# https://git-scm.com/docs/git-config#Documentation/git-config.txt-credentialhelper
+	#
+	# Don't use git-credentials. Either be anonymous (https) or use key auth (ssh).
+  helper = /usr/bin/false
+
+[diff]
+	# https://git-scm.com/docs/git-config#Documentation/git-config.txt-diffalgorithm
+	#
+	# This is the best algorithm for complex merges
+	algorithm = histogram
+
+	# https://git-scm.com/docs/git-config#Documentation/git-config.txt-diffmnemonicPrefix
+	#
+	# Use proper mnemonics when showing diffs, not stupid "a" and "b" contexts.
+	mnemonicprefix = true
+
+	# https://git-scm.com/docs/git-config#Documentation/git-config.txt-diffrenames
+	#
+	# Don't detect renamed files only, also detect copies.
+	renames = copies
+
+	# https://git-scm.com/docs/git-config#Documentation/git-config.txt-diffrenameLimit
+	#
+	# Consider up to this amount of files, when performing renames/copies detection.
+	renameLimit = 1000
+
+[format]
+	# https://git-scm.com/docs/git-config#Documentation/git-config.txt-formatpretty
+	pretty = tformat:%C(white red bold) %h %Creset %C(cyan)%an%Creset %<(16)%Cgreen%cd%Creset %s %C(yellow)%d%Creset
+
+# https://git-scm.com/docs/git-config#_includes
+#
+# Additional configuration files to source.
 [include]
+	# Git aliases
 	path = ~/.gitconfig.d/aliases.gitconfig
+
+	# Extra machine-specific configuration
 	path = ~/.gitconfig.local
-[filter "lfs"]
-	process = git-lfs filter-process
-	required = true
-	clean = git-lfs clean -- %f
-	smudge = git-lfs smudge -- %f
+
+[instaweb]
+	# https://git-scm.com/docs/git-config#Documentation/git-config.txt-instawebbrowser
+	#
+	# Use macOS default browser
+	browser = open
+
+	# https://git-scm.com/docs/git-config#Documentation/git-config.txt-instawebhttpd
+	#
+	# Use the builtin http server
+	httpd = webrick
+
+	# https://git-scm.com/docs/git-config#Documentation/git-config.txt-instaweblocal
+	#
+	# Only binds to 127.0.0.1
+	local = true
+
+[log]
+	# https://git-scm.com/docs/git-config#Documentation/git-config.txt-logabbrevCommit
+	#
+	# Truncate commits' SHA-1 in logs.
+	abbrevCommit = true
+
+	# https://git-scm.com/docs/git-config#Documentation/git-config.txt-logdate
+	#
+	# Show dates made for humans.
+	date = human
+
 [pull]
+	# https://git-scm.com/docs/git-config#Documentation/git-config.txt-pullff
+	#
+	# Refuse to pull if we're ahead.
 	ff = only
+
+[rerere]
+	# https://git-scm.com/docs/git-config#Documentation/git-config.txt-rerereenabled
+	#
+	# Record resolution of past conflicts.
+	enabled = true
