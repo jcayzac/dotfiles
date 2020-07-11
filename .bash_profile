@@ -177,7 +177,10 @@ has-command brew || /usr/bin/ruby -e "$(/usr/bin/curl -fsSL https://raw.githubus
 # Bash completion #
 ###################
 
-if [ -r /usr/local/etc/bash_completion ]
+if [ -r /usr/local/etc/profile.d/bash_completion.sh ]
+then
+	. /usr/local/etc/profile.d/bash_completion.sh
+elif [ -r /usr/local/etc/bash_completion ]
 then
 	. /usr/local/etc/bash_completion
 elif [ -r /usr/local/etc/bash_completion.d ]
