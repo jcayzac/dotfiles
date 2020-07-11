@@ -550,11 +550,11 @@ update-stuff() {
 		--rpl '{tag} my @col = split /\s+/, $arg[1]; $_=sprintf("\x1b[0m\x1b[38;2;%i;%i;%im%8s\x1b[10G%s\x1b[12G", 127 + (8 * int rand(16)), 95 + (8 * int rand(20)), 127 + (8 * int rand(16)), $col[0], $col[1]);' \
 		--tagstring '{tag}' \
 		__update_stuff_sub <<-EOT
-			brew		☕️
-			#flutter		🐦
-			#gems		💎
-			node		🔮
-			#rust		⚙️
+			brew      ☕️
+			#flutter  🐦
+			#gems     💎
+			node      
+			#rust     
 			EOT
 
 	function __color() { printf '\x1b[0m\x1b[38;2;%i;%i;%im' $1 ${2:-$1} ${3:-$1}; }
