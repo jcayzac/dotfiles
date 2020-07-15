@@ -589,6 +589,13 @@ update-stuff() {
 	printf '\x1b[0m\n'
 }
 
+# Commands not found in PATH may be local node binaries
+# TODO: Make it a bit smarter (thefuck, rvm etc)
+command_not_found_handle() {
+  command -v npx >/dev/null || return 127
+  npx --no-install "$@"
+}
+
 # extra setup
 #/usr/bin/find ~/Library -flags hidden -maxdepth 0 -exec /usr/bin/chflags nohidden "{}" +
 #
