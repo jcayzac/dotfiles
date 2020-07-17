@@ -99,6 +99,18 @@
 	# Refuse to pull if we're ahead.
 	ff = only
 
+[rebase]
+	# https://git-scm.com/docs/git-rebase#Documentation/git-rebase.txt-rebaseabbreviateCommands
+	#
+	# Have interactive rebase uses abbreviations, e.g. pick → p.
+	abbreviateCommands = true
+
+	# https://git-scm.com/docs/git-rebase#Documentation/git-rebase.txt-rebaseautoSquash
+	# https://git-scm.com/docs/git-rebase#Documentation/git-rebase.txt---autosquash
+	#
+	# Commits created with --squash or --fixup are automatically reordered.
+	autosquash = true
+
 [rerere]
 	# https://git-scm.com/docs/git-config#Documentation/git-config.txt-rerereenabled
 	#
