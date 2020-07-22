@@ -71,4 +71,27 @@ phdl() {
 	phdl-url "$(pbpaste)"
 }
 
+# Alternative, more direct approach (works only for public videos)
+phd() (
+	set -e -u -o pipefail
+
+	declare -a LINES
+	IFS=';' read -r -a LINES < <(curl -sL "$(pbpaste)" | grep m3u8 | sed -E -e 's#/\*[^\*]*\*/##g' -e 's#var quality_1080p=([^;]+);.*$#\1#')
+
+	declare OUT=${LINES[$(( ${#LINES[@]}-1 ))]}
+	for (( c=0; c<${#LINES[@]}-1; c++ ))
+	do
+		declare Z="${LINES[$c]}"
+		Z="${Z#*var}"
+		Z="${Z##*( )}"
+		Z="${Z%%*( )}"
+		declare V="${Z#*=}"
+		Z="${Z%%=*}"
+		OUT="${OUT//$Z/$V}"
+	done
+	OUT="${OUT#*=}"
+	OUT="${OUT//\" + \"/}"
+	dl "${OUT//\"/}"
+)
+
 # ex: noet ci pi sts=0 sw=2 ts=2 filetype=sh
