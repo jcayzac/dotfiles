@@ -1,8 +1,10 @@
-# $1: SRC extension (pass-in)
+# Process a single file.
+#
+# $1: SRC extension (pass-in filter)
 # $2: DST extension
-# $3: conversion function SRC DST
+# $3: file processor expecting $1=input_path $2=output_path
 # $4: file path
-convert-file() (
+process-file() (
 	set -e -u -o pipefail
 	declare EXPECTED_EXT="${1,,}" DST_EXT="${2,,}" PROCESSOR="$3" SRC_FILE="$4"
 	declare FOUND_EXT="${SRC_FILE##*.}" DST_FILE="${SRC_FILE%.*}.$DST_EXT" TMP_FILE="${SRC_FILE%.*}.tmp.$DST_EXT"
@@ -35,51 +37,66 @@ convert-file() (
 	[[ "${SRC_FILE,,}" == "${DST_FILE,,}" ]] || trash -F "$SRC_FILE"
 )
 
+# Process many files
+#
 # $1: functions to export
-# $2: processor function
-# $3: filters
-process-many() (
+# $2: file processor expecting $1=input_path $2=output_path
+# $3: extra find filters
+# $4…: dir glob(s)
+process-many-files() (
 	set -e -u -o pipefail
+	declare FUNCTIONS="$1" PROCESSOR="$2" FILTERS="$3"
 
-	FUNCTIONS="$1"
-	PROCESSOR="$2"
-	FILTERS="$3"
+	# Export all the required functions
+	export -f process-file $FUNCTIONS $PROCESSOR
+
+	# Find all input files and keep processors busy.
+	# Note the find filters are protected against shell globbing (-f).
 	shift 3
-
-	export -f convert-file $FUNCTIONS $PROCESSOR
 	xargs -0 -P $(sysctl -n hw.ncpu) -I {} bash -c -e -u -o pipefail "$PROCESSOR"' "$@"' _ {} < <(set -f; find -E ${1+"$@"} $FILTERS -print0)
 )
 
+# Recursively delete folders with no files
 delete-empty-folders() {
-	find ${1+"$@"} -type f -name .DS_Store -print -delete
-	find ${1+"$@"} -empty -print -delete
+	find ${1+"$@"} -type f -iname .DS_Store -print -delete
+	find -d ${1+"$@"} -empty -print -delete
 }
 
+# Fix a single file's name. This:
+#
+# - Removes any leading/trailing whitespace.
+# - Makes the extension lowercase (works even on case-insensitive filesystems).
 fix-filename() {
 	declare BASE="${1%.*}" EXT="${1##*.}"
 	[[ "$EXT" == 'DS_Store' ]] || {
 		# Trim whitespace
-		if [[ "$BASE" =~ [[:space:]]*([^[:space:]]|[^[:space:]].*[^[:space:]])[[:space:]]* ]]
-		then
-			BASE="${BASH_REMATCH[1]}"
-		fi
+		! [[ "$BASE" =~ [[:space:]]*([^[:space:]]|[^[:space:]].*[^[:space:]])[[:space:]]* ]] || BASE="${BASH_REMATCH[1]}"
+
+		# jpeg → jpg
+		! [[ "${EXT,,}" == "jpeg" ]] || EXT="jpg"
+
+		# New name
 		declare NEW_NAME="${BASE}.${EXT,,}"
-		[ "$1" == "$NEW_NAME" ] ||  {
-			printf '%s → %s\n' "$1" "$NEW_NAME"
-			mv -f "$1" "${NEW_NAME}.tmp" && mv -n "${NEW_NAME}.tmp" "$NEW_NAME" || {
-				rm -f "${NEW_NAME}.tmp"
-				false
-			}
+
+		# If the names are different
+		[ "$1" == "$NEW_NAME" ] || [ -f "$NEW_NAME" ] || {
+			# Rename, first by moving to a temporary file (case-insensitive fs)
+			mv -fv "$1" "${NEW_NAME}.tmp" && sleep 0.2 && mv -nv "${NEW_NAME}.tmp" "$NEW_NAME"
 		}
 	}
 }
 
+# Fix many files' filenames.
+#
+# $1…: dir glob(s)
 fix-many-filenames() {
-	process-many '' fix-filename '-type f' ${1+"$@"}
+	process-many-files '' fix-filename '-type f' ${1+"$@"}
 }
 
+# Video functions require a local install of ffmpeg for now.
+# TODO: Use Docker instead.
 ! has-command ffmpeg || {
-	# Put the computer to sleep when there's no more active ffmpeg process
+	# Put the computer to sleep when there's no more active ffmpeg process.
 	function sleep-when-ffmpeg-is-done() {
 		while true
 		do
@@ -88,52 +105,59 @@ fix-many-filenames() {
 		done && pmset sleepnow
 	}
 
-	# $1: SRC extension (pass-in)
+	# Process a single file with ffmpeg
+	#
+	# $1: SRC extension (pass-in filter)
 	# $2: DST extension
 	# $3: ffmpeg arguments
 	# $4: file path
-	function convert-file-with-ffmpeg() (
+	function process-file-with-ffmpeg() (
 		set -e -u -o pipefail
-		local FFMPEG_ARGS="$3"
+		declare FFMPEG_ARGS="$3"
+
+		# Local processor
 		function ffmpeg-command() {
 			ffmpeg -hide_banner -nostats -loglevel panic -i "$1" $FFMPEG_ARGS "$2"
 		}
 		export -f ffmpeg-command
-		convert-file "$1" "$2" ffmpeg-command "$4"
+
+		process-file "$1" "$2" ffmpeg-command "$4"
 	)
 
-	# $1:  processor
-	# $2:  filters
-	# $3…: paths
-	function process-many-with-ffmpeg() {
-		process-many 'convert-file-with-ffmpeg' ${1+"$@"}
+	# Process many files with ffmpeg
+	#
+	# $1: file processor
+	# $2: extra find filters
+	# $3…: dir glob(s)
+	function process-many-files-with-ffmpeg() {
+		process-many-files 'process-file-with-ffmpeg' ${1+"$@"}
 	}
 
 	# MPEG DASH → M4A
 	function convert-dash-to-m4a() {
-		convert-file-with-ffmpeg mpd m4a '-map_metadata 0 -map 0 -c:v copy -c:a copy -c:s copy -c:d copy -c:t copy -f ipod' "$1"
+		process-file-with-ffmpeg mpd m4a '-map_metadata 0 -map 0 -c:v copy -c:a copy -c:s copy -c:d copy -c:t copy -f ipod' "$1"
 	}
 
 	function convert-many-dash-to-m4a() {
-		process-many-with-ffmpeg convert-dash-to-m4a '-type f -iname *.mpd' ${1+"$@"}
+		process-many-files-with-ffmpeg convert-dash-to-m4a '-type f -iname *.mpd' ${1+"$@"}
 	}
 
 	# MOV → MP4
 	function convert-mov-to-mp4() {
-		convert-file-with-ffmpeg mov mp4 '-map_metadata 0 -movflags +faststart -movflags use_metadata_tags -c:v copy -c:a copy -f mp4' "$1"
+		process-file-with-ffmpeg mov mp4 '-map_metadata 0 -movflags +faststart -movflags use_metadata_tags -c:v copy -c:a copy -f mp4' "$1"
 	}
 
 	function convert-many-mov-to-mp4() {
-		process-many-with-ffmpeg convert-mov-to-mp4 '-type f -iname *.mov' ${1+"$@"}
+		process-many-files-with-ffmpeg convert-mov-to-mp4 '-type f -iname *.mov' ${1+"$@"}
 	}
 
 	# MP4 → Optimized MP4 for streaming
 	function optimize-mp4() {
-		convert-file-with-ffmpeg mp4 mp4 '-map_metadata 0 -movflags +faststart -movflags use_metadata_tags -c:v copy -c:a copy -f mp4' "$1"
+		process-file-with-ffmpeg mp4 mp4 '-map_metadata 0 -movflags +faststart -movflags use_metadata_tags -c:v copy -c:a copy -f mp4' "$1"
 	}
 
 	function optimize-many-mp4() {
-		process-many-with-ffmpeg optimize-mp4 '-type f -iname *.mp4' ${1+"$@"}
+		process-many-files-with-ffmpeg optimize-mp4 '-type f -iname *.mp4' ${1+"$@"}
 	}
 
 	# MTS → MP4
@@ -141,26 +165,30 @@ fix-many-filenames() {
 	# Note: if the MTIME ever gets reset, the stream may have a DateTimeOriginal tag (unused here)!
 	function convert-mts-to-mp4() {
 		declare CREATION_DATE="$(date -r "$1" '+%Y-%m-%dT%H:%M:%S%z')"
-		convert-file-with-ffmpeg mts mp4 "-metadata creation_time=${CREATION_DATE} -c:v copy -c:a libfdk_aac -b:a 128k -movflags +faststart -f mp4" "$1"
+		process-file-with-ffmpeg mts mp4 "-metadata creation_time=${CREATION_DATE} -c:v copy -c:a libfdk_aac -b:a 128k -movflags +faststart -f mp4" "$1"
 	}
 
 	function convert-many-mts-to-mp4() {
-		process-many-with-ffmpeg convert-mts-to-mp4 '-type f -iname *.mts' ${1+"$@"}
+		process-many-files-with-ffmpeg convert-mts-to-mp4 '-type f -iname *.mts' ${1+"$@"}
 	}
 
+	# AVI → MP4
 	function convert-avi-to-mp4() {
 		declare CREATION_DATE="$(date -r "$1" '+%Y-%m-%dT%H:%M:%S%z')"
-		convert-file-with-ffmpeg avi mp4 "-metadata creation_time=${CREATION_DATE} -c:v libx264 -crf 15 -preset slow -c:a libfdk_aac -b:a 128k -movflags +faststart -f mp4" "$1"
+		process-file-with-ffmpeg avi mp4 \
+			"-metadata creation_time=${CREATION_DATE} -c:v libx264 -pix_fmt yuv420p -crf 15 -preset slow -ac 2 -c:a libfdk_aac -b:a 128k -movflags +faststart -f mp4" \
+			"$1"
 	}
 
 	function convert-many-avi-to-mp4() {
-		process-many-with-ffmpeg convert-avi-to-mp4 '-type f -iname *.avi' ${1+"$@"}
+		process-many-files-with-ffmpeg convert-avi-to-mp4 '-type f -iname *.avi' ${1+"$@"}
 	}
 }
 
 ! has-command exiftool || {
 	alias exif='exiftool -q -s -m'
 
+	# iCloud crap. Delete later.
 	function set-missing-date-for-icloud-backup-image() {
 		declare DIR_PATH="${1%/*}" FILE_NAME="${1##*/}" FILE_EXT="${1##*.}"
 		declare DIR_NAME="${DIR_PATH##*/}"
@@ -180,11 +208,14 @@ fix-many-filenames() {
 	}
 
 	function set-missing-date-for-icloud-backup-images() {
-		process-many '' set-missing-date-for-icloud-backup-image '-type f' ${1+"$@"}
+		process-many-files '' set-missing-date-for-icloud-backup-image '-type f' ${1+"$@"}
 	}
 
+	# Attempt to make some sense of (and unify) date tags in the media library.
+	#
+	# $1: glob
 	function fix-media-timestamps() (
-		set +e -u -o pipefail # Note +e
+		set +e -u -o pipefail # Note +e: exiftool "fails" when no file was processed
 		declare E='exiftool -m -r -P -progress -overwrite_original -api QuickTimeUTC'
 
 		function __msg() {
@@ -232,12 +263,19 @@ fix-many-filenames() {
 		printf "\n\x1b[40;32;1m\x1b[K\n  ✅ Done!\x1b[K\n\x1b[K\x1b[0m\n\n"
 	)
 
+	# Show EXIF timestamps
+	#
+	# $1: glob
 	function show-media-creation-time() {
 		exiftool -m -r -api QuickTimeUTC -d '%Y-%m-%dT%H:%M:%S%z' -p '$Directory/$Filename:${CreateDate;s/^/ c=/}${DateTimeOriginal;s/^/ o=/}${ModifyDate;s/^/ m=/}${FileModifyDate;s/^/ t=/}' ${1+"$@"}
 	}
 
+	# Overwrite the CreateDate EXIF tag
+	#
+	# $1: gate in %Y-%m-%dT%H:%M:%S%z format
+	# $2: glob
 	function set-media-creation-time() (
-		set +e -u -o pipefail # Note +e
+		set +e -u -o pipefail # Note +e: exiftool "fails" when no file was processed
 		declare CREATION_TIME="$1"
 		shift
 		exiftool -m -r -P -progress -overwrite_original -api QuickTimeUTC -d '%Y-%m-%dT%H:%M:%S%z' "-CreateDate=$CREATION_TIME" ${1+"$@"}
@@ -281,7 +319,7 @@ fix-many-filenames() {
 				"-sOutputFile=$2" "$1"
 		}
 		export -f gsx-command
-		convert-file pdf optimized.pdf gsx-command "$1"
+		process-file pdf optimized.pdf gsx-command "$1"
 	)
 }
 
@@ -293,9 +331,11 @@ fix-many-filenames() {
 	)
 
 
-	# Optimize JPEG images with MozJPEG
-	# Params:
-	#   $1 path/to/image.jpg
+	# Optimize a JPEG image with MozJPEG
+	#
+	# $1: path to image
+	#
+	# FIXME: Use process-file
 	function optimize-jpeg() (
 		set -e -u -o pipefail
 		! [[ "$1" =~ ^(.+)\.[jJ][pP][eE]?[gG]$ ]] || {
@@ -322,13 +362,20 @@ fix-many-filenames() {
 		}
 	)
 
-	# Call optimize-jpeg on every .jpg file found in the directories passed to the function
+	# Optimize many JPEG images with MozJPEG
+	#
+	# $1…: globs
 	function optimize-jpegs() {
-		process-many mozjpeg optimize-jpeg '-type f -iregex .*\.jpe?g$' ${1+"$@"}
+		process-many-files mozjpeg optimize-jpeg '-type f -iregex .*\.jpe?g$' ${1+"$@"}
 	}
 }
 
 [ ! -x "/usr/local/opt/libheif/bin/heif-convert" ] || {
+	# Render a HEIF image into a JPEG
+	#
+	# $1: input image path
+	#
+	# FIXME: use a passthru process-file processor instead
 	function render-heif-image-to-jpeg() {
 		declare FILE_EXT="${1##*.}"
 		echo $FILE_EXT $1
@@ -338,8 +385,11 @@ fix-many-filenames() {
 		}
 	}
 
+	# Render many HEIF images
+	#
+	# $1: globs
 	function render-all-heif-images-to-jpeg() {
-		process-many 'mozjpeg optimize-jpeg' render-heif-image-to-jpeg '-type f -iregex .*\.hei[cf]$' ${1+"$@"}
+		process-many-files 'mozjpeg optimize-jpeg' render-heif-image-to-jpeg '-type f -iregex .*\.hei[cf]$' ${1+"$@"}
 	}
 }
 
