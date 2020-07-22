@@ -365,6 +365,11 @@ function json-to-yaml() {
 # Grep looks better with color
 alias grep='grep --color'
 
+# Spotlight on/off
+#
+# $1: on/off
+alias spotlight='sudo mdutil -a -i'
+
 # So does ls
 ! has-command gls       || alias ls='gls --color=auto --show-control-chars'
 
