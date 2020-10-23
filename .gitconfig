@@ -29,7 +29,7 @@
 	# https://git-scm.com/docs/git-config#Documentation/git-config.txt-credentialhelper
 	#
 	# Don't use git-credentials. Either be anonymous (https) or use key auth (ssh).
-  helper = /usr/bin/false
+	helper = /usr/bin/false
 
 [diff]
 	# https://git-scm.com/docs/git-config#Documentation/git-config.txt-diffalgorithm
