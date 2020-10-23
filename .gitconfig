@@ -82,6 +82,12 @@
 	# Only binds to 127.0.0.1
 	local = true
 
+[init]
+	# https://git-scm.com/docs/git-config#Documentation/git-config.txt-initdefaultBranch
+	#
+	# Use `main` instead of `master`
+	defaultBranch = main
+
 [log]
 	# https://git-scm.com/docs/git-config#Documentation/git-config.txt-logabbrevCommit
 	#
