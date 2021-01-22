@@ -267,52 +267,9 @@ PROMPT_COMMAND="__jc_gitstatus_prompt_update${PROMPT_COMMAND:+;$PROMPT_COMMAND}"
 # Node.js #
 ###########
 
-# Source "nvm" but don't use any version yet
-export __jc_nvmsh_path="$HOME/.nvm/nvm.sh"
-
-[ ! -r "$__jc_nvmsh_path" ] || {
-	. "$__jc_nvmsh_path" --no-use
-
-	# Call "nvm use" when entering a directory with a .nvmrc
-	__jc_nvmrc_probe_dir=
-
-	function __jc_nvmrc_probe() {
-		[[ "$__jc_nvmrc_probe_dir" == "$PWD" ]] || [ ! -r .nvmrc ] || {
-			__jc_nvmrc_probe_dir="$PWD"
-			nvm use
-		}
-	}
-
-	function __jc_nvmrc_reprobe() {
-		__jc_nvmrc_probe_dir=
-		__jc_nvmrc_probe
-	}
-
-	function __jc_nvm_reload() {
-		nvm deactivate >/dev/null 2>&1
-		nvm unload
-
-		. "$__jc_nvmsh_path"
-		__jc_nvmrc_reprobe
-	}
-
-	[[ "$PWD" == "$HOME" ]] || __jc_nvmrc_probe
-	PROMPT_COMMAND="__jc_nvmrc_probe${PROMPT_COMMAND:+;$PROMPT_COMMAND}"
-}
-
-alias __jc_yarn_install='npm ls -g yarn >/dev/null 2>&1 || npm i -g yarn@latest'
-
-# Prevent "yarn global" from ever being used.
-# I manage my projects with Yarn, but global modules with NPM (including Yarn).
-if [ -r ~/.yarnrc ]
-then
-	\grep 'prefix "/nope"' ~/.yarnrc >/dev/null 2>&1 || {
-		\sed -i '' 's/^prefix.*$/prefix "\/nope"/' ~/.yarnrc
-	}
-else
-	echo 'prefix "/nope"' >~/.yarnrc
-fi
-
+# Node is managed using Volta https://volta.sh/
+export VOLTA_HOME="$HOME/.volta"
+export PATH="$VOLTA_HOME/bin:$PATH"
 
 #########
 # Other #
@@ -504,7 +461,6 @@ update-stuff() {
 				}
 				! has-command npm || {
 					echo "Updating NPM packages…"
-					__jc_yarn_install
 					npm -g update -q
 				}
 				! has-command nvm || {

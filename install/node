@@ -1,13 +1,8 @@
 #!/bin/bash -e -u -o pipefail
-declare NVM_VERSION="0.35.3"
+printf '  Installing Volta…\n'
+curl -fsSL https://get.volta.sh | bash -s -- --skip-setup
 
-printf '  Cloning nvm repo…\n'
-delete-if-exists .nvm
-git clone -q https://github.com/nvm-sh/nvm.git .nvm
-
-printf '  Setting version %s…\n' "$NVM_VERSION"
-git -C .nvm checkout "v$NVM_VERSION"
-
-printf '  Moving into place…\n'
-delete-if-exists "$HOME/.nvm"
-mv .nvm "$HOME"/
+printf '  Install latest version of Node…\n'
+export VOLTA_HOME="$HOME/.volta"
+export PATH="$VOLTA_HOME/bin:$PATH"
+volta install node
