@@ -255,7 +255,7 @@ PROMPT_COMMAND="__jc_gitstatus_prompt_update${PROMPT_COMMAND:+;$PROMPT_COMMAND}"
 	# …and the integrations aren't installed, install them
 	[ -f ~/.iterm2_shell_integration.bash ] || (
 		set -e
-		/usr/bin/curl -fsSL -o ~/.iterm2_shell_integration.bash.tmp https://iterm2.com/misc/bash_startup.in
+		/usr/bin/curl -fsSL -o ~/.iterm2_shell_integration.bash.tmp https://iterm2.com/shell_integration/bash
 		mv ~/.iterm2_shell_integration.bash{.tmp,}
 	)
 
