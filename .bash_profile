@@ -276,7 +276,7 @@ color-test() {
 	printf '\x1b[0m\n'
 }
 
-# Open a SHA-1 has a magnet link
+# Open a SHA-1 as a magnet link
 magnetize() {
 	open 'magnet:?xt=urn:btih:'"$1"
 }
