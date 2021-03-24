@@ -173,96 +173,6 @@ load () {
 
 has-command brew || /usr/bin/ruby -e "$(/usr/bin/curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
 
-###################
-# Bash completion #
-###################
-
-if [ -r /usr/local/etc/profile.d/bash_completion.sh ]
-then
-	. /usr/local/etc/profile.d/bash_completion.sh
-elif [ -r /usr/local/etc/bash_completion ]
-then
-	. /usr/local/etc/bash_completion
-elif [ -r /usr/local/etc/bash_completion.d ]
-then
-	for X in /usr/local/etc/bash_completion.d/*
-	do
-		. $X
-	done
-fi
-
-#######
-# Git #
-#######
-
-. "$DOTFILES_DIR/.gitstatus/gitstatus.plugin.sh"
-
-__jc_ps1="$PS1"
-__jc_gitstatus_prompt_update() {
-  GITSTATUS_PROMPT=""
-	PS1="$__jc_ps1"
-
-  gitstatus_query "$@"                  || return 1  # error
-  [[ "$VCS_STATUS_RESULT" == ok-sync ]] || return 0  # not a git repo
-
-  # These somehow fuck up bash history in iTerm2
-  local      reset=$'\033[0m'         # no color
-  local      clean=$'\033[38;5;076m'  # green foreground
-  local  untracked=$'\033[38;5;014m' # teal foreground
-  local   modified=$'\033[38;5;011m' # yellow foreground
-  local conflicted=$'\033[38;5;196m' # red foreground
-
-  local p
-
-  local where  # branch name, tag or commit
-  if [[ -n "$VCS_STATUS_LOCAL_BRANCH" ]]; then
-    where="$VCS_STATUS_LOCAL_BRANCH"
-  elif [[ -n "$VCS_STATUS_TAG" ]]; then
-    p+='\['"${reset}"'\]#'
-    where="$VCS_STATUS_TAG"
-  else
-    p+='\['"${reset}"'\]@'
-    where="${VCS_STATUS_COMMIT:0:8}"
-  fi
-
-  (( ${#where} > 32 )) && where="${where:0:12}…${where: -12}"  # truncate long branch names and tags
-  p+='\['"${clean}"'\]'"${where}"
-
-  (( VCS_STATUS_COMMITS_BEHIND )) && p+=' \['"${clean}"'\]⇣'"${VCS_STATUS_COMMITS_BEHIND}"
-  (( VCS_STATUS_COMMITS_AHEAD && !VCS_STATUS_COMMITS_BEHIND )) && p+=" "
-  (( VCS_STATUS_COMMITS_AHEAD  )) && p+='\['"${clean}"'\]⇡'"${VCS_STATUS_COMMITS_AHEAD}"
-  (( VCS_STATUS_STASHES        )) && p+=' \['"${clean}"'\]*'"${VCS_STATUS_STASHES}"
-  [[ -n "$VCS_STATUS_ACTION"   ]] && p+=' \['"${conflicted}"'\]'"${VCS_STATUS_ACTION}"
-  (( VCS_STATUS_NUM_CONFLICTED )) && p+=' \['"${conflicted}"'\]~'"${VCS_STATUS_NUM_CONFLICTED}"
-  (( VCS_STATUS_NUM_STAGED     )) && p+=' \['"${modified}"'\]+'"${VCS_STATUS_NUM_STAGED}"
-  (( VCS_STATUS_NUM_UNSTAGED   )) && p+=' \['"${modified}"'\]!'"${VCS_STATUS_NUM_UNSTAGED}"
-  (( VCS_STATUS_NUM_UNTRACKED  )) && p+=' \['"${untracked}"'\]?'"${VCS_STATUS_NUM_UNTRACKED}"
-
-  GITSTATUS_PROMPT="${p}"'\['"${reset}"'\]'
-	PS1+="$GITSTATUS_PROMPT "
-}
-
-gitstatus_stop && gitstatus_start -s -1 -u -1 -c -1 -d -1
-PROMPT_COMMAND="__jc_gitstatus_prompt_update${PROMPT_COMMAND:+;$PROMPT_COMMAND}"
-
-#####################
-# iTerm integration #
-#####################
-
-# If this is a terminal…
-[ ! -t 1 ] || {
-
-	# …and the integrations aren't installed, install them
-	[ -f ~/.iterm2_shell_integration.bash ] || (
-		set -e
-		/usr/bin/curl -fsSL -o ~/.iterm2_shell_integration.bash.tmp https://iterm2.com/shell_integration/bash
-		mv ~/.iterm2_shell_integration.bash{.tmp,}
-	)
-
-	# …and the integrations are installed, load them
-	[ ! -r ~/.iterm2_shell_integration.bash ] || . ~/.iterm2_shell_integration.bash
-}
-
 ###########
 # Node.js #
 ###########
@@ -555,14 +465,92 @@ command_not_found_handle() {
   npx --no-install "$@"
 }
 
-# extra setup
-#/usr/bin/find ~/Library -flags hidden -maxdepth 0 -exec /usr/bin/chflags nohidden "{}" +
-#
-#{ defaults read  com.apple.dock persistent-others | grep '"recents-tile"' >/dev/null 2>&1 ; } || \
-#  defaults write com.apple.dock persistent-others -array-add '{ "tile-data" = { "list-type" = 1; }; "tile-type" = "recents-tile"; }'
-#
-# Enable subpixel font rendering on non-Apple LCDs
-#defaults write -g AppleFontSmoothing -int 2
+
+#####################
+# Interactive shell #
+#####################
+[ ! -t 1 ] || {
+
+	# Bash completion #
+	if [ -r /usr/local/etc/profile.d/bash_completion.sh ]
+	then
+		. /usr/local/etc/profile.d/bash_completion.sh
+	elif [ -r /usr/local/etc/bash_completion ]
+	then
+		. /usr/local/etc/bash_completion
+	elif [ -r /usr/local/etc/bash_completion.d ]
+	then
+		for X in /usr/local/etc/bash_completion.d/*
+		do
+			. $X
+		done
+	fi
+
+	# iTerm integration
+	[ -f ~/.iterm2_shell_integration.bash ] || (
+		/usr/bin/curl -fsSL -o ~/.iterm2_shell_integration.bash.tmp https://iterm2.com/shell_integration/bash
+		mv ~/.iterm2_shell_integration.bash{.tmp,}
+	)
+	[ ! -r ~/.iterm2_shell_integration.bash ] || . ~/.iterm2_shell_integration.bash
+
+	# Git Status
+	. "$DOTFILES_DIR/.gitstatus/gitstatus.plugin.sh"
+	__jc_ps1="$PS1"
+	__jc_gitstatus_prompt_update() {
+		GITSTATUS_PROMPT=""
+		PS1="$__jc_ps1"
+
+		gitstatus_query "$@"                  || return 1  # error
+		[[ "$VCS_STATUS_RESULT" == ok-sync ]] || return 0  # not a git repo
+
+		# These somehow fuck up bash history in iTerm2
+		local      reset=$'\033[0m'         # no color
+		local      clean=$'\033[38;5;076m'  # green foreground
+		local  untracked=$'\033[38;5;014m' # teal foreground
+		local   modified=$'\033[38;5;011m' # yellow foreground
+		local conflicted=$'\033[38;5;196m' # red foreground
+
+		local p
+
+		local where  # branch name, tag or commit
+		if [[ -n "$VCS_STATUS_LOCAL_BRANCH" ]]; then
+			where="$VCS_STATUS_LOCAL_BRANCH"
+		elif [[ -n "$VCS_STATUS_TAG" ]]; then
+			p+='\['"${reset}"'\]#'
+			where="$VCS_STATUS_TAG"
+		else
+			p+='\['"${reset}"'\]@'
+			where="${VCS_STATUS_COMMIT:0:8}"
+		fi
+
+		(( ${#where} > 32 )) && where="${where:0:12}…${where: -12}"  # truncate long branch names and tags
+		p+='\['"${clean}"'\]'"${where}"
+
+		(( VCS_STATUS_COMMITS_BEHIND )) && p+=' \['"${clean}"'\]⇣'"${VCS_STATUS_COMMITS_BEHIND}"
+		(( VCS_STATUS_COMMITS_AHEAD && !VCS_STATUS_COMMITS_BEHIND )) && p+=" "
+		(( VCS_STATUS_COMMITS_AHEAD  )) && p+='\['"${clean}"'\]⇡'"${VCS_STATUS_COMMITS_AHEAD}"
+		(( VCS_STATUS_STASHES        )) && p+=' \['"${clean}"'\]*'"${VCS_STATUS_STASHES}"
+		[[ -n "$VCS_STATUS_ACTION"   ]] && p+=' \['"${conflicted}"'\]'"${VCS_STATUS_ACTION}"
+		(( VCS_STATUS_NUM_CONFLICTED )) && p+=' \['"${conflicted}"'\]~'"${VCS_STATUS_NUM_CONFLICTED}"
+		(( VCS_STATUS_NUM_STAGED     )) && p+=' \['"${modified}"'\]+'"${VCS_STATUS_NUM_STAGED}"
+		(( VCS_STATUS_NUM_UNSTAGED   )) && p+=' \['"${modified}"'\]!'"${VCS_STATUS_NUM_UNSTAGED}"
+		(( VCS_STATUS_NUM_UNTRACKED  )) && p+=' \['"${untracked}"'\]?'"${VCS_STATUS_NUM_UNTRACKED}"
+
+		GITSTATUS_PROMPT="${p}"'\['"${reset}"'\]'
+		PS1+="$GITSTATUS_PROMPT "
+	}
+
+	gitstatus_stop && gitstatus_start -s -1 -u -1 -c -1 -d -1
+
+	if [[ "${__bp_imported:-}" == "defined" ]]
+	then
+		precmd_functions+=(__jc_gitstatus_prompt_update)
+	else
+		PROMPT_COMMAND="__jc_gitstatus_prompt_update${PROMPT_COMMAND:+;$PROMPT_COMMAND}"
+	fi
+}
+
+
 
 # Site-specific
 [ ! -r "$HOME/.bash_profile.local" ] || . "$HOME/.bash_profile.local"
