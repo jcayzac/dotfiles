@@ -41,17 +41,20 @@ export LANDLORD=$(id -nu $(stat -f '%u' "$HOME"))
 DEFAULT_LOCALE='en_US.UTF-8'
 
 export \
-	ANDROID_HOME="$HOME/Library/Android/sdk" \
 	ANDROID_SDK_ROOT="$HOME/Library/Android/sdk" \
 	ANDROID_NDK_HOME="$HOME/Library/Android/sdk/ndk-bundle" \
+	ANT_HOME='/usr/local/opt/ant/libexec' \
 	GOPATH="$HOME/.go" \
+	GRADLE_HOME='/usr/local/opt/gradle' \
 	GREP_COLOR='01' \
+	GROOVY_HOME='/usr/local/opt/groovy/libexec' \
 	HISTCONTROL='erasedups' \
 	HISTFILESIZE=10000 \
 	HISTIGNORE='&:ls:cd:pwd:[bf]g:exit:fuck' \
 	HOMEBREW_NO_ANALYTICS=1 \
 	HOMEBREW_INSTALL_BADGE='  🥃  ' \
 	HOMEBREW_INSTALL_CLEANUP=1 \
+	JAVA_HOME="$(/usr/libexec/java_home -v 11 2>/dev/null || true)" \
 	LANG="$DEFAULT_LOCALE" \
 	LC_COLLATE="$DEFAULT_LOCALE" \
 	LC_CTYPE="$DEFAULT_LOCALE" \
@@ -60,7 +63,7 @@ export \
 	LC_NUMERIC="$DEFAULT_LOCALE" \
 	LC_TIME="$DEFAULT_LOCALE" \
 	LC_ALL= \
-	LESS_TERMCAP_us=$'\E[01;32m' \
+	LESS_TERMCAP_us=$'\e[01;32m' \
 	LESS_TERMCAP_ue=$'\e[0m' \
 	LESS_TERMCAP_md=$'\e[01m' \
 	LESS_TERMCAP_me=$'\e[0m' \
@@ -69,8 +72,12 @@ export \
 	LESS_ADVANCED_PREPROCESSOR=1 \
 	LS_COLORS='do=01;35:*.dmg=01;31:*.aac=01;35:*.img=01;31:*.tar=01;31:di=01;34:rs=0:*.qt=01;35:ex=01;32:ow=34;42:*.mov=01;35:*.jar=01;31:or=40;31;01:*.pvr=01;35:*.ogm=01;35:*.svgz=01;35:*.toast=01;31:*.asf=01;35:*.bz2=01;31:*.rar=01;31:*.sparsebundle=01;31:*.ogg=01;35:*.m2v=01;35:*.svg=01;35:*.sparseimage=01;31:*.7z=01;31:*.mp4=01;35:*.tbz2=01;31:bd=40;33;01:*.vob=01;35:*.zip=01;31:*.avi=01;35:*.mp3=01;35:so=01;35:*.m4a=01;35:ln=01;36:*.tgz=01;31:tw=30;42:*.png=01;35:*.wmv=01;35:sg=30;43:*.rpm=01;31:*.gz=01;31:*.tbz=01;31:*.mkv=01;35:*.mpg=01;35:*.pkg=01;31:*.mpeg=01;35:*.iso=01;31:ca=30;41:pi=41;33:*.wav=01;35:su=37;41:*.jpg=01;35:st=37;44:cd=40;33;01:*.m4v=01;35:mh=01;36:' \
 	MANPATH="$HOME/.prefix/share/man:/usr/local/share/man:/usr/share/man" \
+	MAVEN_HOME='/usr/local/opt/maven' \
 	PROMPT_DIRTRIM=2 \
 	PS1='\[\033[01;34m\]\w\[\033[0m '
+
+# Deprecated, but some tools still rely on it
+export ANDROID_HOME="$ANDROID_SDK_ROOT"
 
 PATHS=(
 	# User
@@ -83,10 +90,16 @@ PATHS=(
 	"$HOME/.go/bin"
 	"/usr/local/opt/go/libexec/bin"
 
+	# Gradle/Maven/Ant/Java
+	"$GRADLE_HOME/bin"
+	"$MAVEN_HOME/bin"
+	"/usr/local/opt/ant/bin"
+	"$JAVA_HOME/bin"
+
 	# Android
-	"$ANDROID_HOME/tools"
-	"$ANDROID_HOME/tools/bin"
-	"$ANDROID_HOME/platform-tools"
+	"$ANDROID_SDK_ROOT/tools"
+	"$ANDROID_SDK_ROOT/tools/bin"
+	"$ANDROID_SDK_ROOT/platform-tools"
 
 	# .NET Core SDK
 	"/usr/local/share/dotnet"
@@ -104,6 +117,10 @@ PATHS=(
 )
 
 export PATH="$(join_strings : ${PATHS[*]})"
+
+! has-command launchctl || {
+	launchctl setenv JAVA_HOME "$JAVA_HOME"
+}
 
 ##################
 # Extra builtins #
