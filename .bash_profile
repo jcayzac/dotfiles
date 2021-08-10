@@ -236,7 +236,7 @@ yaml-beautify() {
 
 # JSON to YAML converter
 function json-to-yaml() {
-	__jc_pipe_input "${1:--}" | yq r - -P | yaml-beautify
+	__jc_pipe_input "${1:--}" | yq eval -P | yaml-beautify
 }
 
 # Grep looks better with color
