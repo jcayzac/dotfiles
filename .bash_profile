@@ -114,6 +114,9 @@ PATHS=(
 	"/usr/sbin"
 	"/bin"
 	"/sbin"
+
+	# Relative tools (insecure if not kept last)
+	"./node_modules/.bin"
 )
 
 export PATH="$(join_strings : ${PATHS[*]})"
