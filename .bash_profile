@@ -205,21 +205,6 @@ export PATH="$VOLTA_HOME/bin:$PATH"
 # If rbenv is installed, start it (it's fast enough)
 ! has-command rbenv || eval "$(rbenv init -)"
 
-# If thefuck is installed, install a stub to lazily load it
-! has-command thefuck || {
-	# Lazy initialization of thefuck
-	function fuck() {
-		# Unset stub
-		unset -f fuck
-
-		# Install real alias
-		eval "$(thefuck --alias)"
-
-		# Execute requested command
-		fuck ${1+"$@"}
-	}
-}
-
 # Input piper
 __jc_pipe_input() {
   case "${1:--}" in
@@ -475,14 +460,6 @@ update-stuff() {
 	printf '\x1b[0m\n'
 }
 
-# Commands not found in PATH may be local node binaries
-# TODO: Make it a bit smarter (thefuck, rvm etc)
-command_not_found_handle() {
-  command -v npx >/dev/null || return 127
-  npx --no-install "$@"
-}
-
-
 #####################
 # Interactive shell #
 #####################
@@ -509,6 +486,26 @@ command_not_found_handle() {
 		mv ~/.iterm2_shell_integration.bash{.tmp,}
 	)
 	[ ! -r ~/.iterm2_shell_integration.bash ] || . ~/.iterm2_shell_integration.bash
+
+	# thefuck!
+	! has-command thefuck || {
+		# Lazy initialization of thefuck
+		function fuck() {
+			# Unset stub
+			unset -f fuck
+
+			# Install real alias
+			eval "$(thefuck --alias)"
+
+			# Execute requested command
+			fuck ${1+"$@"}
+		}
+
+		# Autofuck!
+		function command_not_found_handle() {
+			fuck "$@"
+		}
+	}
 
 	# Git Status
 	. "$DOTFILES_DIR/.gitstatus/gitstatus.plugin.sh"
