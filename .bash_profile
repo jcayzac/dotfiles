@@ -201,6 +201,11 @@ has-command brew || /usr/bin/ruby -e "$(/usr/bin/curl -fsSL https://raw.githubus
 export VOLTA_HOME="$HOME/.volta"
 export PATH="$VOLTA_HOME/bin:$PATH"
 
+pnpm() {
+	declare version="$( [ ! -r package.json ] || jq -Mr '.devDependencies?.pnpm // empty' < package.json 2>/dev/null || true)"
+	npm x -q --yes --no-install "pnpm@$version" -- ${1+"$@"}
+}
+
 #########
 # Other #
 #########
