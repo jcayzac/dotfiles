@@ -287,36 +287,39 @@ fix-many-filenames() {
 	function optimize-pdf() (
 		set -e -u -o pipefail
 		function gsx-command() {
-			gsx -sDEVICE=pdfwrite \
-				-dPDFSETTINGS=/screen \
-				-dNOPAUSE -dQUIET -dBATCH \
-				-dCompatibilityLevel=1.5 \
-				`# font settings` \
-				-dSubsetFonts=true \
-				-dCompressFonts=true \
-				-dEmbedAllFonts=true \
-				`# color format` \
-				-sProcessColorModel=DeviceRGB \
-				-sColorConversionStrategy=RGB \
-				-sColorConversionStrategyForImages=RGB \
-				-dConvertCMYKImagesToRGB=true \
-				`# image resample` \
-				-dDetectDuplicateImages=true \
-				-dColorImageDownsampleType=/Bicubic \
-				-dColorImageResolution=300 \
-				-dGrayImageDownsampleType=/Bicubic \
-				-dGrayImageResolution=300 \
-				-dMonoImageDownsampleType=/Bicubic \
-				-dMonoImageResolution=300 \
-				-dDownsampleColorImages=true \
-				`# preset overrides` \
-				-dDoThumbnails=false \
-				-dCreateJobTicket=false \
-				-dPreserveEPSInfo=false \
-				-dPreserveOPIComments=false \
-				-dPreserveOverprintSettings=false \
-				-dUCRandBGInfo=/Remove \
-				"-sOutputFile=$2" "$1"
+			declare -a PDF_ARGS=(
+				'-dPDFSETTINGS=/screen'
+				'-dNOPAUSE'
+				'-dQUIET'
+				'-dBATCH'
+				'-dCompatibilityLevel=1.5'
+				# font settings
+				'-dSubsetFonts=true'
+				'-dCompressFonts=true'
+				'-dEmbedAllFonts=true'
+				# color format
+				'-sProcessColorModel=DeviceRGB'
+				'-sColorConversionStrategy=RGB'
+				'-sColorConversionStrategyForImages=RGB'
+				'-dConvertCMYKImagesToRGB=true'
+				# image resample
+				'-dDetectDuplicateImages=true'
+				'-dColorImageDownsampleType=/Bicubic'
+				'-dColorImageResolution=300'
+				'-dGrayImageDownsampleType=/Bicubic'
+				'-dGrayImageResolution=300'
+				'-dMonoImageDownsampleType=/Bicubic'
+				'-dMonoImageResolution=300'
+				'-dDownsampleColorImages=true'
+				# preset overrides
+				'-dDoThumbnails=false'
+				'-dCreateJobTicket=false'
+				'-dPreserveEPSInfo=false'
+				'-dPreserveOPIComments=false'
+				'-dPreserveOverprintSettings=false'
+				'-dUCRandBGInfo=/Remove'
+			)
+			gsx -sDEVICE=pdfwrite "${PDF_ARGS[@]}" "-sOutputFile=$2" "$1"
 		}
 		export -f gsx-command
 		process-file pdf optimized.pdf gsx-command "$1"
