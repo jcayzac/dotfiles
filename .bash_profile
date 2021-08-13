@@ -156,6 +156,7 @@ for _ in \
 	'truefalse true false'; do
 	enable-loadable-builtin $_
 done
+unset -f enable-loadable-builtin
 
 # Export our dotfiles folder
 export DOTFILES_DIR="$(dirname "$(realpath "${BASH_SOURCE[0]}")")"
