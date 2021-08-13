@@ -20,8 +20,8 @@ phdl-url() {
 	#   args[4] 240P_400K
 	#   args[5] _251688272.mp4.urlset/master.m3u8?validfrom=1587197103&validto=1587204303&hdl=-1&hash=xX2MGVGrMb3rlLUKCp0u5YGDpMI%3D
 	declare -a args
-	IFS=, read -ra args <<< "$url"
-	(( ${#args[@]} > 2 )) || {
+	IFS=, read -ra args <<<"$url"
+	((${#args[@]} > 2)) || {
 		echo >&2 "Wrong URL: $url"
 		return 1
 	}
@@ -30,15 +30,14 @@ phdl-url() {
 	#
 	# Prefer a 1080p version if there's one. Otherwise just assume the
 	# first program is the best quality.
-	declare programCount=$(( ${#args[@]} - 2 ))
+	declare programCount=$((${#args[@]} - 2))
 	declare program=0
-	while true
-	do
+	while true; do
 		# 1080p program?
-		! [[ "${args[$(( program + 1))]}" =~ 1080 ]] || break
+		! [[ "${args[$((program + 1))]}" =~ 1080 ]] || break
 
 		# Not found, reset to 0 (best)
-		! (( ++program == programCount )) || {
+		! ((++program == programCount)) || {
 			program=0
 			break
 		}
@@ -52,7 +51,7 @@ phdl-url() {
 	#   args[5] _251688272.mp4.urlset/master.m3u8?validfrom=1587197103&validto=1587204303&hdl=-1&hash=xX2MGVGrMb3rlLUKCp0u5YGDpMI%3D
 	#   fn      1080P_4000K_251688272.mp4
 	declare fn="${args[-1]}"
-	fn="${args[$(( program + 1))]}${fn%%.urlset*}"
+	fn="${args[$((program + 1))]}${fn%%.urlset*}"
 	fn="${fn%%.mp4*}.mp4"
 
 	# Stream the program to a local file
@@ -61,7 +60,7 @@ phdl-url() {
 		-i "$url" \
 		-map 0:p:${program}:0 \
 		-map 0:p:${program}:1 \
-		-movflags +faststart -movflags use_metadata_tags  \
+		-movflags +faststart -movflags use_metadata_tags \
 		-c copy \
 		"$fn"
 }
@@ -78,9 +77,8 @@ phd() (
 	declare -a LINES
 	IFS=';' read -r -a LINES < <(curl -sL "$(pbpaste)" | grep m3u8 | sed -E -e 's#/\*[^\*]*\*/##g' -e 's#var quality_1080p=([^;]+);.*$#\1#')
 
-	declare OUT=${LINES[$(( ${#LINES[@]}-1 ))]}
-	for (( c=0; c<${#LINES[@]}-1; c++ ))
-	do
+	declare OUT=${LINES[$((${#LINES[@]} - 1))]}
+	for ((c = 0; c < ${#LINES[@]} - 1; c++)); do
 		declare Z="${LINES[$c]}"
 		Z="${Z#*var}"
 		Z="${Z##*( )}"

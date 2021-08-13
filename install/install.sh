@@ -35,10 +35,9 @@ make-password-program() (
 	chmod 700 "$PROGRAM"
 )
 
-
 # Setup sudo
 make-password-program \
-  password-for-sudo \
+	password-for-sudo \
 	'#!/bin/bash\n'"printf '%s'"'\n' \
 	'sudo'
 export SUDO_ASKPASS="$STATE_DIR/password-for-sudo"
@@ -50,14 +49,13 @@ sudo true || {
 
 # Setup decryptor
 make-password-program \
-  decryptor \
+	decryptor \
 	'#!/bin/bash\nexec openssl enc -d -pass '"'pass:%s'"' "${1+$@}"' \
 	'decrypting'
 alias decrypt="$STATE_DIR/decryptor"
 
 # Any AD notation in the groups means it's a work machine
-if /usr/bin/id -p | grep -E ^groups | cut -d $'\t' -f2 | grep '\\' >/dev/null 2>&1
-then
+if /usr/bin/id -p | grep -E ^groups | cut -d $'\t' -f2 | grep '\\' >/dev/null 2>&1; then
 	declare PROFILE="work"
 else
 	declare PROFILE="home"

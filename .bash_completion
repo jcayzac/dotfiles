@@ -2,8 +2,7 @@
 declare __="$HOME/.bash_completion.d"
 
 [ ! -d "$__" ] || {
-	for i in $(LC_ALL=C command ls "$__")
-	do
+	for i in $(LC_ALL=C command ls "$__"); do
 		. "$__/$i"
 	done
 }

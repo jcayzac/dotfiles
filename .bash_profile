@@ -5,13 +5,13 @@ set +e +u +o pipefail # continue on errors
 	echo >&1 "*** .bash_profile is already sourced."
 }
 
-umask 022             # default mode = 755
-ulimit -S -n 10240    # raise number of open file handles
-shopt -s cmdhist      # save multiline commands in history
-shopt -s globstar     # support ** in glob patterns
-shopt -s extglob      # extended globs
-shopt -s promptvars   # expand prompts
-tabs -2               # use 2sp-wide tabs
+umask 022           # default mode = 755
+ulimit -S -n 10240  # raise number of open file handles
+shopt -s cmdhist    # save multiline commands in history
+shopt -s globstar   # support ** in glob patterns
+shopt -s extglob    # extended globs
+shopt -s promptvars # expand prompts
+tabs -2             # use 2sp-wide tabs
 
 ##################
 # Base utilities #
@@ -156,15 +156,12 @@ for _ in \
 	'strftime' \
 	'tee' \
 	'unlink' \
-	'truefalse true false'  \
-
-do
+	'truefalse true false'; do
 	enable-loadable-builtin $_
 done
 
 # Export our dotfiles folder
 export DOTFILES_DIR="$(dirname "$(realpath "${BASH_SOURCE[0]}")")"
-
 
 ###########################################################
 # Extra libraries of bash functions not loaded at startup #
@@ -173,14 +170,14 @@ export DOTFILES_DIR="$(dirname "$(realpath "${BASH_SOURCE[0]}")")"
 # Load a library
 #
 # $1  Library name
-load () {
+load() {
 	. "$HOME/.bash.d/$1"
 }
 
 # Enable completion if this is a terminal
 [ ! -t 1 ] || {
-	function _load () {
-		COMPREPLY=($( cd "$HOME/.bash.d" && ls "$2"*))
+	function _load() {
+		COMPREPLY=($(cd "$HOME/.bash.d" && ls "$2"*))
 	}
 	complete -F _load load
 }
@@ -204,7 +201,7 @@ export VOLTA_HOME="$HOME/.volta"
 export PATH="$VOLTA_HOME/bin:$PATH"
 
 pnpm() {
-	declare version="$( [ ! -r package.json ] || jq -Mr '.devDependencies?.pnpm // empty' < package.json 2>/dev/null || true)"
+	declare version="$([ ! -r package.json ] || jq -Mr '.devDependencies?.pnpm // empty' <package.json 2>/dev/null || true)"
 	npm x -q --yes --no-install "pnpm@$version" -- ${1+"$@"}
 }
 
@@ -217,23 +214,22 @@ pnpm() {
 
 # Input piper
 __jc_pipe_input() {
-  case "${1:--}" in
-    http?(s):*)
-      curl -sL "$1"
-      ;;
-    -)
-      cat
-      ;;
-    *)
-      cat "$1"
-      ;;
-  esac
+	case "${1:--}" in
+		http?(s):*)
+			curl -sL "$1"
+			;;
+		-)
+			cat
+			;;
+		*)
+			cat "$1"
+			;;
+	esac
 }
-
 
 # YAML prettifier
 yaml-beautify() {
-  __jc_pipe_input "${1:--}" | npx prettier --single-quote --stdin-filepath foo.yaml
+	__jc_pipe_input "${1:--}" | npx prettier --single-quote --stdin-filepath foo.yaml
 }
 
 # JSON to YAML converter
@@ -250,22 +246,22 @@ alias grep='grep --color'
 alias spotlight='sudo mdutil -a -i'
 
 # So does ls
-! has-command gls       || alias ls='gls --color=auto --show-control-chars'
+! has-command gls || alias ls='gls --color=auto --show-control-chars'
 
 # FIXME: I remember this broke a third-party script before.
-! has-command gnutar    || alias tar='gnutar'
+! has-command gnutar || alias tar='gnutar'
 
 # Download stuff
-! has-command aria2c    || alias dl='aria2c -x5 --http-accept-gzip=true --use-head=true'
+! has-command aria2c || alias dl='aria2c -x5 --http-accept-gzip=true --use-head=true'
 
 # Remove the quarantine flag on downloaded stuff
-! has-command xattr     || alias unquarantine='xattr -drv com.apple.quarantine'
+! has-command xattr || alias unquarantine='xattr -drv com.apple.quarantine'
 
 # Copy bare stuff
-! has-command ditto     || alias copy='ditto --norsrc --noextattr --noqtn --noacl'
+! has-command ditto || alias copy='ditto --norsrc --noextattr --noqtn --noacl'
 
 # FIXME: don't hardcode those paths
-! has-command ncftpput  || alias copy-movie="ncftpput -z -f '$HOME/.ncftp/hosts/mediaplayer' T_Drive/Films"
+! has-command ncftpput || alias copy-movie="ncftpput -z -f '$HOME/.ncftp/hosts/mediaplayer' T_Drive/Films"
 
 # Show a palette: fixed colors 1-15, then 24-bit gray ramp
 # Shows immediately if 24-bit mode is supported
@@ -273,15 +269,13 @@ color-test() {
 	declare col=$(tput cols)
 
 	# 24-bit gradient
-	while (( col > 15))
-	do
-		printf '\x1b[48;2;%u;%u;%um ' $col $((col/2)) $((col/3))
-		col=$(( --col ))
+	while ((col > 15)); do
+		printf '\x1b[48;2;%u;%u;%um ' $col $((col / 2)) $((col / 3))
+		col=$((--col))
 	done
 
 	# 4-bit color map for the end
-	for col in {1..15}
-	do
+	for col in {1..15}; do
 		printf '\x1b[48;5;%sm ' $col
 	done
 
@@ -301,8 +295,7 @@ magnetize() {
 hardlinks() {
 	declare f="$1" dir="$2"
 	shift
-	if [ -d "$dir" ]
-	then
+	if [ -d "$dir" ]; then
 		shift
 	else
 		dir="$(pwd)"
@@ -351,16 +344,12 @@ ssh-config-backup() (
 	bind '"\e[6~": history-search-forward'  # PgDn
 
 	# Bash completion
-	if [ -r /usr/local/etc/profile.d/bash_completion.sh ]
-	then
+	if [ -r /usr/local/etc/profile.d/bash_completion.sh ]; then
 		. /usr/local/etc/profile.d/bash_completion.sh
-	elif [ -r /usr/local/etc/bash_completion ]
-	then
+	elif [ -r /usr/local/etc/bash_completion ]; then
 		. /usr/local/etc/bash_completion
-	elif [ -r /usr/local/etc/bash_completion.d ]
-	then
-		for X in /usr/local/etc/bash_completion.d/*
-		do
+	elif [ -r /usr/local/etc/bash_completion.d ]; then
+		for X in /usr/local/etc/bash_completion.d/*; do
 			. $X
 		done
 	fi
@@ -399,19 +388,19 @@ ssh-config-backup() (
 		GITSTATUS_PROMPT=""
 		PS1="$__jc_ps1"
 
-		gitstatus_query "$@"                  || return 1  # error
-		[[ "$VCS_STATUS_RESULT" == ok-sync ]] || return 0  # not a git repo
+		gitstatus_query "$@" || return 1                  # error
+		[[ "$VCS_STATUS_RESULT" == ok-sync ]] || return 0 # not a git repo
 
 		# These somehow fuck up bash history in iTerm2
-		local      reset=$'\033[0m'         # no color
-		local      clean=$'\033[38;5;076m'  # green foreground
-		local  untracked=$'\033[38;5;014m' # teal foreground
-		local   modified=$'\033[38;5;011m' # yellow foreground
+		local reset=$'\033[0m'             # no color
+		local clean=$'\033[38;5;076m'      # green foreground
+		local untracked=$'\033[38;5;014m'  # teal foreground
+		local modified=$'\033[38;5;011m'   # yellow foreground
 		local conflicted=$'\033[38;5;196m' # red foreground
 
 		local p
 
-		local where  # branch name, tag or commit
+		local where # branch name, tag or commit
 		if [[ -n "$VCS_STATUS_LOCAL_BRANCH" ]]; then
 			where="$VCS_STATUS_LOCAL_BRANCH"
 		elif [[ -n "$VCS_STATUS_TAG" ]]; then
@@ -422,18 +411,18 @@ ssh-config-backup() (
 			where="${VCS_STATUS_COMMIT:0:8}"
 		fi
 
-		(( ${#where} > 32 )) && where="${where:0:12}…${where: -12}"  # truncate long branch names and tags
+		((${#where} > 32)) && where="${where:0:12}…${where: -12}" # truncate long branch names and tags
 		p+='\['"${clean}"'\]'"${where}"
 
-		(( VCS_STATUS_COMMITS_BEHIND )) && p+=' \['"${clean}"'\]⇣'"${VCS_STATUS_COMMITS_BEHIND}"
-		(( VCS_STATUS_COMMITS_AHEAD && !VCS_STATUS_COMMITS_BEHIND )) && p+=" "
-		(( VCS_STATUS_COMMITS_AHEAD  )) && p+='\['"${clean}"'\]⇡'"${VCS_STATUS_COMMITS_AHEAD}"
-		(( VCS_STATUS_STASHES        )) && p+=' \['"${clean}"'\]*'"${VCS_STATUS_STASHES}"
-		[[ -n "$VCS_STATUS_ACTION"   ]] && p+=' \['"${conflicted}"'\]'"${VCS_STATUS_ACTION}"
-		(( VCS_STATUS_NUM_CONFLICTED )) && p+=' \['"${conflicted}"'\]~'"${VCS_STATUS_NUM_CONFLICTED}"
-		(( VCS_STATUS_NUM_STAGED     )) && p+=' \['"${modified}"'\]+'"${VCS_STATUS_NUM_STAGED}"
-		(( VCS_STATUS_NUM_UNSTAGED   )) && p+=' \['"${modified}"'\]!'"${VCS_STATUS_NUM_UNSTAGED}"
-		(( VCS_STATUS_NUM_UNTRACKED  )) && p+=' \['"${untracked}"'\]?'"${VCS_STATUS_NUM_UNTRACKED}"
+		((VCS_STATUS_COMMITS_BEHIND)) && p+=' \['"${clean}"'\]⇣'"${VCS_STATUS_COMMITS_BEHIND}"
+		((VCS_STATUS_COMMITS_AHEAD && !VCS_STATUS_COMMITS_BEHIND)) && p+=" "
+		((VCS_STATUS_COMMITS_AHEAD)) && p+='\['"${clean}"'\]⇡'"${VCS_STATUS_COMMITS_AHEAD}"
+		((VCS_STATUS_STASHES)) && p+=' \['"${clean}"'\]*'"${VCS_STATUS_STASHES}"
+		[[ -n "$VCS_STATUS_ACTION" ]] && p+=' \['"${conflicted}"'\]'"${VCS_STATUS_ACTION}"
+		((VCS_STATUS_NUM_CONFLICTED)) && p+=' \['"${conflicted}"'\]~'"${VCS_STATUS_NUM_CONFLICTED}"
+		((VCS_STATUS_NUM_STAGED)) && p+=' \['"${modified}"'\]+'"${VCS_STATUS_NUM_STAGED}"
+		((VCS_STATUS_NUM_UNSTAGED)) && p+=' \['"${modified}"'\]!'"${VCS_STATUS_NUM_UNSTAGED}"
+		((VCS_STATUS_NUM_UNTRACKED)) && p+=' \['"${untracked}"'\]?'"${VCS_STATUS_NUM_UNTRACKED}"
 
 		GITSTATUS_PROMPT="${p}"'\['"${reset}"'\]'
 		PS1+="$GITSTATUS_PROMPT "
@@ -441,8 +430,7 @@ ssh-config-backup() (
 
 	gitstatus_stop && gitstatus_start -s -1 -u -1 -c -1 -d -1
 
-	if [[ "${__bp_imported:-}" == "defined" ]]
-	then
+	if [[ "${__bp_imported:-}" == "defined" ]]; then
 		precmd_functions+=(__jc_gitstatus_prompt_update)
 	else
 		PROMPT_COMMAND="__jc_gitstatus_prompt_update${PROMPT_COMMAND:+;$PROMPT_COMMAND}"

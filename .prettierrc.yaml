@@ -1,0 +1,15 @@
+printWidth: 100
+semi: false
+singleQuote: true
+tabWidth: 2
+trailingComma: all
+spaceRedirects: false
+overrides:
+  - files:
+      - '**/*.sh'
+      - '**/*.bash'
+      - '.bash_*'
+      - '.hooks/*'
+      - '.bash.d/*'
+    options:
+      parser: sh

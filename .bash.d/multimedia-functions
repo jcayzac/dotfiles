@@ -15,9 +15,10 @@ process-file() (
 	# Install cleanup trap
 	function cleanup() {
 		declare status=$?
-		if (( $status == 0 ))
-			then printf '✅ Converted %s\n' "$DST_FILE"
-			else printf '❌ Could not convert %s\n' "$SRC_FILE"
+		if (($status == 0)); then
+			printf '✅ Converted %s\n' "$DST_FILE"
+		else
+			printf '❌ Could not convert %s\n' "$SRC_FILE"
 		fi
 		rm -f "$TMP_FILE" >/dev/null 2>&1 || true
 		return $status
@@ -53,7 +54,10 @@ process-many-files() (
 	# Find all input files and keep processors busy.
 	# Note the find filters are protected against shell globbing (-f).
 	shift 3
-	xargs -0 -P $(sysctl -n hw.ncpu) -I {} bash -c -e -u -o pipefail "$PROCESSOR"' "$@"' _ {} < <(set -f; find -E ${1+"$@"} $FILTERS -print0)
+	xargs -0 -P $(sysctl -n hw.ncpu) -I {} bash -c -e -u -o pipefail "$PROCESSOR"' "$@"' _ {} < <(
+		set -f
+		find -E ${1+"$@"} $FILTERS -print0
+	)
 )
 
 # Recursively delete folders with no files
@@ -98,9 +102,8 @@ fix-many-filenames() {
 ! has-command ffmpeg || {
 	# Put the computer to sleep when there's no more active ffmpeg process.
 	function sleep-when-ffmpeg-is-done() {
-		while true
-		do
-			(( $(ps aux | grep ffmpeg | wc -l) > 1 )) || break
+		while true; do
+			(($(ps aux | grep ffmpeg | wc -l) > 1)) || break
 			sleep 30
 		done && pmset sleepnow
 	}
@@ -192,8 +195,8 @@ fix-many-filenames() {
 	function set-missing-date-for-icloud-backup-image() {
 		declare DIR_PATH="${1%/*}" FILE_NAME="${1##*/}" FILE_EXT="${1##*.}"
 		declare DIR_NAME="${DIR_PATH##*/}"
-		! [[ "${FILE_EXT,,}" =~ ^(jpe?g|png|heic)$ ]] || \
-		! [[ "$DIR_NAME" =~ ^([0-9]{4})([0-9]{2})([0-9]{2})-([0-9]{2})([0-9]{2})([0-9]{2})$ ]] || {
+		! [[ "${FILE_EXT,,}" =~ ^(jpe?g|png|heic)$ ]] \
+			|| ! [[ "$DIR_NAME" =~ ^([0-9]{4})([0-9]{2})([0-9]{2})-([0-9]{2})([0-9]{2})([0-9]{2})$ ]] || {
 			declare \
 				YEAR="${BASH_REMATCH[1]}" \
 				MONTH="${BASH_REMATCH[2]}" \
@@ -333,7 +336,6 @@ fix-many-filenames() {
 		cjpeg ${1+"$@"}
 	)
 
-
 	# Optimize a JPEG image with MozJPEG
 	#
 	# $1: path to image
@@ -349,13 +351,13 @@ fix-many-filenames() {
 				declare S_SIZE=$st_size
 				declare $(stat -s "$T")
 				declare D_SIZE=$st_size
-				declare GAIN=$(( 100 - $D_SIZE * 100 / $S_SIZE ))
-				(( $GAIN < 2 )) && {
+				declare GAIN=$((100 - $D_SIZE * 100 / $S_SIZE))
+				(($GAIN < 2)) && {
 					printf '❌ Could not optimize %s (gain too small: -%i%%)\n' "$1" $GAIN
 				} || {
-					touch -f -r "$1" "$T" && \
-					mv -f "$T" "$1" && \
-					printf "✅ Optimized: %s (-%i%%)\n" "$1" "$GAIN"
+					touch -f -r "$1" "$T" \
+						&& mv -f "$T" "$1" \
+						&& printf "✅ Optimized: %s (-%i%%)\n" "$1" "$GAIN"
 				}
 			} || {
 				printf '❌ Could not optimize %s\n' "$1"

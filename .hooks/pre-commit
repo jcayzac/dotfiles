@@ -1,0 +1,17 @@
+#!/usr/bin/env bash -e -u -o pipefail
+
+_PRETTIER_PACKAGES=(
+	"prettier"
+	"prettier-plugin-sh"
+)
+printf -v PRETTIER_PACKAGES -- '--package=%s ' "${_PRETTIER_PACKAGES[@]}"
+
+PRETTIER_PATTERNS=(
+	'**/*.sh'
+	'**/*.bash'
+	'.bash_*'
+	'.hooks/*'
+	'.bash.d/*'
+)
+
+npm x --no-install --yes $PRETTIER_PACKAGES -- prettier --write "${PRETTIER_PATTERNS[@]}"
