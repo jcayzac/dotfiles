@@ -12,10 +12,6 @@ shopt -s globstar     # support ** in glob patterns
 shopt -s extglob      # extended globs
 shopt -s promptvars   # expand prompts
 tabs -2               # use 2sp-wide tabs
-[ ! -t 1 ] || {       # bind keys for history search if this is a terminal
-	bind '"\e[5~": history-search-backward' # PgUp
-	bind '"\e[6~": history-search-forward'  # PgDn
-}
 
 ##################
 # Base utilities #
@@ -350,8 +346,11 @@ ssh-config-backup() (
 # Interactive shell #
 #####################
 [ ! -t 1 ] || {
+	# Keys for history search
+	bind '"\e[5~": history-search-backward' # PgUp
+	bind '"\e[6~": history-search-forward'  # PgDn
 
-	# Bash completion #
+	# Bash completion
 	if [ -r /usr/local/etc/profile.d/bash_completion.sh ]
 	then
 		. /usr/local/etc/profile.d/bash_completion.sh
