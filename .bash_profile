@@ -312,7 +312,9 @@ brokenlinks() {
 
 # VS.Code launcher
 code() {
-	open -b com.microsoft.VSCode ${1+"$@"} --args --disable-gpu
+	declare content="$(realpath /usr/local/bin/code)"
+	content="${content%/Contents*}/Contents"
+	ELECTRON_RUN_AS_NODE=1 "$content/MacOS/Electron" "$content/Resources/app/out/cli.js" --disable-gpu "$@"
 }
 
 # Paste HTML content as markup, not plain text
