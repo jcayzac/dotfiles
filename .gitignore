@@ -1,6 +1,3 @@
-# dotfiles repo specific
-.irssi/deepmind.pem
-
 # Shit
 .svn
 .deps
@@ -16,7 +13,6 @@ config.log
 .DS_Store
 /.vim/undodir
 *.sublime_session
-Gemfile.lock
 
 # Xcode
 *.ipa

@@ -1,4 +1,0 @@
-#!/usr/bin/env lldb
-
-command script import "~/.lldb/plugins/chisel/fblldb.py"
-

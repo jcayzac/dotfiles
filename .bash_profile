@@ -85,9 +85,6 @@ PATHS=(
 	# User
 	"$HOME/.prefix/bin"
 
-	# Rust
-	"$HOME/.cargo/bin"
-
 	# Go
 	"$HOME/.go/bin"
 	"/usr/local/opt/go/libexec/bin"
