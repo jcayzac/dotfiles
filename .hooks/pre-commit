@@ -11,7 +11,7 @@ PRETTIER_PATTERNS=(
 	'**/*.bash'
 	'.bash_*'
 	'.hooks/*'
-	'.bash.d/*'
+	'.bash.d/**/*'
 )
 
 npm x --no-install --yes $PRETTIER_PACKAGES -- prettier --write "${PRETTIER_PATTERNS[@]}"

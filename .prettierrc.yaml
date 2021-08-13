@@ -10,6 +10,6 @@ overrides:
       - '**/*.bash'
       - '.bash_*'
       - '.hooks/*'
-      - '.bash.d/*'
+      - '.bash.d/**/*'
     options:
       parser: sh

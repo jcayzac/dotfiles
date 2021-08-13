@@ -168,13 +168,13 @@ export DOTFILES_DIR="$(dirname "$(realpath "${BASH_SOURCE[0]}")")"
 #
 # $1  Library name
 load() {
-	. "$HOME/.bash.d/$1"
+	. "$HOME/.bash.d/on-demand/$1"
 }
 
 # Enable completion if this is a terminal
 [ ! -t 1 ] || {
 	function _load() {
-		COMPREPLY=($(cd "$HOME/.bash.d" && ls "$2"*))
+		COMPREPLY=($(cd "$HOME/.bash.d/on-demand" && ls "$2"*))
 	}
 	complete -F _load load
 }
