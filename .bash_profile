@@ -365,30 +365,6 @@ update-stuff() {
 				}
 				;;
 
-			node*)
-				[ ! -r "$__jc_nvmsh_path" ] || {
-					echo "Updating NVM…"
-					git -C ~/.nvm fetch -qtpP
-					declare current_version="$(git -C ~/.nvm describe)"
-					declare next_version="$(git -C ~/.nvm describe --abbrev=0 origin/master)"
-					[ "$current_version" == "$next_version" ] || git -C ~/.nvm checkout "$next_version"
-					echo "Using NVM $next_version"
-					. "$__jc_nvmsh_path" --no-use
-					! nvm use node >/dev/null 2>&1 || declare CURRENT=$(nvm current)
-					nvm install node --latest-npm |& grep -v 'is already installed'
-					nvm use node >/dev/null 2>&1
-					[ "${CURRENT-none}" == 'none' ] || [ "$(nvm current)" == "$CURRENT" ] || nvm reinstall-packages $CURRENT
-				}
-				! has-command npm || {
-					echo "Updating NPM packages…"
-					npm -g update -q
-				}
-				! has-command nvm || {
-					nvm cache clear
-					echo "✔︎ Done"
-				}
-				;;
-
 			flutter*)
 				! has-command flutter || {
 					echo "Updating Flutter…"
@@ -435,7 +411,6 @@ update-stuff() {
 		--tagstring '{tag}' \
 		__update_stuff_sub <<-EOT
 			brew      
-			node      
 			#rust     
 			EOT
 
