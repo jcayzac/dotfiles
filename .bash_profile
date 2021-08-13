@@ -373,14 +373,6 @@ update-stuff() {
 				}
 				;;
 
-			pods*)
-				! has-command pod || {
-					echo "Updating Cocoapods specs…"
-					pod repo update --silent
-					echo "✔︎ Done"
-				}
-				;;
-
 			rust*)
 				! has-command rustup || {
 					echo "Updating Rust toolchain…"
