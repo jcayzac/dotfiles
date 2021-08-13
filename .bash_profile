@@ -1,4 +1,10 @@
+#!/usr/bin/env bash -c /usr/bin/false
 set +e +u +o pipefail # continue on errors
+
+[ -z "$BASH_PROFILE_SOURCED" ] || {
+	echo >&1 "*** .bash_profile is already sourced."
+}
+
 umask 022             # default mode = 755
 ulimit -S -n 10240    # raise number of open file handles
 shopt -s cmdhist      # save multiline commands in history
@@ -444,9 +450,9 @@ ssh-config-backup() (
 	fi
 }
 
-
-
 # Site-specific
 [ ! -r "$HOME/.bash_profile.local" ] || . "$HOME/.bash_profile.local"
+
+export BASH_PROFILE_SOURCED=1
 
 # ex: noet ci pi sts=0 sw=2 ts=2 filetype=sh
