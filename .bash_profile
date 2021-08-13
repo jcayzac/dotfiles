@@ -145,15 +145,21 @@ enable-loadable-builtin() {
 for _ in \
 	'basename' \
 	'dirname' \
-	'fdflags' \
 	'finfo' \
 	'head' \
+	'ln' \
+	'mkdir' \
+	'mkfifo' \
+	'mktemp' \
 	'realpath' \
+	'rm' \
 	'sleep' \
 	'strftime' \
 	'tee' \
+	'truefalse true false' \
+	'uname' \
 	'unlink' \
-	'truefalse true false'; do
+	'whoami'; do
 	enable-loadable-builtin $_
 done
 unset -f enable-loadable-builtin
