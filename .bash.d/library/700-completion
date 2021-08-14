@@ -1,0 +1,8 @@
+#!/bin/bash -c /usr/bin/false
+
+[ ! -t 1 ] || {
+	! source-all-at "$BREW_PREFIX/etc/profile.d/bash_completion.sh" || return 0
+
+	chalk warning 'Skipping Bash completion (not found)'
+	return 1
+}

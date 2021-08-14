@@ -1,0 +1,20 @@
+#!/bin/bash -c /usr/bin/false
+
+# Node is managed using Volta https://volta.sh/
+[ -d "$HOME/.volta" ] || {
+	chalk warning "Skipping volta (not found)"
+	printf '   See %s\n' "$(chalk primary "https://docs.volta.sh/guide/getting-started#unix-installation")"
+	return 1
+}
+
+export VOLTA_HOME="$HOME/.volta"
+PATH="$VOLTA_HOME/bin:$PATH"
+
+# wrap pnpm in a function that always obey the locally-defined version
+pnpm() {
+	declare version="$(
+		[ ! -r package.json ] \
+			|| jq -Mr '.devDependencies?.pnpm // empty' <package.json 2>/dev/null || true
+	)"
+	npm x -q --yes "pnpm@$version" -- ${1+"$@"}
+}

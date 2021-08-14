@@ -1,0 +1,34 @@
+#!/bin/bash -c /usr/bin/false
+
+export \
+	CHALK_PRIMARY=$'\e[01m' \
+	CHALK_SECONDARY=$'\e[01;32m' \
+	CHALK_TERTIARY=$'\e[01;40m' \
+	CHALK_ERROR='❌ ' \
+	CHALK_WARNING='⚠️  ' \
+	CHALK_SUCCESS='✅ ' \
+	CHALK_RESET=$'\e[0m'
+
+[ ! -t 1 ] || {
+	printf -v CHALK_PRIMARY '\033[1;38;2;255;64;255m'
+	printf -v CHALK_SECONDARY '\033[1;38;2;255;200;55m'
+
+	printf -v CHALK_ERROR '\033[1;38;2;255;55;055m%s' "$CHALK_ERROR"
+	printf -v CHALK_WARNING '\033[1;38;2;255;155;055m%s' "$CHALK_WARNING"
+	printf -v CHALK_SUCCESS '\033[1;38;2;55;230;25m%s' "$CHALK_SUCCESS"
+}
+
+chalk() {
+	declare mode="$1"
+	shift
+
+	declare var="CHALK_${mode^^}"
+	[ -v "$var" ] || {
+		chalk >&2 error "Unsupported chalk mode: '$mode'"
+		return 1
+	}
+	declare prefix="${!var}"
+	declare text="$@"
+
+	printf "${prefix}%s${CHALK_RESET}\n" "$text"
+}

@@ -14,4 +14,4 @@ PRETTIER_PATTERNS=(
 	'.bash.d/**/*'
 )
 
-npm x --no-install --yes $PRETTIER_PACKAGES -- prettier --write "${PRETTIER_PATTERNS[@]}"
+npm x -q --yes $PRETTIER_PACKAGES -- prettier --write "${PRETTIER_PATTERNS[@]}"

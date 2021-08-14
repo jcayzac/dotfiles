@@ -1,0 +1,19 @@
+#!/bin/bash -c /usr/bin/false
+
+# save multiline commands
+shopt -s cmdhist
+
+# no dupes
+export HISTCONTROL='erasedups'
+
+# keep 10K lines of history
+export HISTFILESIZE=10000
+
+# ignore common noise. also passwords.
+export HISTIGNORE='&:ls:cd:pwd:[bf]g:exit:fuck:*-pass*'
+
+# Key bindings
+[ ! -t 1 ] || {
+	bind '"\e[5~": history-search-backward' # PgUp
+	bind '"\e[6~": history-search-forward'  # PgDn
+}

@@ -1,0 +1,5 @@
+#!/bin/bash -c /usr/bin/false
+
+export \
+	PROMPT_DIRTRIM=2 \
+	PS1='\[\033[01;34m\]\w\[\033[0m '

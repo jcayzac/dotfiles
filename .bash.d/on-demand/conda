@@ -1,8 +1,11 @@
-#!/bin/bash -c false
+#!/bin/bash -c /usr/bin/false
+
 declare conda_base="$(brew --prefix)/Caskroom/miniconda/base"
 if [ -d "$conda_base" ]; then
 	. "$conda_base/etc/profile.d/conda.sh"
 	export PATH="$conda_base/bin:$PATH"
 else
-	printf >&2 '⚠️  "conda" not found —run "brew install miniconda" first!\n'
+	chalk warning '"conda" not found'
+	printf '   Run %s\n' "$(chalk primary "brew install miniconda")"
+	return 1
 fi

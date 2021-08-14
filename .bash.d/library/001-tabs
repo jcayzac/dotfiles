@@ -1,0 +1,4 @@
+#!/bin/bash -c /usr/bin/false
+
+# use 2sp-wide tabs
+tabs -2

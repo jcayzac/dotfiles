@@ -1,0 +1,20 @@
+#!/bin/bash -c /usr/bin/false
+
+[ ! -t 1 ] || ! has-command thefuck || {
+	# Lazy initialization of thefuck
+	function fuck() {
+		# Unset stub
+		unset -f fuck
+
+		# Install real alias
+		eval "$(thefuck --alias)"
+
+		# Execute requested command
+		fuck ${1+"$@"}
+	}
+
+	# Autofuck!
+	function command_not_found_handle() {
+		fuck "$@"
+	}
+}

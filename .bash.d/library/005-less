@@ -1,0 +1,19 @@
+#!/bin/bash -c /usr/bin/false
+
+# LESS_TERMCAP_*:
+# md   start bold
+# me   turn off bold, blink and underline
+# so   start standout (reverse video)
+# se   stop standout
+# us   start underline
+# ue   stop underline
+
+export \
+	LESS_TERMCAP_us="$CHALK_PRIMARY" \
+	LESS_TERMCAP_ue="$CHALK_RESET" \
+	LESS_TERMCAP_md=$'\e[01m' \
+	LESS_TERMCAP_me="$CHALK_RESET" \
+	LESS_TERMCAP_so="$CHALK_SECONDARY" \
+	LESS_TERMCAP_se="$CHALK_RESET" \
+	LESS='-FXRSn~g#.1' \
+	LESS_ADVANCED_PREPROCESSOR=1

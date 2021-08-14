@@ -1,0 +1,40 @@
+#!/bin/bash -c /usr/bin/false
+
+declare bash_prefix="$(install-prefix "$BASH")"
+declare bash_lib="$bash_prefix/lib/bash"
+[ -d "$bash_lib" ] || bash_lib="$bash_prefix/lib/bash64"
+[ -d "$bash_lib" ] || return 1
+
+# Load a bunch of useful builtins at startup
+# ⚠️ "rm" doesn't work properly and doesn't understand -v
+declare module
+for module in \
+	'basename' \
+	'dirname' \
+	'finfo' \
+	'head' \
+	'ln' \
+	'mkdir' \
+	'mkfifo' \
+	'mktemp' \
+	'realpath' \
+	'sleep' \
+	'strftime' \
+	'tee' \
+	'truefalse true false' \
+	'uname' \
+	'unlink' \
+	'whoami'; do
+
+	declare -a pose_as=(${module#* })
+	module="${module%% *}"
+
+	declare module_path="$bash_lib/$module"
+	[ ! -r "$module_path" ] && {
+		chalk warning "Shipping enabling the '$module' builtin (not found)"
+	} || {
+		enable -f "$module_path" ${pose_as[@]} || {
+			chalk error "Failed to enable the '$module' builtin as$(printf " '%s'" "${pose_as[@]}")"
+		}
+	}
+done

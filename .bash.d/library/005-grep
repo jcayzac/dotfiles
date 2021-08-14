@@ -1,0 +1,9 @@
+#!/bin/bash -c /usr/bin/false
+
+[ ! -t 1 ] && {
+	export GREP_COLOR='01'
+} || {
+	export GREP_COLOR='1;38;2;255;200;55'
+}
+
+alias grep='grep --color'

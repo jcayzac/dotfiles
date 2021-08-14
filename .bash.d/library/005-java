@@ -1,0 +1,38 @@
+#!/bin/bash -c /usr/bin/false
+
+# Use the version configured in ~/.javarc.yaml, if specified
+declare java_version="$(readconf ~/.javarc.yaml .version)"
+if [ -z "$java_version" ] || [ "$java_version" == "latest" ]; then
+	unset java_version
+fi
+
+declare java_home="/usr/local/opt/openjdk${java_version+@$java_version}"
+[ -d "$java_home" ] || {
+	chalk warning "Skipping Java ($java_home not found)"
+	return 1
+}
+
+# Export JAVA_HOME
+# Also through launchctl so that macOS GUI apps get it
+export JAVA_HOME="$java_home"
+! has-command launchctl || {
+	launchctl setenv JAVA_HOME "$JAVA_HOME"
+}
+
+PATH="$JAVA_HOME/bin:$PATH"
+
+# Maven
+export MAVEN_HOME="$(install-prefix mvn)"
+[ -z "$MAVEN_HOME" ] && {
+	unset MAVEN_HOME
+} || {
+	PATH="$MAVEN_HOME/bin:$PATH"
+}
+
+# Gradle
+export GRADLE_HOME="$(install-prefix gradle)"
+[ -z "$GRADLE_HOME" ] && {
+	unset GRADLE_HOME
+} || {
+	PATH="$GRADLE_HOME/bin:$PATH"
+}

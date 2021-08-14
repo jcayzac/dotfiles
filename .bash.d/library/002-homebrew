@@ -1,0 +1,21 @@
+#!/bin/bash -c /usr/bin/false
+
+# Note: BREW_PREFIX is set in advance, in 000-functions
+[ -n "$BREW_PREFIX" ] || {
+	chalk warning "Skipping Homebrew (not found)"
+	printf '   See %s\n' "$(chalk primary "https://brew.sh/#install")"
+	return 1
+}
+
+[ "${PATH//"$BREW_PREFIX/bin:"/}" != "$PATH" ] || PATH="$BREW_PREFIX/bin:$PATH"
+[ "${MANPATH//"$BREW_PREFIX/share/man:"/}" != "$MANPATH" ] || MANPATH="$BREW_PREFIX/share/man:$MANPATH"
+
+export \
+	HOMEBREW_NO_ANALYTICS=1 \
+	HOMEBREW_INSTALL_BADGE='  🥃  ' \
+	HOMEBREW_INSTALL_CLEANUP=1
+
+[ ! -r ~/.HOMEBREW_GITHUB_API_TOKEN ] || {
+	read -d '' -r HOMEBREW_GITHUB_API_TOKEN <~/.HOMEBREW_GITHUB_API_TOKEN
+	export HOMEBREW_GITHUB_API_TOKEN
+}

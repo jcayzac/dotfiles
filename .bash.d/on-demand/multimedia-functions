@@ -1,3 +1,5 @@
+#!/bin/bash -c /usr/bin/false
+
 # Process a single file.
 #
 # $1: SRC extension (pass-in filter)
@@ -14,7 +16,7 @@ process-file() (
 
 	# Install cleanup trap
 	function cleanup() {
-		declare status=$?
+		declare -i status=$?
 		if (($status == 0)); then
 			printf '✅ Converted %s\n' "$DST_FILE"
 		else
@@ -397,5 +399,3 @@ fix-many-filenames() {
 		process-many-files 'mozjpeg optimize-jpeg' render-heif-image-to-jpeg '-type f -iregex .*\.hei[cf]$' ${1+"$@"}
 	}
 }
-
-# ex: noet ci pi sts=0 sw=2 ts=2 filetype=sh

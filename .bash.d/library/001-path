@@ -1,0 +1,5 @@
+#!/bin/bash -c /usr/bin/false
+
+export \
+	PATH='/usr/local/bin:/usr/bin:/bin:/usr/local/sbin:/usr/sbin:/sbin' \
+	MANPATH='/usr/local/share/man:/usr/share/man'

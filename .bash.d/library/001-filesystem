@@ -1,0 +1,13 @@
+#!/bin/bash -c /usr/bin/false
+
+# default mode = 755
+umask 022
+
+# raise number of open file handles
+ulimit -S -n 10240
+
+# support ** in glob patterns
+shopt -s globstar
+
+# extended glob patterns
+shopt -s extglob

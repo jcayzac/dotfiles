@@ -1,0 +1,102 @@
+#!/bin/bash -c /usr/bin/false
+
+# Find if something is a command (better alternative to "which", "type" and others)
+alias has-command='command >/dev/null 2>&1 -v'
+
+# Pick the first path that exists
+first-path-of() {
+	while ((${#@} > 0)); do
+		[ ! -e "$1" ] || {
+			printf '%s' "$1"
+			return 0
+		}
+		shift
+	done
+	return 1
+}
+
+# Source everything at that path
+source-all-at() {
+	declare path="$1"
+
+	[ ! -d "$path" ] || {
+		while IFS=$'\n' read -r; do
+			. "$path/$REPLY"
+		done < <(ls "$path")
+		return 0
+	}
+
+	[ ! -r "$path" ] || {
+		. "$path"
+		return 0
+	}
+
+	return 1
+}
+
+# Remove trailing parts of a path
+ancestor-path() {
+	declare -i up="$1"
+	declare path="$2"
+	while ((--up >= 0)); do
+		path="$(dirname 2>/dev/null "$path")"
+	done
+	printf '%s' "$path"
+}
+
+# Find the install prefix of a command
+install-prefix() {
+	declare command_path="$(type -P "$1" 2>/dev/null)"
+	declare real_path="$(realpath 2>/dev/null "$command_path")"
+
+	# Homebrew: remap /usr/local/Cellar to /usr/local/opt if possible,
+	# so that we can "brew upgrade" without breaking our environment
+	if [ -n "$BREW_PREFIX" ] && [[ "$real_path" =~ \/Cellar\/([^/]+)\/ ]]; then
+		declare remapped="$BREW_PREFIX/opt/${BASH_REMATCH[1]}/bin/$(basename "$1")"
+		! [ -x "$remapped" ] || real_path="$remapped"
+	fi
+
+	[ -n "$real_path" ] || return 1
+	ancestor-path 2 "$real_path"
+}
+
+# Read a configuration value from a YAML file
+! has-command yq && {
+	alias readconf='false #'
+} || {
+	function readconf() {
+		declare config_file="$1"
+		[ -r "$config_file" ] || return 1
+		shift
+		yq e ${1+"$@"} "$config_file"
+	}
+}
+
+# Join an array of strings
+#
+# $1  Separator
+# $2… Strings
+join_strings() {
+	declare separator="$1"
+	declare -a args=("${@:2}")
+	declare result
+	printf -v result '%s' "${args[@]/#/$separator}"
+	printf '%s' "${result:${#separator}}"
+}
+
+# Where my dotfiles live
+export DOTFILES_DIR="$(ancestor-path 3 "$(realpath "${BASH_SOURCE[0]}")")"
+
+# Find Homebrew prefix.
+# Has to be here because subsequent scripts use install-prefix()
+declare brew_path="$(type -P brew 2>/dev/null)"
+declare brew_install_prefix
+[ -z "$brew_path" ] || brew_install_prefix="$(ancestor-path 2 "$brew_path")"
+[ -n "$brew_install_prefix" ] || brew_install_prefix="$(
+	first-path-of \
+		"/opt/homebrew" \
+		"/home/linuxbrew/.linuxbrew" \
+		"$HOME/.linuxbrew" \
+		"/usr/local"
+)"
+[ ! -x "$brew_install_prefix/bin/brew" ] || export BREW_PREFIX="$brew_install_prefix"

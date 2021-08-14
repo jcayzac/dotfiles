@@ -1,0 +1,14 @@
+#!/bin/bash -c /usr/bin/false
+
+# Brew installs at $BREW_PREFIX/opt/go/libexec
+# DMG  installs at /usr/local/go
+declare root="$BREW_PREFIX/opt/go/libexec"
+[ -x "$root/bin/go" ] || root="/usr/local/go"
+[ -x "$root/bin/go" ] || {
+	chalk warning "Skipping Go (not found)"
+	printf '   Run %s\n' "$(chalk primary "brew install go")"
+	return 1
+}
+
+export GOROOT="$root" GOPATH="$HOME/.go"
+PATH="$GOPATH/bin:$GOROOT/bin:$PATH"

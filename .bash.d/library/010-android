@@ -1,0 +1,23 @@
+#!/bin/bash -c /usr/bin/false
+
+declare android_sdk="$(
+	first-path-of \
+		"$HOME/Library/Android/sdk" \
+		"/usr/local/opt/android-sdk"
+)"
+
+[ -d "$android_sdk" ] || return 1
+
+export ANDROID_SDK_ROOT="$android_sdk"
+PATH="$android_sdk/tools:$android_sdk/tools/bin:$android_sdk/platform-tools:$PATH"
+
+# Deprecated, but some tools still rely on it
+export ANDROID_HOME="$ANDROID_SDK_ROOT"
+
+declare android_ndk="$(
+	first-path-of \
+		"$android_sdk/ndk-bundle" \
+		'/usr/local/opt/android-ndk'
+)"
+
+[ ! -d "$android_ndk" ] || export ANDROID_NDK_HOME="$android_ndk"

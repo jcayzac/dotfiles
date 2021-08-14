@@ -1,0 +1,24 @@
+#!/bin/bash -c /usr/bin/false
+
+# Load on-demand environments
+load() {
+	while ((${#@} != 0)); do
+		declare isSet="__ondemand_${1}_loaded"
+		if test -v "$isSet"; then
+			chalk >&2 warning "$1 is already loaded"
+		else
+			. "$HOME/.bash.d/on-demand/$1"
+			eval "export ${isSet}=1"
+			chalk >&2 success "Loaded $1"
+		fi
+		shift
+	done
+}
+
+# Enable completion if this is a terminal
+[ ! -t 1 ] || {
+	function __jc_load_complete() {
+		COMPREPLY=($(cd "$HOME/.bash.d/on-demand" && ls "$2"*))
+	}
+	complete -F __jc_load_complete load
+}

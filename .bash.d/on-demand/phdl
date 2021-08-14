@@ -1,3 +1,5 @@
+#!/bin/bash -c /usr/bin/false
+
 # Download 1080p videos from PH.
 #
 # Usage: Open video page in Chrome with Developer Tools/Network ON,
@@ -9,6 +11,10 @@
 #   phdl-url 'https://ev-h.phprcdn.com/hls/videos/201909/29/251688272/,1080P_4000K,720P_4000K,480P_2000K,240P_400K,_251688272.mp4.urlset/master.m3u8?validfrom=1587197103&validto=1587204303&hdl=-1&hash=xX2MGVGrMb3rlLUKCp0u5YGDpMI%3D'
 phdl-url() {
 	declare url="$1"
+	[ "${url:0:8}" == 'https://' ] || {
+		chalk error 'Bad URL'
+		return 1
+	}
 
 	# Read parameters from the urlset URL. We need at least 3 parameters.
 	#
@@ -71,11 +77,19 @@ phdl() {
 }
 
 # Alternative, more direct approach (works only for public videos)
+# Just pass the browser URL
 phd() (
 	set -e -u -o pipefail
 
+	declare url="$(pbpaste)"
+
+	[ "${url:0:8}" == 'https://' ] || {
+		chalk error 'Bad URL'
+		return 1
+	}
+
 	declare -a LINES
-	IFS=';' read -r -a LINES < <(curl -sL "$(pbpaste)" | grep m3u8 | sed -E -e 's#/\*[^\*]*\*/##g' -e 's#var quality_1080p=([^;]+);.*$#\1#')
+	IFS=';' read -r -a LINES < <(curl -sL "$url" | grep m3u8 | sed -E -e 's#/\*[^\*]*\*/##g' -e 's#var quality_1080p=([^;]+);.*$#\1#')
 
 	declare OUT=${LINES[$((${#LINES[@]} - 1))]}
 	for ((c = 0; c < ${#LINES[@]} - 1; c++)); do
@@ -91,5 +105,3 @@ phd() (
 	OUT="${OUT//\" + \"/}"
 	dl "${OUT//\"/}"
 )
-
-# ex: noet ci pi sts=0 sw=2 ts=2 filetype=sh
