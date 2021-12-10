@@ -3,7 +3,7 @@
 # Load on-demand environments
 load() {
 	while ((${#@} != 0)); do
-		declare isSet="__ondemand_${1}_loaded"
+		declare isSet="ondemand__${1//-/_}__loaded"
 		if test -v "$isSet"; then
 			chalk >&2 warning "$1 is already loaded"
 		else
