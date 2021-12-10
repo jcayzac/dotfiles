@@ -14,7 +14,8 @@
 	}
 
 	# Autofuck!
-	function command_not_found_handle() {
-		fuck "$@"
-	}
+	# FIXME: Disabled since it messes with some commands (gsx, …)
+	# function command_not_found_handle() {
+	#		fuck "$@"
+	# }
 }
