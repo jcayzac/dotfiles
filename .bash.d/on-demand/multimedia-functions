@@ -289,8 +289,14 @@ fix-many-filenames() {
 
 # Requires `brew install ghostscript`
 ! has-command gsx || {
+	# Optimize a PDF file
+	#
+	# $1: [in] Original file
+	# $2: [out] Optimized file
+	# $3: [optional] DPI. Defaults to 300.
 	function optimize-pdf() (
 		set -e -u -o pipefail
+		declare DPI=${3:-300}
 		function gsx-command() {
 			declare -a PDF_ARGS=(
 				'-dPDFSETTINGS=/screen'
@@ -310,11 +316,11 @@ fix-many-filenames() {
 				# image resample
 				'-dDetectDuplicateImages=true'
 				'-dColorImageDownsampleType=/Bicubic'
-				'-dColorImageResolution=300'
+				"-dColorImageResolution=$DPI"
 				'-dGrayImageDownsampleType=/Bicubic'
-				'-dGrayImageResolution=300'
+				"-dGrayImageResolution=$DPI"
 				'-dMonoImageDownsampleType=/Bicubic'
-				'-dMonoImageResolution=300'
+				"-dMonoImageResolution=$DPI"
 				'-dDownsampleColorImages=true'
 				# preset overrides
 				'-dDoThumbnails=false'
