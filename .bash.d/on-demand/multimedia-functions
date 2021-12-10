@@ -1,5 +1,18 @@
 #!/bin/bash -c /usr/bin/false
 
+if has-command trash
+then
+  function delete-file() {
+		trash -F "${1+$@}"
+	}
+else
+	printf '"trash" is not installed so commands will use "rm" instead.\n'
+  function delete-file() {
+		rm "${1+$@}"
+	}
+fi
+export -f delete-file
+
 # Process a single file.
 #
 # $1: SRC extension (pass-in filter)
@@ -37,7 +50,7 @@ process-file() (
 	mv -f "$TMP_FILE" "$DST_FILE"
 
 	# Trash source file, only if name is different from destination file, ignoring case.
-	[[ "${SRC_FILE,,}" == "${DST_FILE,,}" ]] || trash -F "$SRC_FILE"
+	[[ "${SRC_FILE,,}" == "${DST_FILE,,}" ]] || delete-file "$SRC_FILE"
 )
 
 # Process many files
@@ -289,14 +302,8 @@ fix-many-filenames() {
 
 # Requires `brew install ghostscript`
 ! has-command gsx || {
-	# Optimize a PDF file
-	#
-	# $1: [in] Original file
-	# $2: [out] Optimized file
-	# $3: [optional] DPI. Defaults to 300.
 	function optimize-pdf() (
 		set -e -u -o pipefail
-		declare DPI=${3:-300}
 		function gsx-command() {
 			declare -a PDF_ARGS=(
 				'-dPDFSETTINGS=/screen'
@@ -330,9 +337,11 @@ fix-many-filenames() {
 				'-dPreserveOverprintSettings=false'
 				'-dUCRandBGInfo=/Remove'
 			)
+			export PYTHONIOENCODING=utf_8
 			gsx -sDEVICE=pdfwrite "${PDF_ARGS[@]}" "-sOutputFile=$2" "$1"
 		}
 		export -f gsx-command
+		declare DPI=${2:-300}
 		process-file pdf optimized.pdf gsx-command "$1"
 	)
 }
