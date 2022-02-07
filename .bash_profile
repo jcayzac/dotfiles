@@ -25,6 +25,7 @@ done < <(ls "$library")
 PATHS=(
 	# User
 	"$HOME/.prefix/bin"
+	"$HOME/.cargo/bin"
 
 	# Previous value
 	"$PATH"
