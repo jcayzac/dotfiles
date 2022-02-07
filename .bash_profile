@@ -191,11 +191,7 @@ ssh-config-backup() (
 	}
 
 	# VS.Code launcher
-	function code() {
-		declare content="$(realpath /usr/local/bin/code)"
-		content="${content%/Contents*}/Contents"
-		ELECTRON_RUN_AS_NODE=1 "$content/MacOS/Electron" "$content/Resources/app/out/cli.js" --disable-gpu "$@"
-	}
+	alias code='/usr/local/bin/code --disable-gpu'
 
 	# Paste HTML content as markup, not plain text
 	function htmlpaste() {
