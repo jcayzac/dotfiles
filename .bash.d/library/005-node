@@ -1,20 +1,13 @@
 #!/bin/bash -c /usr/bin/false
 
-# Node is managed using Volta https://volta.sh/
-[ -d "$HOME/.volta" ] || {
-	chalk warning "Skipping volta (not found)"
-	printf '   See %s\n' "$(chalk primary "https://docs.volta.sh/guide/getting-started#unix-installation")"
-	return 1
-}
+export PNPM_HOME="$HOME/Library/pnpm"
+export PATH="./node_modules/.bin:$PNPM_HOME:$PATH"
 
-export VOLTA_HOME="$HOME/.volta"
-PATH="$VOLTA_HOME/bin:$PATH"
-
-# wrap pnpm in a function that always obey the locally-defined version
-pnpm() {
-	declare version="$(
-		[ ! -r package.json ] \
-			|| jq -Mr '.devDependencies?.pnpm // empty' <package.json 2>/dev/null || true
-	)"
-	npm x -q --yes "pnpm@$version" -- ${1+"$@"}
-}
+if ! [ -x "$PNPM_HOME/pnpm" ]
+then
+  chalk warning "pnpm not found! Run 'install-pnpm' to install it."
+  install-pnpm() {
+    curl -fsSL https://get.pnpm.io/install.sh | sh -
+    chalk warning "The installer wrote to ~/.bashrc (delete?)"
+  }
+fi
