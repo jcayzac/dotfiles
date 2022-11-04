@@ -1,7 +1,7 @@
 #!/bin/bash -c /usr/bin/false
 
 export PNPM_HOME="$HOME/Library/pnpm"
-export PATH="./node_modules/.bin:$PNPM_HOME:$PATH"
+export PATH="$PNPM_HOME:$PATH"
 
 if ! [ -x "$PNPM_HOME/pnpm" ]
 then
