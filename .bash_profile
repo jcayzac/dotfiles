@@ -27,6 +27,7 @@ PATHS=(
 	"$HOME/.prefix/bin"
 	"$HOME/.cargo/bin"
 	"$HOME/.deno/bin"
+	"$HOME/.rd/bin"
 
 	# Previous value
 	"$PATH"
