@@ -108,6 +108,7 @@ jenv
 libcroco
 little-cms2
 lzo
+micro
 oniguruma
 openssl
 perl
@@ -118,7 +119,6 @@ shared-mime-info
 sleepwatcher
 sqlite
 termtosvg
-vim
 xclogparser
 xmlto
 yaml-cpp

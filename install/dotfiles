@@ -18,5 +18,3 @@ link-dotfile .bash_profile
 link-dotfile .gitconfig
 link-dotfile .gitconfig.d
 link-dotfile .inputrc
-link-dotfile .vim
-link-dotfile .vimrc

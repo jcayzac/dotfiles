@@ -6,8 +6,8 @@
 
 	# https://git-scm.com/docs/git-config#Documentation/git-config.txt-coreeditor
 	#
-	# Use the first match from the PATH for `vim` as default editor for everything.
-	editor = vim
+	# Use the first match from the PATH for `micro` as default editor for everything.
+	editor = micro
 
 	# https://git-scm.com/docs/git-config#Documentation/git-config.txt-corepager
 	#
