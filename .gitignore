@@ -35,9 +35,6 @@ DerivedData
 npm-debug.log
 node_modules
 
-# LLVM
-.lldb/module_cache
-
 # Compiled Object files
 *.slo
 *.lo
