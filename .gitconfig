@@ -18,7 +18,7 @@
 	# -S: Truncate long lines.
 	# -R: Allow colors and styles to pass through.
 	# -x2: Tabs are rendered as two spaces.
-	pager = /usr/local/opt/git/share/git-core/contrib/diff-highlight/diff-highlight | less -FXnSRx2
+	pager = /opt/homebrew/share/git-core/contrib/diff-highlight/diff-highlight | less -FXnSRx2
 
 	# https://git-scm.com/docs/git-config#Documentation/git-config.txt-coreprecomposeUnicode
 	#
