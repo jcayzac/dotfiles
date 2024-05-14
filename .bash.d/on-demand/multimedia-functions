@@ -346,10 +346,10 @@ fix-many-filenames() {
 	)
 }
 
-[ ! -x "/usr/local/opt/mozjpeg/bin/cjpeg" ] || {
+[ ! -x "$BREW_PREFIX/opt/mozjpeg/bin/cjpeg" ] || {
 	function mozjpeg() (
 		set -e -u -o pipefail
-		export PATH="/usr/local/opt/mozjpeg/bin:$PATH"
+		export PATH="$BREW_PREFIX/opt/mozjpeg/bin:$PATH"
 		cjpeg ${1+"$@"}
 	)
 
@@ -392,7 +392,7 @@ fix-many-filenames() {
 	}
 }
 
-[ ! -x "/usr/local/opt/libheif/bin/heif-convert" ] || {
+[ ! -x "$BREW_PREFIX/opt/libheif/bin/heif-convert" ] || {
 	# Render a HEIF image into a JPEG
 	#
 	# $1: input image path
@@ -402,7 +402,7 @@ fix-many-filenames() {
 		declare FILE_EXT="${1##*.}"
 		echo $FILE_EXT $1
 		! [[ "${FILE_EXT,,}" =~ ^hei[fc]$ ]] || {
-			"/usr/local/opt/libheif/bin/heif-convert" -q 100 "$1" "${1}.jpg"
+			"$BREW_PREFIX/opt/libheif/bin/heif-convert" -q 100 "$1" "${1}.jpg"
 			! command >&- 2>&- -v optimize-jpeg || optimize-jpeg "${1}.jpg"
 		}
 	}

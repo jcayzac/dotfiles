@@ -6,7 +6,8 @@ if [ -z "$java_version" ] || [ "$java_version" == "latest" ]; then
 	unset java_version
 fi
 
-declare java_home="/usr/local/opt/openjdk${java_version+@$java_version}"
+declare java_home="$BREW_PREFIX/opt/openjdk${java_version+@$java_version}"
+
 [ -d "$java_home" ] || {
 	chalk warning "Skipping Java ($java_home not found)"
 	return 1

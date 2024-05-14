@@ -194,7 +194,7 @@ ssh-config-backup() (
 	}
 
 	# VS.Code launcher
-	alias code='/usr/local/bin/code --disable-gpu'
+	alias code="$BREW_PREFIX/bin/code --disable-gpu"
 
 	# Paste HTML content as markup, not plain text
 	function htmlpaste() {
