@@ -63,6 +63,9 @@ export PATH="$(join_strings : ${PATHS[*]})"
 # Copy bare stuff
 ! has-command ditto || alias copy='ditto --norsrc --noextattr --noqtn --noacl'
 
+# Replace cd with zoxide if available
+! has-command zoxide || alias cd=zoxide
+
 # FIXME: don't hardcode those paths
 ! has-command ncftpput || alias copy-movie="ncftpput -z -f '$HOME/.ncftp/hosts/mediaplayer' T_Drive/Films"
 
