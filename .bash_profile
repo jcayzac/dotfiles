@@ -64,7 +64,7 @@ export PATH="$(join_strings : ${PATHS[*]})"
 ! has-command ditto || alias copy='ditto --norsrc --noextattr --noqtn --noacl'
 
 # Replace cd with zoxide if available
-! has-command zoxide || alias cd=zoxide
+# ! has-command zoxide || alias cd=zoxide
 
 # FIXME: don't hardcode those paths
 ! has-command ncftpput || alias copy-movie="ncftpput -z -f '$HOME/.ncftp/hosts/mediaplayer' T_Drive/Films"
@@ -147,11 +147,11 @@ ssh-config-backup() (
 		}
 
 		# These somehow fuck up bash history in iTerm2
-		declare reset=$'\033[0m'             # no color
-		declare clean=$'\033[38;5;076m'      # green foreground
-		declare untracked=$'\033[38;5;014m'  # teal foreground
-		declare modified=$'\033[38;5;011m'   # yellow foreground
-		declare conflicted=$'\033[38;5;196m' # red foreground
+		declare -r reset=$'\033[0m'             # no color
+		declare -r clean=$'\033[38;5;076m'      # green foreground
+		declare -r untracked=$'\033[38;5;014m'  # teal foreground
+		declare -r modified=$'\033[38;5;011m'   # yellow foreground
+		declare -r conflicted=$'\033[38;5;196m' # red foreground
 
 		declare p
 
@@ -197,7 +197,10 @@ ssh-config-backup() (
 	}
 
 	# VS.Code launcher
-	alias code="$BREW_PREFIX/bin/code --disable-gpu"
+	# Run without GPU unless on Apple silicon
+	[[ "${HOSTTYPE:-}" == "aarch64" ]] || {
+		alias code="$BREW_PREFIX/bin/code --disable-gpu"
+	}
 
 	# Paste HTML content as markup, not plain text
 	function htmlpaste() {
