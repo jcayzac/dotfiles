@@ -3,6 +3,9 @@
 # continue on errors
 set +e +u +o pipefail
 
+# fix that weird thing on macOS where SHELL is wrong
+export SHELL="$BASH"
+
 # don't pollute the environment by re-sourcing this
 [ -z "$BASH_PROFILE_SOURCED" ] || {
 	chalk >&2 error ".bash_profile is already sourced."
@@ -62,9 +65,6 @@ export PATH="$(join_strings : ${PATHS[*]})"
 
 # Copy bare stuff
 ! has-command ditto || alias copy='ditto --norsrc --noextattr --noqtn --noacl'
-
-# Replace cd with zoxide if available
-# ! has-command zoxide || alias cd=zoxide
 
 # FIXME: don't hardcode those paths
 ! has-command ncftpput || alias copy-movie="ncftpput -z -f '$HOME/.ncftp/hosts/mediaplayer' T_Drive/Films"
