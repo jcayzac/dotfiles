@@ -133,62 +133,63 @@ ssh-config-backup() (
 	# Git Status
 	. "$DOTFILES_DIR/.gitstatus/gitstatus.plugin.sh"
 	__jc_ps1="$PS1"
-	__jc_gitstatus_prompt_update() {
-		gitstatus_query "$@" || {
-			# error
-			PS1="$__jc_ps1"
-			return 1
-		}
-
-		[[ "$VCS_STATUS_RESULT" == ok-sync ]] || {
-			# not a git repo
-			PS1="$__jc_ps1"
-			return 0
-		}
-
+	__jc_prompt_update() {
 		# These somehow fuck up bash history in iTerm2
 		declare -r reset=$'\033[0m'             # no color
-		declare -r clean=$'\033[38;5;076m'      # green foreground
-		declare -r untracked=$'\033[38;5;014m'  # teal foreground
-		declare -r modified=$'\033[38;5;011m'   # yellow foreground
-		declare -r conflicted=$'\033[38;5;196m' # red foreground
 
-		declare p
+		# Add git status if available and relevant
+		declare GITSTATUS_PROMPT=''
+		gitstatus_query "$@" && [[ "$VCS_STATUS_RESULT" == ok-sync ]] && {
+			declare -r clean=$'\033[38;5;076m'      # green foreground
+			declare -r untracked=$'\033[38;5;014m'  # teal foreground
+			declare -r modified=$'\033[38;5;011m'   # yellow foreground
+			declare -r conflicted=$'\033[38;5;196m' # red foreground
+			declare p
 
-		declare where # branch name, tag or commit
-		if [[ -n "$VCS_STATUS_LOCAL_BRANCH" ]]; then
-			where="$VCS_STATUS_LOCAL_BRANCH"
-		elif [[ -n "$VCS_STATUS_TAG" ]]; then
-			p+='\['"${reset}"'\]#'
-			where="$VCS_STATUS_TAG"
-		else
-			p+='\['"${reset}"'\]@'
-			where="${VCS_STATUS_COMMIT:0:8}"
-		fi
+			declare where # branch name, tag or commit
+			if [[ -n "$VCS_STATUS_LOCAL_BRANCH" ]]; then
+				where="$VCS_STATUS_LOCAL_BRANCH"
+			elif [[ -n "$VCS_STATUS_TAG" ]]; then
+				p+='\['"${reset}"'\]#'
+				where="$VCS_STATUS_TAG"
+			else
+				p+='\['"${reset}"'\]@'
+				where="${VCS_STATUS_COMMIT:0:8}"
+			fi
 
-		((${#where} <= 32)) || where="${where:0:12}…${where: -12}" # truncate long branch names and tags
-		p+='\['"${clean}"'\]'"${where}"
+			((${#where} <= 32)) || where="${where:0:12}…${where: -12}" # truncate long branch names and tags
+			p+='\['"${clean}"'\]'"${where}"
 
-		((VCS_STATUS_COMMITS_BEHIND)) && p+=' \['"${clean}"'\]⇣'"${VCS_STATUS_COMMITS_BEHIND}"
-		((VCS_STATUS_COMMITS_AHEAD && !VCS_STATUS_COMMITS_BEHIND)) && p+=" "
-		((VCS_STATUS_COMMITS_AHEAD)) && p+='\['"${clean}"'\]⇡'"${VCS_STATUS_COMMITS_AHEAD}"
-		((VCS_STATUS_STASHES)) && p+=' \['"${clean}"'\]*'"${VCS_STATUS_STASHES}"
-		[[ -n "$VCS_STATUS_ACTION" ]] && p+=' \['"${conflicted}"'\]'"${VCS_STATUS_ACTION}"
-		((VCS_STATUS_NUM_CONFLICTED)) && p+=' \['"${conflicted}"'\]~'"${VCS_STATUS_NUM_CONFLICTED}"
-		((VCS_STATUS_NUM_STAGED)) && p+=' \['"${modified}"'\]+'"${VCS_STATUS_NUM_STAGED}"
-		((VCS_STATUS_NUM_UNSTAGED)) && p+=' \['"${modified}"'\]!'"${VCS_STATUS_NUM_UNSTAGED}"
-		((VCS_STATUS_NUM_UNTRACKED)) && p+=' \['"${untracked}"'\]?'"${VCS_STATUS_NUM_UNTRACKED}"
+			((VCS_STATUS_COMMITS_BEHIND)) && p+=' \['"${clean}"'\]⇣'"${VCS_STATUS_COMMITS_BEHIND}"
+			((VCS_STATUS_COMMITS_AHEAD && !VCS_STATUS_COMMITS_BEHIND)) && p+=" "
+			((VCS_STATUS_COMMITS_AHEAD)) && p+='\['"${clean}"'\]⇡'"${VCS_STATUS_COMMITS_AHEAD}"
+			((VCS_STATUS_STASHES)) && p+=' \['"${clean}"'\]*'"${VCS_STATUS_STASHES}"
+			[[ -n "$VCS_STATUS_ACTION" ]] && p+=' \['"${conflicted}"'\]'"${VCS_STATUS_ACTION}"
+			((VCS_STATUS_NUM_CONFLICTED)) && p+=' \['"${conflicted}"'\]~'"${VCS_STATUS_NUM_CONFLICTED}"
+			((VCS_STATUS_NUM_STAGED)) && p+=' \['"${modified}"'\]+'"${VCS_STATUS_NUM_STAGED}"
+			((VCS_STATUS_NUM_UNSTAGED)) && p+=' \['"${modified}"'\]!'"${VCS_STATUS_NUM_UNSTAGED}"
+			((VCS_STATUS_NUM_UNTRACKED)) && p+=' \['"${untracked}"'\]?'"${VCS_STATUS_NUM_UNTRACKED}"
 
-		local GITSTATUS_PROMPT="${p}"'\['"${reset}"'\]'
-		PS1="${__jc_ps1}${GITSTATUS_PROMPT} "
+			GITSTATUS_PROMPT="${p}"'\['"${reset}"'\]'
+		}
+
+		# Add conda environment if available
+		declare CONDA_PROMPT=''
+		[[ -z "${CONDA_PREFIX:-}" ]] || {
+			declare -r pink=$'\033[38;2;255;0;255m'
+			declare envname="${CONDA_PREFIX##*/}"
+			[[ "$envname" == 'base' ]] || CONDA_PROMPT="${reset} ${pink}${CONDA_PREFIX##*/} ${reset}"
+		}
+
+		PS1="${CONDA_PROMPT}${__jc_ps1}${GITSTATUS_PROMPT} "
 	}
 
 	gitstatus_stop && gitstatus_start -s -1 -u -1 -c -1 -d -1
 
 	if [[ "${__bp_imported:-}" == "defined" ]]; then
-		precmd_functions+=(__jc_gitstatus_prompt_update)
+		precmd_functions+=(__jc_prompt_update)
 	else
-		PROMPT_COMMAND="__jc_gitstatus_prompt_update${PROMPT_COMMAND:+;$PROMPT_COMMAND}"
+		PROMPT_COMMAND="__jc_prompt_update${PROMPT_COMMAND:+;$PROMPT_COMMAND}"
 	fi
 
 	# Open a SHA-1 as a magnet link
