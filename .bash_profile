@@ -3,17 +3,19 @@
 # continue on errors
 set +e +u +o pipefail
 
-# fix that weird thing on macOS where SHELL is wrong
-export SHELL="$BASH"
-
 # don't pollute the environment by re-sourcing this
 [ -z "$BASH_PROFILE_SOURCED" ] || {
-	chalk >&2 error ".bash_profile is already sourced."
+	echo >&2 error ".bash_profile is already sourced."
 	return 1
 }
 
+# fix that weird thing on macOS where SHELL is wrong
+# and I can't use chsh because it's a network account
+# and they don't recognize Homebrew-installed shells
+[ -z "$BASH" ] || export SHELL="$BASH"
+
 # darwin or linux
-OS="$(uname -s)"
+declare OS="$(uname -s)"
 OS="${OS,,}"
 
 declare library="$HOME/.bash.d/library"
@@ -56,6 +58,11 @@ export PATH="$(join_strings : ${PATHS[*]})"
 
 	# Remove the quarantine flag on downloaded stuff
 	! has-command xattr || alias unquarantine='xattr -drv com.apple.quarantine'
+
+	# Paste HTML content as markup, not plain text
+	function htmlpaste() {
+		osascript -e 'the clipboard as «class HTML»' | perl -ne 'print chr foreach unpack("C*",pack("H*",substr($_,11,-3)))'
+	}
 }
 
 ! has-command gls || alias ls='gls --color=auto --show-control-chars'
@@ -134,8 +141,7 @@ ssh-config-backup() (
 	. "$DOTFILES_DIR/.gitstatus/gitstatus.plugin.sh"
 	__jc_ps1="$PS1"
 	__jc_prompt_update() {
-		# These somehow fuck up bash history in iTerm2
-		declare -r reset=$'\033[0m'             # no color
+		declare -r reset=$'\033[0m'
 
 		# Add git status if available and relevant
 		declare GITSTATUS_PROMPT=''
@@ -202,12 +208,6 @@ ssh-config-backup() (
 	[[ "${HOSTTYPE:-}" == "aarch64" ]] || {
 		alias code="$BREW_PREFIX/bin/code --disable-gpu"
 	}
-
-	# Paste HTML content as markup, not plain text
-	function htmlpaste() {
-		osascript -e 'the clipboard as «class HTML»' | perl -ne 'print chr foreach unpack("C*",pack("H*",substr($_,11,-3)))'
-	}
-
 }
 
 # Site-specific
