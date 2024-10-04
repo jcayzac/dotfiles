@@ -1,0 +1,15 @@
+#!/bin/bash -c /usr/bin/false
+
+declare conda_base="$(brew --prefix)/Caskroom/miniconda/base"
+[ ! -d "$HOME/miniforge3" ] || conda_base="$HOME/miniforge3"
+
+[ -d "$conda_base" ] || {
+	chalk warning '"conda" not found'
+	printf '   Run %s\n' "$(chalk primary "brew install miniconda") or install from https://conda-forge.org/download/"
+	return 1
+}
+
+. "$conda_base/etc/profile.d/conda.sh"
+export PATH="$conda_base/bin:$PATH"
+conda config --set auto_activate_base false
+eval "$(conda "shell.$(basename "${SHELL}")" hook)"
