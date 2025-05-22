@@ -66,6 +66,7 @@ export PATH="$(join_strings : ${PATHS[*]})"
 }
 
 ! has-command gls || alias ls='gls --color=auto --show-control-chars'
+! has-command eza || alias ls='eza --icons'
 
 # Download stuff
 ! has-command aria2c || alias dl='aria2c -x5 --log-level=warn --file-allocation=falloc --force-save --http-accept-gzip=true --use-head=true'
