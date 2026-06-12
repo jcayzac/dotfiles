@@ -15,10 +15,10 @@
 	# -F: Quit (don't be interactive) if content fits on one screen.
 	# -X: Don't clear the screen on exit.
 	# -n: No line numbers.
-	# -S: Truncate long lines.
 	# -R: Allow colors and styles to pass through.
 	# -x2: Tabs are rendered as two spaces.
-	pager = /opt/homebrew/share/git-core/contrib/diff-highlight/diff-highlight | less -FXnSRx2
+	# -+S: Fold long lines
+	pager = /opt/homebrew/share/git-core/contrib/diff-highlight/diff-highlight | less -FXnRx2 -+S --wordwrap
 
 	# https://git-scm.com/docs/git-config#Documentation/git-config.txt-coreprecomposeUnicode
 	#

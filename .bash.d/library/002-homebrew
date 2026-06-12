@@ -7,6 +7,7 @@
 	return 1
 }
 
+[ "${PATH//"$BREW_PREFIX/sbin:"/}" != "$PATH" ] || PATH="$BREW_PREFIX/sbin:$PATH"
 [ "${PATH//"$BREW_PREFIX/bin:"/}" != "$PATH" ] || PATH="$BREW_PREFIX/bin:$PATH"
 [ "${MANPATH//"$BREW_PREFIX/share/man:"/}" != "$MANPATH" ] || MANPATH="$BREW_PREFIX/share/man:$MANPATH"
 

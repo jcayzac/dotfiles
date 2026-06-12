@@ -30,6 +30,7 @@ done < <(ls "$library")
 PATHS=(
 	# User
 	"$HOME/.prefix/bin"
+	"$HOME/.local/bin"
 	"$HOME/.cargo/bin"
 	"$HOME/.deno/bin"
 	"$HOME/.rd/bin"
@@ -74,23 +75,21 @@ export PATH="$(join_strings : ${PATHS[*]})"
 # Copy bare stuff
 ! has-command ditto || alias copy='ditto --norsrc --noextattr --noqtn --noacl'
 
-# FIXME: don't hardcode those paths
-! has-command ncftpput || alias copy-movie="ncftpput -z -f '$HOME/.ncftp/hosts/mediaplayer' T_Drive/Films"
-
 # Show a palette: fixed colors 1-15, then 24-bit gray ramp
 # Shows immediately if 24-bit mode is supported
 color-test() {
-	declare col=$(tput cols)
+	declare colTotal=$(tput cols)
+	declare col=$colTotal
 
 	# 24-bit gradient
 	while ((col > 15)); do
-		printf '\x1b[48;2;%u;%u;%um ' $col $((col / 2)) $((col / 3))
-		col=$((--col))
+		declare c=$(( 255 * col-- / colTotal ))
+		printf '\x1b[48;2;%u;%u;%um ' $c $((c / 3)) $((c * 2 / 3))
 	done
 
 	# 4-bit color map for the end
 	for col in {1..15}; do
-		printf '\x1b[48;5;%sm ' $col
+		printf '\x1b[48;5;%um ' $col
 	done
 
 	printf '\x1b[0m\n'
@@ -110,7 +109,7 @@ hardlinks() {
 		dir="$(pwd)"
 	fi
 	declare $(stat -s "$f")
-	find "$dir" -inum $st_ino $@
+	find "$dir" -inum $st_ino $@ 2>/dev/null
 }
 
 # Find broken links
@@ -119,20 +118,8 @@ hardlinks() {
 brokenlinks() {
 	declare dir="$1"
 	shift
-	NSUnbufferedIO=YES gfind -O3 "$dir" -xtype l -print0 | xargs -0 ${1+"$@"}
+	NSUnbufferedIO=YES gfind -O3 "$dir" -xtype l -print0 2>/dev/null | xargs -0 -o -n1 ${1+"$@"}
 }
-
-# SSH config backup
-ssh-config-backup() (
-	declare ARCHIVE="ssh-config-$$.tar.bz2"
-	set -e -u -o pipefail
-	cd "$HOME"
-	mkdir -p ".dotfiles/install"
-	tar --posix -cf "$ARCHIVE" .ssh
-	chmod 600 "$ARCHIVE"
-	openssl enc -e -aes256 -in "$ARCHIVE" -out ".dotfiles/install/ssh-config.tbe"
-	rm "$ARCHIVE"
-)
 
 #####################
 # Interactive shell #
@@ -202,12 +189,6 @@ ssh-config-backup() (
 	# Open a SHA-1 as a magnet link
 	function magnetize() {
 		open 'magnet:?xt=urn:btih:'"$1"
-	}
-
-	# VS.Code launcher
-	# Run without GPU unless on Apple silicon
-	[[ "${HOSTTYPE:-}" == "aarch64" ]] || {
-		alias code="$BREW_PREFIX/bin/code --disable-gpu"
 	}
 }
 
