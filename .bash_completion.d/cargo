@@ -1,1 +1,2 @@
-source $(~/.cargo/bin/rustc --print sysroot)/etc/bash_completion.d/cargo
+declare __p=$(rustup which rustc)
+. "${__p%/*}/../etc/bash_completion.d/cargo"

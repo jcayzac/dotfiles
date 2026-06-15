@@ -44,6 +44,12 @@ PATHS=(
 
 export PATH="$(join_strings : ${PATHS[*]})"
 
+# Rust: rustup is in PATH but not the toolchain?
+! has-command rustup || has-command cargo || {
+	declare __p=$(rustup which rustc)
+	export PATH="${__p%/*}:$PATH"
+}
+
 #########
 # Other #
 #########
