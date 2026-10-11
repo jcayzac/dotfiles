@@ -73,13 +73,15 @@ export PATH="$(join_strings : ${PATHS[*]})"
 }
 
 ! has-command gls || alias ls='gls --color=auto --show-control-chars'
-! has-command eza || alias ls='eza --icons'
+! has-command eza || alias ls='eza --icons --'
 
 # Download stuff
 ! has-command aria2c || alias dl='aria2c -x5 --log-level=warn --file-allocation=falloc --force-save --http-accept-gzip=true --use-head=true'
 
 # Copy bare stuff
 ! has-command ditto || alias copy='ditto --norsrc --noextattr --noqtn --noacl'
+
+! has-command dust || alias dust='dust -Cbrs'
 
 # Show a palette: fixed colors 1-15, then 24-bit gray ramp
 # Shows immediately if 24-bit mode is supported
@@ -203,3 +205,7 @@ brokenlinks() {
 
 # Keep last
 export BASH_PROFILE_SOURCED=1
+
+# Added by OrbStack: command-line tools and integration
+# This won't be added again if you remove it.
+source ~/.orbstack/shell/init.bash 2>/dev/null || :

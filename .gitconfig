@@ -54,7 +54,8 @@
 
 [format]
 	# https://git-scm.com/docs/git-config#Documentation/git-config.txt-formatpretty
-	pretty = tformat:%C(white red bold) %h %Creset %C(cyan)%an%Creset %<(16)%Cgreen%cd%Creset %s %C(yellow)%d%Creset
+	#pretty = tformat:%C(white red bold) %h %Creset %C(cyan)%an%Creset %<(16)%Cgreen%cd%Creset %s %C(yellow)%d%Creset
+	pretty = tformat:%C(white red bold) %h %Creset %C(cyan)%an%Creset%>(16)%Cgreen%ch %C(bold white)%s%Creset %C(yellow)%d%Creset %+b
 
 # https://git-scm.com/docs/git-config#_includes
 #
@@ -97,7 +98,7 @@
 	# https://git-scm.com/docs/git-config#Documentation/git-config.txt-logdate
 	#
 	# Show dates made for humans.
-	date = human
+	date = format:%Y-%m-%d
 
 [pull]
 	# https://git-scm.com/docs/git-config#Documentation/git-config.txt-pullff
