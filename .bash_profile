@@ -134,7 +134,18 @@ brokenlinks() {
 #####################
 [ ! -t 1 ] || {
 	# Git Status
-	. "$DOTFILES_DIR/.gitstatus/gitstatus.plugin.sh"
+	# Ensure the submodule and the gitstatusd daemon are present.
+	# Returns non-zero if they can't be made available.
+	__jc_gitstatus_ensure() {
+		declare -r dir="$DOTFILES_DIR/.gitstatus"
+		[ -r "$dir/gitstatus.plugin.sh" ] ||
+			git -C "$DOTFILES_DIR" submodule update --init -- .gitstatus || return
+		"$dir/install" -n &>/dev/null || "$dir/install" -f
+	}
+	declare __jc_gitstatus_ready=
+	if __jc_gitstatus_ensure; then
+		. "$DOTFILES_DIR/.gitstatus/gitstatus.plugin.sh" && __jc_gitstatus_ready=1
+	fi
 	__jc_ps1="$PS1"
 	__jc_prompt_update() {
 		declare -r reset=$'\033[0m'
@@ -186,12 +197,14 @@ brokenlinks() {
 		PS1="${CONDA_PROMPT}${__jc_ps1}${GITSTATUS_PROMPT} "
 	}
 
-	gitstatus_stop && gitstatus_start -s -1 -u -1 -c -1 -d -1
+	if [ -n "$__jc_gitstatus_ready" ]; then
+		gitstatus_stop && gitstatus_start -s -1 -u -1 -c -1 -d -1
 
-	if [[ "${__bp_imported:-}" == "defined" ]]; then
-		precmd_functions+=(__jc_prompt_update)
-	else
-		PROMPT_COMMAND="__jc_prompt_update${PROMPT_COMMAND:+;$PROMPT_COMMAND}"
+		if [[ "${__bp_imported:-}" == "defined" ]]; then
+			precmd_functions+=(__jc_prompt_update)
+		else
+			PROMPT_COMMAND="__jc_prompt_update${PROMPT_COMMAND:+;$PROMPT_COMMAND}"
+		fi
 	fi
 
 	# Open a SHA-1 as a magnet link
